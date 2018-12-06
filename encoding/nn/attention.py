@@ -25,7 +25,7 @@ class mvPAM_Module_unfold(Module):
         self.view=view
         self.pad=int((view-1)/2)
         self.unfold = torch.nn.Unfold(kernel_size=(self.view,  self.view), dilation=1, padding=self.pad, stride=1)
-        self.fold = torch.nn.Fold(output_size=None,kernel_size=(self.view,  self.view), dilation=1, padding=self.pad, stride=1)
+        # self.fold = torch.nn.Fold(output_size=None,kernel_size=(self.view,  self.view), dilation=1, padding=self.pad, stride=1)
         # input = torch.randn(2, 5, 3, 4)
         # output = unfold(input)
 
@@ -45,28 +45,32 @@ class mvPAM_Module_unfold(Module):
                 attention: B X (HxW) X (HxW)
         """
         m_batchsize, C, height, width = x.size()
-        proj_query = self.query_conv(x).view(m_batchsize, -1, 1, width*height).permute(0, 3, 2, 1)
+        proj_query = self.query_conv(x).view(m_batchsize, -1, 1, width * height).permute(0, 3, 2, 1)
         # proj_key = self.key_conv(x).view(m_batchsize, -1, width*height)
-        proj_key = self.unfold(self.key_conv(x)).view(m_batchsize,-1,self.view*self.view, width*height).permute(0, 3, 1, 2)
+        proj_key = self.unfold(self.key_conv(x)).view(m_batchsize, -1, self.view * self.view, width * height).permute(0,
+                                                                                                                      3,
+                                                                                                                      1,
+                                                                                                                      2)
         energy = torch.matmul(proj_query, proj_key)
         attention = self.softmax(energy)
 
-        attention = attention.view(m_batchsize,width*height,self.view*self.view).permute(0,2,1)
-        attention = torch.diag_embed(attention,offset=0,dim1=-2,dim2=-1)
-        attention = attention.permute(0,3,1,2).contiguous().view((m_batchsize,width*height*self.view*self.view,width*height))
-        attention = self.fold(attention, output_size=(height,width)).view((m_batchsize,width*height,width*height))
+        # attention = attention.view(m_batchsize,width*height,self.view*self.view).permute(0,2,1)
+        # attention = torch.diag_embed(attention,offset=0,dim1=-2,dim2=-1)
+        # attention = attention.permute(0,3,1,2).contiguous().view((m_batchsize,width*height*self.view*self.view,width*height))
+        # attention = torch.nn.functional.fold(attention, output_size=(height,width),kernel_size=(self.view,  self.view), padding=self.pad).view((m_batchsize,width*height,width*height))
 
-        proj_value = self.value_conv(x).view(m_batchsize, -1, width*height)
-        out = torch.bmm(proj_value, attention.permute(0, 2, 1))
-        out = out.view(m_batchsize, C, height, width)
+        # attention = torch.nn.functional.fold(torch.diag_embed(attention.view(m_batchsize,width*height,self.view*self.view).permute(0,2,1),offset=0,dim1=-2,dim2=-1).permute(0,3,1,2).contiguous().view((m_batchsize,width*height*self.view*self.view,width*height)), output_size=(height,width),kernel_size=(self.view,  self.view), padding=self.pad).view((m_batchsize,width*height,width*height))
 
-        # proj_value = self.unfold(self.value_conv(x)).view(m_batchsize, -1, self.view*self.view, width * height).permute(0,3,2,1)
-        #
-        # out = torch.matmul(attention, proj_value).view(m_batchsize,width*height,-1).permute(0,2,1)
+        # proj_value = self.value_conv(x).view(m_batchsize, -1, width*height)
+        # out = torch.bmm(proj_value, attention.permute(0, 2, 1))
         # out = out.view(m_batchsize, C, height, width)
 
-        # out = self.gamma*out + x
-        out = self.gamma * out
+        proj_value = self.unfold(self.value_conv(x)).view(m_batchsize, -1, self.view * self.view,
+                                                          width * height).permute(0, 3, 2, 1)
+        out = torch.matmul(attention, proj_value).view(m_batchsize, width * height, -1).permute(0, 2, 1)
+        out = out.view(m_batchsize, C, height, width)
+
+        out = self.gamma * out + x
         return out
 
 class mvPAM_Module_mask(Module):
@@ -101,8 +105,7 @@ class mvPAM_Module_mask(Module):
         out = torch.bmm(proj_value, attention.permute(0, 2, 1))
         out = out.view(m_batchsize, C, height, width)
 
-        # out = self.gamma*out + x
-        out = self.gamma * out
+        out = self.gamma*out + x
         return out
 
 class msPAM_Module(Module):
