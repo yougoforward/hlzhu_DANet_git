@@ -1,0 +1,11 @@
+# ninja log v5
+0	11600	1536740547	operator.o	c8af838576ce0e1
+24	16139	1536740552	roi_align_kernel.cuda.o	7b4c1c11ba8f5b2e
+13	17536	1536740553	syncbn_kernel.cuda.o	e5480ad94160800c
+23	17619	1536740553	encoding_kernel.cuda.o	2adb95c142ecf094
+17619	17726	1536740553	enclib_gpu.so	1b747116a887637
+0	5109	0	operator.o	457671267e23eaf1
+0	8223	0	syncbn_kernel.cuda.o	cee120be4a9f5b89
+0	8311	0	roi_align_kernel.cuda.o	346f999e31591695
+0	8352	0	encoding_kernel.cuda.o	39485105b9b9336b
+8352	8477	0	enclib_gpu.so	1b747116a887637
