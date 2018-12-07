@@ -33,12 +33,16 @@ encoding/lib/gpu/setup.py
 encoding/lib/gpu/syncbn_kernel.cu
 encoding/models/__init__.py
 encoding/models/base.py
+encoding/models/convmtx_mask_generater.py
 encoding/models/danet.py
 encoding/models/encnet.py
 encoding/models/fcn.py
 encoding/models/model_store.py
 encoding/models/model_zoo.py
-encoding/models/ms_danet.py
+encoding/models/msdanet.py
+encoding/models/msdanet2.py
+encoding/models/mview_danet.py
+encoding/models/mview_danet2.py
 encoding/models/psp.py
 encoding/nn/__init__.py
 encoding/nn/attention.py

@@ -34,7 +34,7 @@ def batch_intersection_union(predict, target, nclass):
         target: label 3D tensor
         nclass: number of categories (int)
     """
-    _, predict = torch.max(predict, 1)
+    _, predict = torch.max(predict, 0)
     mini = 1
     maxi = nclass
     nbins = nclass
