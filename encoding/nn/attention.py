@@ -8,7 +8,7 @@ import numpy as np
 import torch
 import math
 from torch.nn import Module, Sequential, Conv2d, ReLU,AdaptiveMaxPool2d, AdaptiveAvgPool2d, \
-    NLLLoss, BCELoss, CrossEntropyLoss, AvgPool2d, MaxPool2d, Parameter, Linear, Sigmoid, Mask_Softmax, Softmax, Dropout, Embedding
+    NLLLoss, BCELoss, CrossEntropyLoss, AvgPool2d, MaxPool2d, Parameter, Linear, Sigmoid, Softmax, Dropout, Embedding
 from torch.nn import functional as F
 from torch.autograd import Variable
 from .mask_softmax import Mask_Softmax
