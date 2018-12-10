@@ -17,7 +17,7 @@ def batch_pix_accuracy(predict, target):
         predict: input 4D tensor
         target: label 3D tensor
     """
-    _, predict = torch.max(predict, 1)
+    _, predict = torch.max(predict, 0)
     predict = predict.cpu().numpy() + 1
     target = target.cpu().numpy() + 1
     pixel_labeled = np.sum(target > 0)
