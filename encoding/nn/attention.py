@@ -11,6 +11,7 @@ from torch.nn import Module, Sequential, Conv2d, ReLU,AdaptiveMaxPool2d, Adaptiv
     NLLLoss, BCELoss, CrossEntropyLoss, AvgPool2d, MaxPool2d, Parameter, Linear, Sigmoid, Mask_Softmax, Softmax, Dropout, Embedding
 from torch.nn import functional as F
 from torch.autograd import Variable
+from .mask_softmax import Mask_Softmax
 torch_ver = torch.__version__[:3]
 
 __all__ = ['mvPAM_Module_unfold','mvPAM_Module_mask','msPAM_Module','PAM_Module', 'CAM_Module']
