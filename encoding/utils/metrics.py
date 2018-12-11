@@ -17,7 +17,7 @@ def batch_pix_accuracy(predict, target):
         predict: input 4D tensor
         target: label 3D tensor
     """
-    _, predict = torch.max(predict, 0)
+    _, predict = torch.max(predict, 1)
     predict = predict.cpu().numpy() + 1
     target = target.cpu().numpy() + 1
     pixel_labeled = np.sum(target > 0)
@@ -34,7 +34,7 @@ def batch_intersection_union(predict, target, nclass):
         target: label 3D tensor
         nclass: number of categories (int)
     """
-    _, predict = torch.max(predict, 0)
+    _, predict = torch.max(predict, 1)
     mini = 1
     maxi = nclass
     nbins = nclass
