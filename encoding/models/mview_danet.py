@@ -69,7 +69,7 @@ class mview_DANetHead(nn.Module):
                                     norm_layer(inter_channels),
                                     nn.ReLU())
 
-        self.sa = mvPAM_Module_mask(inter_channels, inter_rate=64, mask=convmtx2_bf(H=torch.ones(7,7).cuda(), M=96, N=96))
+        self.sa = mvPAM_Module_mask(inter_channels, inter_rate=64, mask=convmtx2_bf(H=torch.ones(12,12).cuda(), M=96, N=96))
         self.sc = CAM_Module(inter_channels)
         self.conv51 = nn.Sequential(nn.Conv2d(inter_channels, inter_channels, 3, padding=1, bias=False),
                                     norm_layer(inter_channels),
