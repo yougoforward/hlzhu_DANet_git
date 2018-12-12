@@ -68,6 +68,18 @@ def convmtx2_matlab(H=torch.ones(3,3), M=5, N=5):
     T=T[np.where(mask_indx[:].numpy()[:,0]>0),:][0]
     return T
 
+def convmtx2_bf2(H=torch.ones(3,3), M=5, N=5):
+    P, Q = H.size()[0], H.size()[1]
+    rc = int((P - 1) / 2)
+    rw = int((Q - 1) / 2)
+    X = torch.zeros(M+P-1, N+Q-1)
+    T = torch.zeros(M , N, M , N)
+    for i in range(M):
+        for j in range(N):
+            X[i:i+P,j:j+Q]=1
+            T[i,j]=X[rc:M+P-1-rc,rw:N+Q-1-rw]
+            X = torch.zeros(M + P - 1, N + Q - 1)
+    return T
 
 
 def convmtx2_bf(H=torch.ones(3,3), M=5, N=5):
@@ -80,8 +92,8 @@ def convmtx2_bf(H=torch.ones(3,3), M=5, N=5):
     P, Q = H.size()[0], H.size()[1]
     rc = int((P - 1) / 2)
     rw = int((Q - 1) / 2)
-    X = torch.zeros(M, N).cuda()
-    T = torch.zeros(M * N, M * N).cuda()
+    X = torch.zeros(M, N)
+    T = torch.zeros(M * N, M * N)
     for i in range(M):
         for j in range(N):
             if i < rc:
@@ -110,6 +122,20 @@ def convmtx2_bf(H=torch.ones(3,3), M=5, N=5):
             T[j + i * N, :] = X.view((1,-1))
             X = torch.zeros(M, N)
     return T
+
+def convmtx2_torch(H=torch.ones(3,3), M=5, N=5):
+    P, Q = H.size()[0], H.size()[1]
+    rc = int((P - 1) / 2)
+    rw = int((Q - 1) / 2)
+    X = torch.ones(1,1,M, N).cuda()
+    T = torch.zeros(M * N, M * N).cuda()
+    unfold = nn.Unfold(kernel_size=(P, Q), padding=(rc,rw))
+    output = unfold(X)
+    output_diag = torch.diag_embed(output, offset=0, dim1=-2, dim2=-1)
+
+    fold = nn.Fold(output_size=(M, N), kernel_size=(P, Q), padding=(rc,rw))
+    # input = torch.randn(1, 3 * 3 * 3, 1)
+    output2 = fold(output_diag.permute(0, 3, 1, 2).contiguous().view((1,P*Q*M*N, M*N)))
 
 def im2col():
     stride = (1, 1)
