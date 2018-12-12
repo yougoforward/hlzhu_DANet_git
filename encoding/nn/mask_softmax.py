@@ -48,7 +48,7 @@ class Mask_Softmax(Module):
             self.dim = None
 
     def forward(self, input):
-        return mask_softmax(input, self.mask, self.dim)
+        return mask_softmax(input, self.mask.to(device=input.device), self.dim)
 
 
 def mask_softmax(input, mask=None, dim=-1):
