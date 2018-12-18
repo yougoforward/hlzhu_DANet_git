@@ -48,7 +48,7 @@ class Mask_Softmax(Module):
             self.dim = None
 
     def forward(self, input):
-        return mask_softmax(input, self.mask.to(device=input.device), self.dim)
+        return mask_softmax(input, self.mask, self.dim)
 
 
 def mask_softmax(input, mask=None, dim=-1):
@@ -81,5 +81,15 @@ def mask_softmax(input, mask=None, dim=-1):
     if mask is None:
         exp_input = torch.exp(input)
     else:
-        exp_input = torch.mul(torch.exp(input),mask)
+        mask=[mask[0].to(device=input.device), mask[1].to(device=input.device)]
+        N,H,W = mask[0].size()
+        # Batchsize = input.size()[0]
+        if N==1:
+            exp_input = torch.mul(torch.exp(input), mask[0][0])
+        else:
+            Sm = torch.zeros(input.size()).to(device=input.device)
+            for i in range(N):
+                exp_input = torch.mul(torch.exp(input),mask[0][i])
+                Sm = Sm+torch.div(exp_input, torch.sum(exp_input, dim=dim, keepdim=True))
+            return torch.mul(Sm, mask[1])
     return torch.div(exp_input, torch.sum(exp_input, dim=dim, keepdim=True))

@@ -82,11 +82,12 @@ def convmtx2_bf2(H=torch.ones(3,3), M=5, N=5):
     return T.view(M*N,M*N)
 
 def convmtx2_bf2MV(mviews=[13,25,49,96], M=96, N=96):
+    mviews0 = mviews
     mv=len(mviews)
     Tmv = torch.zeros(mv, M, N, M, N)
     if mviews[-1]==M:
-        Tmv[mv-1]=1
-        mviews=mv[:-1]
+        Tmv[mv-1]=1#torch.ones(M , N, M , N)
+        mviews=mviews[:-1]
 
     for n, view in enumerate(mviews):
         H = torch.ones(view, view)
@@ -100,8 +101,13 @@ def convmtx2_bf2MV(mviews=[13,25,49,96], M=96, N=96):
                 X[i:i+P,j:j+Q]=1
                 Tmv[n,i,j]=X[rc:M+P-1-rc,rw:N+Q-1-rw]
                 X = torch.zeros(M + P - 1, N + Q - 1)
-    return T.view(mv,M*N,M*N)
-
+    Mva = Tmv.sum(dim=0)
+    if mviews0[-1] == M:
+        Mva=1./Mva
+    else:
+        Mva2=1./(Mva+1e-9)
+        Mva=torch.where(Mva>0.5,Mva2,Mva)
+    return Tmv.view((mv,M*N,M*N)), Mva.view((M*N,M*N))
 
 
 def convmtx2_bf(H=torch.ones(3,3), M=5, N=5):
