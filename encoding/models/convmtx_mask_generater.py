@@ -79,7 +79,7 @@ def convmtx2_bf2(H=torch.ones(3,3), M=5, N=5):
             X[i:i+P,j:j+Q]=1
             T[i,j]=X[rc:M+P-1-rc,rw:N+Q-1-rw]
             X = torch.zeros(M + P - 1, N + Q - 1)
-    return T
+    return T.view(M*N,M*N)
 
 
 def convmtx2_bf(H=torch.ones(3,3), M=5, N=5):
@@ -162,6 +162,15 @@ def im2col():
 
 
 if __name__ == '__main__':
+    tic=time.time()
+    output1=convmtx2_bf(H=torch.ones(13, 13), M=96, N=96)
+    toc1=time.time()
+    output2=convmtx2_bf2(H=torch.ones(13,13), M=96, N=96)
+    toc2=time.time()
+    print(toc1-tic)
+    print(toc2-toc1)
+    print((output1-output2).sum())
+    print((output1-output1.t()).sum())
     unfold = nn.Unfold(kernel_size=(3, 3),padding=1)
     input = torch.randn(1, 1, 4, 5)
     output = unfold(input)

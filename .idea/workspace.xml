@@ -1,7 +1,14 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="1428f973-e346-43b0-ae5c-c76136770046" name="Default" comment="" />
+    <list default="true" id="1428f973-e346-43b0-ae5c-c76136770046" name="Default" comment="">
+      <change afterPath="$PROJECT_DIR$/danet/mvtest101.sh" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/danet/mvtest50.sh" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/danet/test101.sh" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/danet/test50.sh" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/encoding/models/convmtx_mask_generater.py" beforeDir="false" afterPath="$PROJECT_DIR$/encoding/models/convmtx_mask_generater.py" afterDir="false" />
+    </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="TRACKING_ENABLED" value="true" />
     <option name="SHOW_DIALOG" value="false" />
@@ -14,8 +21,11 @@
       <file leaf-file-name="attention.py" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/encoding/nn/attention.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="-44">
-              <caret line="10" column="88" selection-start-line="10" selection-start-column="88" selection-end-line="10" selection-end-column="88" />
+            <state relative-caret-position="-352">
+              <caret line="74" column="18" lean-forward="true" selection-start-line="74" selection-start-column="18" selection-end-line="74" selection-end-column="18" />
+              <folding>
+                <element signature="e#226#244#0" expanded="true" />
+              </folding>
             </state>
           </provider>
         </entry>
@@ -47,11 +57,65 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="mview_danet.py" pinned="false" current-in-tab="true">
+      <file leaf-file-name="mview_danet.py" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/encoding/models/mview_danet.py">
           <provider selected="true" editor-type-id="text-editor">
             <state relative-caret-position="220">
-              <caret line="71" column="102" selection-start-line="71" selection-start-column="102" selection-end-line="71" selection-end-column="102" />
+              <caret line="71" column="103" lean-forward="true" selection-start-line="71" selection-start-column="103" selection-end-line="71" selection-end-column="103" />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="convmtx_mask_generater.py" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/encoding/models/convmtx_mask_generater.py">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="968">
+              <caret line="95" column="33" lean-forward="true" selection-start-line="95" selection-start-column="33" selection-end-line="95" selection-end-column="33" />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="test.sh" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/danet/test.sh">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="22">
+              <caret line="1" column="36" lean-forward="true" selection-start-line="1" selection-end-line="1" selection-end-column="214" />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="test50.sh" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/danet/test50.sh">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="22">
+              <caret line="1" column="50" lean-forward="true" selection-start-line="1" selection-end-line="1" selection-end-column="227" />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="test101.sh" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/danet/test101.sh">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="22">
+              <caret line="1" column="185" selection-start-line="1" selection-start-column="185" selection-end-line="1" selection-end-column="185" />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="mvtest50.sh" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/danet/mvtest50.sh">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="22">
+              <caret line="1" column="117" lean-forward="true" selection-start-line="1" selection-start-column="117" selection-end-line="1" selection-end-column="117" />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="mvtest101.sh" pinned="false" current-in-tab="true">
+        <entry file="file://$PROJECT_DIR$/danet/mvtest101.sh">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="22">
+              <caret line="1" column="117" selection-start-line="1" selection-start-column="117" selection-end-line="1" selection-end-column="117" />
             </state>
           </provider>
         </entry>
@@ -129,7 +193,11 @@
       </file>
       <file leaf-file-name="mask_softmax.py" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/encoding/nn/mask_softmax.py">
-          <provider selected="true" editor-type-id="text-editor" />
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="414">
+              <caret line="50" column="67" selection-start-line="50" selection-start-column="67" selection-end-line="50" selection-end-column="67" />
+            </state>
+          </provider>
         </entry>
       </file>
       <file leaf-file-name="msdanet_train.sh" pinned="false" current-in-tab="false">
@@ -273,7 +341,12 @@
         <option value="$PROJECT_DIR$/danet/mvtrain50.sh" />
         <option value="$PROJECT_DIR$/encoding/utils/metrics.py" />
         <option value="$PROJECT_DIR$/danet/train.py" />
+        <option value="$PROJECT_DIR$/encoding/nn/mask_softmax.py" />
         <option value="$PROJECT_DIR$/encoding/models/mview_danet.py" />
+        <option value="$PROJECT_DIR$/danet/test50.sh" />
+        <option value="$PROJECT_DIR$/danet/test101.sh" />
+        <option value="$PROJECT_DIR$/danet/mvtest50.sh" />
+        <option value="$PROJECT_DIR$/danet/mvtest101.sh" />
       </list>
     </option>
   </component>
@@ -322,6 +395,18 @@
               <item name="hlzhu_DANet_git" type="462c0819:PsiDirectoryNode" />
               <item name="encoding" type="462c0819:PsiDirectoryNode" />
             </path>
+            <path>
+              <item name="hlzhu_DANet_git" type="b2602c69:ProjectViewProjectNode" />
+              <item name="hlzhu_DANet_git" type="462c0819:PsiDirectoryNode" />
+              <item name="encoding" type="462c0819:PsiDirectoryNode" />
+              <item name="models" type="462c0819:PsiDirectoryNode" />
+            </path>
+            <path>
+              <item name="hlzhu_DANet_git" type="b2602c69:ProjectViewProjectNode" />
+              <item name="hlzhu_DANet_git" type="462c0819:PsiDirectoryNode" />
+              <item name="encoding" type="462c0819:PsiDirectoryNode" />
+              <item name="nn" type="462c0819:PsiDirectoryNode" />
+            </path>
           </expand>
           <select />
         </subPane>
@@ -330,10 +415,11 @@
     </panes>
   </component>
   <component name="PropertiesComponent">
-    <property name="last_opened_file_path" value="$PROJECT_DIR$" />
+    <property name="last_opened_file_path" value="$PROJECT_DIR$/../hlzhu_CCNet" />
   </component>
   <component name="RecentsManager">
     <key name="CopyFile.RECENT_KEYS">
+      <recent name="$PROJECT_DIR$/encoding/models" />
       <recent name="$PROJECT_DIR$/encoding/nn" />
       <recent name="$PROJECT_DIR$/danet" />
     </key>
@@ -390,51 +476,6 @@
     <option name="myLimit" value="2678400000" />
   </component>
   <component name="editorHistoryManager">
-    <entry file="file://$PROJECT_DIR$/encoding/nn/syncbn.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="506">
-          <caret line="35" column="33" selection-start-line="35" selection-start-column="33" selection-end-line="35" selection-end-column="33" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/danet/train.sh">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="22">
-          <caret line="1" column="20" selection-end-line="1" selection-end-column="240" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/danet/train50.sh">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="44">
-          <caret line="2" column="103" selection-start-line="2" selection-start-column="103" selection-end-line="2" selection-end-column="103" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/danet/mvtrain.sh">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="22">
-          <caret line="1" column="40" lean-forward="true" selection-start-line="1" selection-end-line="2" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/danet/mvtrain50.sh">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="22">
-          <caret line="1" column="22" selection-start-line="1" selection-start-column="22" selection-end-line="1" selection-end-column="22" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$USER_HOME$/anaconda2/envs/pypy3/lib/python3.6/site-packages/torch/nn/functional.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="23628">
-          <caret line="1074" column="28" selection-start-line="1074" selection-start-column="28" selection-end-line="1074" selection-end-column="28" />
-          <folding>
-            <element signature="e#28#59#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/encoding/nn/customize.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="2090">
@@ -667,9 +708,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/encoding/nn/mask_softmax.py">
-      <provider selected="true" editor-type-id="text-editor" />
-    </entry>
     <entry file="file://$PROJECT_DIR$/danet/train.sh">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="22">
@@ -715,17 +753,69 @@
     <entry file="file://$PROJECT_DIR$/encoding/nn/encoding.py">
       <provider selected="true" editor-type-id="text-editor" />
     </entry>
+    <entry file="file://$PROJECT_DIR$/encoding/nn/mask_softmax.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="414">
+          <caret line="50" column="67" selection-start-line="50" selection-start-column="67" selection-end-line="50" selection-end-column="67" />
+        </state>
+      </provider>
+    </entry>
     <entry file="file://$PROJECT_DIR$/encoding/nn/attention.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="-44">
-          <caret line="10" column="88" selection-start-line="10" selection-start-column="88" selection-end-line="10" selection-end-column="88" />
+        <state relative-caret-position="-352">
+          <caret line="74" column="18" lean-forward="true" selection-start-line="74" selection-start-column="18" selection-end-line="74" selection-end-column="18" />
+          <folding>
+            <element signature="e#226#244#0" expanded="true" />
+          </folding>
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/encoding/models/mview_danet.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="220">
-          <caret line="71" column="102" selection-start-line="71" selection-start-column="102" selection-end-line="71" selection-end-column="102" />
+          <caret line="71" column="103" lean-forward="true" selection-start-line="71" selection-start-column="103" selection-end-line="71" selection-end-column="103" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/encoding/models/convmtx_mask_generater.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="968">
+          <caret line="95" column="33" lean-forward="true" selection-start-line="95" selection-start-column="33" selection-end-line="95" selection-end-column="33" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/danet/test.sh">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="22">
+          <caret line="1" column="36" lean-forward="true" selection-start-line="1" selection-end-line="1" selection-end-column="214" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/danet/test50.sh">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="22">
+          <caret line="1" column="50" lean-forward="true" selection-start-line="1" selection-end-line="1" selection-end-column="227" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/danet/test101.sh">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="22">
+          <caret line="1" column="185" selection-start-line="1" selection-start-column="185" selection-end-line="1" selection-end-column="185" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/danet/mvtest50.sh">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="22">
+          <caret line="1" column="117" lean-forward="true" selection-start-line="1" selection-start-column="117" selection-end-line="1" selection-end-column="117" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/danet/mvtest101.sh">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="22">
+          <caret line="1" column="117" selection-start-line="1" selection-start-column="117" selection-end-line="1" selection-end-column="117" />
         </state>
       </provider>
     </entry>
