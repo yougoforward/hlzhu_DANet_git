@@ -2,12 +2,10 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="1428f973-e346-43b0-ae5c-c76136770046" name="Default" comment="">
-      <change afterPath="$PROJECT_DIR$/danet/mvtest101.sh" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/danet/mvtest50.sh" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/danet/test101.sh" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/danet/test50.sh" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/encoding/models/convmtx_mask_generater.py" beforeDir="false" afterPath="$PROJECT_DIR$/encoding/models/convmtx_mask_generater.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/danet/mvtest101.sh" beforeDir="false" afterPath="$PROJECT_DIR$/danet/mvtest101.sh" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/danet/mvtest50.sh" beforeDir="false" afterPath="$PROJECT_DIR$/danet/mvtest50.sh" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/danet/test101.sh" beforeDir="false" afterPath="$PROJECT_DIR$/danet/test101.sh" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/danet/test50.sh" beforeDir="false" afterPath="$PROJECT_DIR$/danet/test50.sh" afterDir="false" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="TRACKING_ENABLED" value="true" />
@@ -88,16 +86,16 @@
         <entry file="file://$PROJECT_DIR$/danet/test50.sh">
           <provider selected="true" editor-type-id="text-editor">
             <state relative-caret-position="22">
-              <caret line="1" column="50" lean-forward="true" selection-start-line="1" selection-end-line="1" selection-end-column="227" />
+              <caret line="1" column="24" selection-start-line="1" selection-start-column="24" selection-end-line="1" selection-end-column="24" />
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="test101.sh" pinned="false" current-in-tab="false">
+      <file leaf-file-name="test101.sh" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/danet/test101.sh">
           <provider selected="true" editor-type-id="text-editor">
             <state relative-caret-position="22">
-              <caret line="1" column="185" selection-start-line="1" selection-start-column="185" selection-end-line="1" selection-end-column="185" />
+              <caret line="1" column="24" selection-start-line="1" selection-start-column="24" selection-end-line="1" selection-end-column="24" />
             </state>
           </provider>
         </entry>
@@ -106,16 +104,16 @@
         <entry file="file://$PROJECT_DIR$/danet/mvtest50.sh">
           <provider selected="true" editor-type-id="text-editor">
             <state relative-caret-position="22">
-              <caret line="1" column="117" lean-forward="true" selection-start-line="1" selection-start-column="117" selection-end-line="1" selection-end-column="117" />
+              <caret line="1" column="24" selection-start-line="1" selection-start-column="24" selection-end-line="1" selection-end-column="24" />
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="mvtest101.sh" pinned="false" current-in-tab="true">
+      <file leaf-file-name="mvtest101.sh" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/danet/mvtest101.sh">
           <provider selected="true" editor-type-id="text-editor">
             <state relative-caret-position="22">
-              <caret line="1" column="117" selection-start-line="1" selection-start-column="117" selection-end-line="1" selection-end-column="117" />
+              <caret line="1" column="24" selection-start-line="1" selection-start-column="24" selection-end-line="1" selection-end-column="24" />
             </state>
           </provider>
         </entry>
@@ -151,7 +149,7 @@
         <entry file="file://$PROJECT_DIR$/danet/mvtrain.sh">
           <provider selected="true" editor-type-id="text-editor">
             <state relative-caret-position="22">
-              <caret line="1" column="40" selection-start-line="1" selection-end-line="2" />
+              <caret line="1" column="24" selection-start-line="1" selection-start-column="24" selection-end-line="1" selection-end-column="24" />
             </state>
           </provider>
         </entry>
@@ -332,7 +330,6 @@
       <list>
         <option value="$PROJECT_DIR$/encoding/nn/syncbn.py" />
         <option value="$PROJECT_DIR$/danet/train.sh" />
-        <option value="$PROJECT_DIR$/danet/mvtrain.sh" />
         <option value="$PROJECT_DIR$/danet/msdanet_train.sh" />
         <option value="$PROJECT_DIR$/danet/msdanet2_train.sh" />
         <option value="$PROJECT_DIR$/encoding/nn/customize.py" />
@@ -343,10 +340,11 @@
         <option value="$PROJECT_DIR$/danet/train.py" />
         <option value="$PROJECT_DIR$/encoding/nn/mask_softmax.py" />
         <option value="$PROJECT_DIR$/encoding/models/mview_danet.py" />
-        <option value="$PROJECT_DIR$/danet/test50.sh" />
-        <option value="$PROJECT_DIR$/danet/test101.sh" />
+        <option value="$PROJECT_DIR$/danet/mvtrain.sh" />
         <option value="$PROJECT_DIR$/danet/mvtest50.sh" />
         <option value="$PROJECT_DIR$/danet/mvtest101.sh" />
+        <option value="$PROJECT_DIR$/danet/test50.sh" />
+        <option value="$PROJECT_DIR$/danet/test101.sh" />
       </list>
     </option>
   </component>
@@ -743,13 +741,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/danet/mvtrain.sh">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="22">
-          <caret line="1" column="40" selection-start-line="1" selection-end-line="2" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/encoding/nn/encoding.py">
       <provider selected="true" editor-type-id="text-editor" />
     </entry>
@@ -791,31 +782,38 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/danet/test50.sh">
+    <entry file="file://$PROJECT_DIR$/danet/mvtrain.sh">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="22">
-          <caret line="1" column="50" lean-forward="true" selection-start-line="1" selection-end-line="1" selection-end-column="227" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/danet/test101.sh">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="22">
-          <caret line="1" column="185" selection-start-line="1" selection-start-column="185" selection-end-line="1" selection-end-column="185" />
+          <caret line="1" column="24" selection-start-line="1" selection-start-column="24" selection-end-line="1" selection-end-column="24" />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/danet/mvtest50.sh">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="22">
-          <caret line="1" column="117" lean-forward="true" selection-start-line="1" selection-start-column="117" selection-end-line="1" selection-end-column="117" />
+          <caret line="1" column="24" selection-start-line="1" selection-start-column="24" selection-end-line="1" selection-end-column="24" />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/danet/mvtest101.sh">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="22">
-          <caret line="1" column="117" selection-start-line="1" selection-start-column="117" selection-end-line="1" selection-end-column="117" />
+          <caret line="1" column="24" selection-start-line="1" selection-start-column="24" selection-end-line="1" selection-end-column="24" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/danet/test50.sh">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="22">
+          <caret line="1" column="24" selection-start-line="1" selection-start-column="24" selection-end-line="1" selection-end-column="24" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/danet/test101.sh">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="22">
+          <caret line="1" column="24" selection-start-line="1" selection-start-column="24" selection-end-line="1" selection-end-column="24" />
         </state>
       </provider>
     </entry>
