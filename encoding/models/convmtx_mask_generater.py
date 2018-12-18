@@ -81,6 +81,28 @@ def convmtx2_bf2(H=torch.ones(3,3), M=5, N=5):
             X = torch.zeros(M + P - 1, N + Q - 1)
     return T.view(M*N,M*N)
 
+def convmtx2_bf2MV(mviews=[13,25,49,96], M=96, N=96):
+    mv=len(mviews)
+    Tmv = torch.zeros(mv, M, N, M, N)
+    if mviews[-1]==M:
+        Tmv[mv-1]=1
+        mviews=mv[:-1]
+
+    for n, view in enumerate(mviews):
+        H = torch.ones(view, view)
+        P, Q = H.size()[0], H.size()[1]
+        rc = int((P - 1) / 2)
+        rw = int((Q - 1) / 2)
+        X = torch.zeros(M + P - 1, N + Q - 1)
+        # T = torch.zeros(M , N, M , N)
+        for i in range(M):
+            for j in range(N):
+                X[i:i+P,j:j+Q]=1
+                Tmv[n,i,j]=X[rc:M+P-1-rc,rw:N+Q-1-rw]
+                X = torch.zeros(M + P - 1, N + Q - 1)
+    return T.view(mv,M*N,M*N)
+
+
 
 def convmtx2_bf(H=torch.ones(3,3), M=5, N=5):
     '''convmtx2 2-D convolution matrix. this script is modyfied according to MATLAB convmtx2.m
