@@ -29,6 +29,8 @@ class Options():
                             help='base image size')
         parser.add_argument('--crop-size', type=int, default=576,
                             help='crop image size')
+        parser.add_argument('--mviews', type=int, default=[13, 25, 49, 96],
+                            help='multiple views')
         # training hyper params
 
         parser.add_argument('--aux', action='store_true', default= False,

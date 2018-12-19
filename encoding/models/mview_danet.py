@@ -37,9 +37,9 @@ class mview_DANet(BaseNet):
 
     """
 
-    def __init__(self, nclass, backbone, aux=False, se_loss=False, norm_layer=nn.BatchNorm2d, **kwargs):
+    def __init__(self, nclass, backbone, mviews=[13,25,49,96], aux=False, se_loss=False, norm_layer=nn.BatchNorm2d, **kwargs):
         super(mview_DANet, self).__init__(nclass, backbone, aux, se_loss, norm_layer=norm_layer, **kwargs)
-        self.head = mview_DANetHead(2048, nclass, norm_layer)
+        self.head = mview_DANetHead(2048, nclass, norm_layer, mask=convmtx2_bf2MV(mviews,M=96,N=96))
 
     def forward(self, x):
         imsize = x.size()[2:]
@@ -58,7 +58,7 @@ class mview_DANet(BaseNet):
 
 
 class mview_DANetHead(nn.Module):
-    def __init__(self, in_channels, out_channels, norm_layer):
+    def __init__(self, in_channels, out_channels, norm_layer, mask):
         super(mview_DANetHead, self).__init__()
         inter_channels = in_channels // 4
         self.conv5a = nn.Sequential(nn.Conv2d(in_channels, inter_channels, 3, padding=1, bias=False),
@@ -69,7 +69,7 @@ class mview_DANetHead(nn.Module):
                                     norm_layer(inter_channels),
                                     nn.ReLU())
 
-        self.sa = mvPAM_Module_mask(inter_channels, inter_rate=64, mask=convmtx2_bf2MV(mviews=[13,25,49,96], M=96, N=96))
+        self.sa = mvPAM_Module_mask(inter_channels, inter_rate=64, mask=mask)
         self.sc = CAM_Module(inter_channels)
         self.conv51 = nn.Sequential(nn.Conv2d(inter_channels, inter_channels, 3, padding=1, bias=False),
                                     norm_layer(inter_channels),

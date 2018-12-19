@@ -57,6 +57,7 @@ class Trainer():
         # model
         model = get_segmentation_model(args.model, dataset=args.dataset,
                                        backbone=args.backbone,
+                                       mviews=args.mviews,
                                        aux=args.aux, se_loss=args.se_loss,
                                        norm_layer=BatchNorm2d,
                                        base_size=args.base_size, crop_size=args.crop_size,

@@ -83,7 +83,6 @@ def mask_softmax(input, mask=None, dim=-1):
     else:
         mask=[mask[0].to(device=input.device), mask[1].to(device=input.device)]
         N,H,W = mask[0].size()
-        Batchsize = input.size()[0]
         if N==1:
             exp_input = torch.mul(torch.exp(input), mask[0][0])
         else:
