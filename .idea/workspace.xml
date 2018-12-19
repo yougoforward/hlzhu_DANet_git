@@ -2,7 +2,9 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="1428f973-e346-43b0-ae5c-c76136770046" name="Default" comment="">
-      <change beforePath="$PROJECT_DIR$/danet/option.py" beforeDir="false" afterPath="$PROJECT_DIR$/danet/option.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/danet/mvtrain50_2.sh" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/danet/mvtrain50.sh" beforeDir="false" afterPath="$PROJECT_DIR$/danet/mvtrain50.sh" afterDir="false" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="TRACKING_ENABLED" value="true" />
@@ -37,11 +39,11 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="mvtrain50.sh" pinned="false" current-in-tab="false">
+      <file leaf-file-name="mvtrain50.sh" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/danet/mvtrain50.sh">
           <provider selected="true" editor-type-id="text-editor">
             <state relative-caret-position="22">
-              <caret line="1" column="40" selection-start-line="1" selection-start-column="40" selection-end-line="1" selection-end-column="40" />
+              <caret line="1" column="148" selection-start-line="1" selection-start-column="148" selection-end-line="1" selection-end-column="148" />
             </state>
           </provider>
         </entry>
@@ -103,11 +105,20 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="option.py" pinned="false" current-in-tab="true">
+      <file leaf-file-name="option.py" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/danet/option.py">
           <provider selected="true" editor-type-id="text-editor">
             <state relative-caret-position="304">
               <caret line="31" column="51" selection-start-line="31" selection-start-column="51" selection-end-line="31" selection-end-column="51" />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="mvtrain50_2.sh" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/danet/mvtrain50_2.sh">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="22">
+              <caret line="1" column="148" selection-start-line="1" selection-start-column="148" selection-end-line="1" selection-end-column="148" />
             </state>
           </provider>
         </entry>
@@ -147,13 +158,14 @@
         <option value="$PROJECT_DIR$/encoding/models/convmtx_mask_generater.py" />
         <option value="$PROJECT_DIR$/encoding/nn/mask_softmax.py" />
         <option value="$PROJECT_DIR$/encoding/models/mview_danet.py" />
-        <option value="$PROJECT_DIR$/danet/mvtrain50.sh" />
         <option value="$PROJECT_DIR$/danet/mvdanet_test.py" />
         <option value="$PROJECT_DIR$/danet/mvtest50.sh" />
         <option value="$PROJECT_DIR$/danet/mvtest101.sh" />
         <option value="$PROJECT_DIR$/danet/mvtrain.sh" />
         <option value="$PROJECT_DIR$/danet/mvdanet_train.py" />
         <option value="$PROJECT_DIR$/danet/option.py" />
+        <option value="$PROJECT_DIR$/danet/mvtrain50_2.sh" />
+        <option value="$PROJECT_DIR$/danet/mvtrain50.sh" />
       </list>
     </option>
   </component>
@@ -266,14 +278,14 @@
     <frame x="65" y="24" width="1855" height="1056" extended-state="0" />
     <editor active="true" />
     <layout>
-      <window_info content_ui="combo" id="Project" order="1" visible="true" weight="0.25" />
+      <window_info active="true" content_ui="combo" id="Project" order="1" visible="true" weight="0.25" />
       <window_info anchor="bottom" id="TODO" order="10" />
       <window_info anchor="bottom" id="Event Log" order="2" side_tool="true" />
       <window_info anchor="bottom" id="Run" order="6" />
       <window_info anchor="bottom" id="Version Control" order="3" />
       <window_info anchor="bottom" id="Python Console" order="0" weight="0.32972974" />
       <window_info id="Structure" order="2" side_tool="true" weight="0.25" />
-      <window_info active="true" anchor="bottom" id="Terminal" order="1" visible="true" weight="0.32972974" />
+      <window_info anchor="bottom" id="Terminal" order="1" visible="true" weight="0.32972974" />
       <window_info anchor="bottom" id="Debug" order="7" weight="0.4" />
       <window_info id="Favorites" order="0" side_tool="true" />
       <window_info anchor="right" content_ui="combo" id="Hierarchy" order="2" weight="0.25" />
@@ -289,15 +301,6 @@
     <option name="myLimit" value="2678400000" />
   </component>
   <component name="editorHistoryManager">
-    <entry file="file://$PROJECT_DIR$/encoding/models/__init__.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state>
-          <folding>
-            <element signature="e#0#32#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/encoding/functions/__init__.py">
       <provider selected="true" editor-type-id="text-editor">
         <state>
@@ -600,20 +603,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/danet/mvtrain.sh">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="22">
-          <caret line="1" column="40" selection-start-line="1" selection-start-column="40" selection-end-line="1" selection-end-column="40" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/danet/mvtrain50.sh">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="22">
-          <caret line="1" column="40" selection-start-line="1" selection-start-column="40" selection-end-line="1" selection-end-column="40" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/danet/mvdanet_train.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="220">
@@ -628,6 +617,27 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="304">
           <caret line="31" column="51" selection-start-line="31" selection-start-column="51" selection-end-line="31" selection-end-column="51" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/danet/mvtrain.sh">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="22">
+          <caret line="1" column="40" selection-start-line="1" selection-start-column="40" selection-end-line="1" selection-end-column="40" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/danet/mvtrain50_2.sh">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="22">
+          <caret line="1" column="148" selection-start-line="1" selection-start-column="148" selection-end-line="1" selection-end-column="148" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/danet/mvtrain50.sh">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="22">
+          <caret line="1" column="148" selection-start-line="1" selection-start-column="148" selection-end-line="1" selection-end-column="148" />
         </state>
       </provider>
     </entry>
