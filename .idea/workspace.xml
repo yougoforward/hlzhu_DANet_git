@@ -2,12 +2,7 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="1428f973-e346-43b0-ae5c-c76136770046" name="Default" comment="">
-      <change afterPath="$PROJECT_DIR$/danet/mvdanet_test.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/danet/mvdanet_train.py" beforeDir="false" afterPath="$PROJECT_DIR$/danet/mvdanet_train.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/danet/mvtest101.sh" beforeDir="false" afterPath="$PROJECT_DIR$/danet/mvtest101.sh" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/danet/mvtest50.sh" beforeDir="false" afterPath="$PROJECT_DIR$/danet/mvtest50.sh" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/danet/mvtrain.sh" beforeDir="false" afterPath="$PROJECT_DIR$/danet/mvtrain.sh" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/danet/mvtrain50.sh" beforeDir="false" afterPath="$PROJECT_DIR$/danet/mvtrain50.sh" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/danet/option.py" beforeDir="false" afterPath="$PROJECT_DIR$/danet/option.py" afterDir="false" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="TRACKING_ENABLED" value="true" />
@@ -96,7 +91,7 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="mvdanet_train.py" pinned="false" current-in-tab="true">
+      <file leaf-file-name="mvdanet_train.py" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/danet/mvdanet_train.py">
           <provider selected="true" editor-type-id="text-editor">
             <state relative-caret-position="220">
@@ -104,6 +99,15 @@
               <folding>
                 <element signature="e#226#235#0" expanded="true" />
               </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="option.py" pinned="false" current-in-tab="true">
+        <entry file="file://$PROJECT_DIR$/danet/option.py">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="304">
+              <caret line="31" column="51" selection-start-line="31" selection-start-column="51" selection-end-line="31" selection-end-column="51" />
             </state>
           </provider>
         </entry>
@@ -141,7 +145,6 @@
         <option value="$PROJECT_DIR$/danet/test50.sh" />
         <option value="$PROJECT_DIR$/danet/test101.sh" />
         <option value="$PROJECT_DIR$/encoding/models/convmtx_mask_generater.py" />
-        <option value="$PROJECT_DIR$/danet/option.py" />
         <option value="$PROJECT_DIR$/encoding/nn/mask_softmax.py" />
         <option value="$PROJECT_DIR$/encoding/models/mview_danet.py" />
         <option value="$PROJECT_DIR$/danet/mvtrain50.sh" />
@@ -150,6 +153,7 @@
         <option value="$PROJECT_DIR$/danet/mvtest101.sh" />
         <option value="$PROJECT_DIR$/danet/mvtrain.sh" />
         <option value="$PROJECT_DIR$/danet/mvdanet_train.py" />
+        <option value="$PROJECT_DIR$/danet/option.py" />
       </list>
     </option>
   </component>
@@ -262,14 +266,14 @@
     <frame x="65" y="24" width="1855" height="1056" extended-state="0" />
     <editor active="true" />
     <layout>
-      <window_info active="true" content_ui="combo" id="Project" order="1" visible="true" weight="0.25" />
+      <window_info content_ui="combo" id="Project" order="1" visible="true" weight="0.25" />
       <window_info anchor="bottom" id="TODO" order="10" />
       <window_info anchor="bottom" id="Event Log" order="2" side_tool="true" />
       <window_info anchor="bottom" id="Run" order="6" />
       <window_info anchor="bottom" id="Version Control" order="3" />
       <window_info anchor="bottom" id="Python Console" order="0" weight="0.32972974" />
       <window_info id="Structure" order="2" side_tool="true" weight="0.25" />
-      <window_info anchor="bottom" id="Terminal" order="1" visible="true" weight="0.32972974" />
+      <window_info active="true" anchor="bottom" id="Terminal" order="1" visible="true" weight="0.32972974" />
       <window_info anchor="bottom" id="Debug" order="7" weight="0.4" />
       <window_info id="Favorites" order="0" side_tool="true" />
       <window_info anchor="right" content_ui="combo" id="Hierarchy" order="2" weight="0.25" />
@@ -541,13 +545,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/danet/option.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="326">
-          <caret line="32" column="50" selection-start-line="32" selection-start-column="50" selection-end-line="32" selection-end-column="50" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/encoding/nn/mask_softmax.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="480">
@@ -624,6 +621,13 @@
           <folding>
             <element signature="e#226#235#0" expanded="true" />
           </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/danet/option.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="304">
+          <caret line="31" column="51" selection-start-line="31" selection-start-column="51" selection-end-line="31" selection-end-column="51" />
         </state>
       </provider>
     </entry>
