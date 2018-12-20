@@ -2,7 +2,9 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="1428f973-e346-43b0-ae5c-c76136770046" name="Default" comment="">
-      <change beforePath="$PROJECT_DIR$/encoding/nn/mask_softmax.py" beforeDir="false" afterPath="$PROJECT_DIR$/encoding/nn/mask_softmax.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/danet/vis50.sh" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/encoding/nn/attention.py" beforeDir="false" afterPath="$PROJECT_DIR$/encoding/nn/attention.py" afterDir="false" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="TRACKING_ENABLED" value="true" />
@@ -13,11 +15,11 @@
   </component>
   <component name="FileEditorManager">
     <leaf SIDE_TABS_SIZE_LIMIT_KEY="300">
-      <file leaf-file-name="attention.py" pinned="false" current-in-tab="false">
+      <file leaf-file-name="attention.py" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/encoding/nn/attention.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="1012">
-              <caret line="74" column="18" lean-forward="true" selection-start-line="74" selection-start-column="18" selection-end-line="74" selection-end-column="18" />
+            <state relative-caret-position="458">
+              <caret line="110" column="16" selection-start-line="110" selection-start-column="16" selection-end-line="110" selection-end-column="16" />
               <folding>
                 <element signature="e#226#244#0" expanded="true" />
               </folding>
@@ -49,8 +51,26 @@
       <file leaf-file-name="convmtx_mask_generater.py" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/encoding/models/convmtx_mask_generater.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="87">
-              <caret line="34" column="37" lean-forward="true" selection-start-line="34" selection-start-column="37" selection-end-line="34" selection-end-column="37" />
+            <state relative-caret-position="176">
+              <caret line="98" column="26" lean-forward="true" selection-start-line="98" selection-start-column="26" selection-end-line="98" selection-end-column="26" />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="vis50.sh" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/danet/vis50.sh">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="22">
+              <caret line="1" column="12" lean-forward="true" selection-start-line="1" selection-start-column="12" selection-end-line="1" selection-end-column="12" />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="test50.sh" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/danet/test50.sh">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="22">
+              <caret line="1" column="24" selection-end-line="1" selection-end-column="227" />
             </state>
           </provider>
         </entry>
@@ -130,10 +150,10 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="mask_softmax.py" pinned="false" current-in-tab="true">
+      <file leaf-file-name="mask_softmax.py" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/encoding/nn/mask_softmax.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="788">
+            <state relative-caret-position="458">
               <caret line="99" column="76" selection-start-line="99" selection-start-column="76" selection-end-line="99" selection-end-column="76" />
             </state>
           </provider>
@@ -165,13 +185,11 @@
         <option value="$PROJECT_DIR$/danet/msdanet_train.sh" />
         <option value="$PROJECT_DIR$/danet/msdanet2_train.sh" />
         <option value="$PROJECT_DIR$/encoding/nn/customize.py" />
-        <option value="$PROJECT_DIR$/encoding/nn/attention.py" />
         <option value="$PROJECT_DIR$/danet/train50.sh" />
         <option value="$PROJECT_DIR$/encoding/utils/metrics.py" />
         <option value="$PROJECT_DIR$/danet/train.py" />
         <option value="$PROJECT_DIR$/danet/test50.sh" />
         <option value="$PROJECT_DIR$/danet/test101.sh" />
-        <option value="$PROJECT_DIR$/encoding/models/convmtx_mask_generater.py" />
         <option value="$PROJECT_DIR$/encoding/models/mview_danet.py" />
         <option value="$PROJECT_DIR$/danet/mvdanet_test.py" />
         <option value="$PROJECT_DIR$/danet/mvtest50.sh" />
@@ -182,6 +200,9 @@
         <option value="$PROJECT_DIR$/danet/mvtrain50_2.sh" />
         <option value="$PROJECT_DIR$/danet/mvtrain50.sh" />
         <option value="$PROJECT_DIR$/encoding/nn/mask_softmax.py" />
+        <option value="$PROJECT_DIR$/encoding/models/convmtx_mask_generater.py" />
+        <option value="$PROJECT_DIR$/danet/vis50.sh" />
+        <option value="$PROJECT_DIR$/encoding/nn/attention.py" />
       </list>
     </option>
   </component>
@@ -317,15 +338,6 @@
     <option name="myLimit" value="2678400000" />
   </component>
   <component name="editorHistoryManager">
-    <entry file="file://$PROJECT_DIR$/encoding/functions/__init__.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state>
-          <folding>
-            <element signature="e#33#56#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/encoding/dilated/__init__.py">
       <provider selected="true" editor-type-id="text-editor" />
     </entry>
@@ -498,13 +510,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/danet/test50.sh">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="22">
-          <caret line="1" column="24" selection-start-line="1" selection-start-column="24" selection-end-line="1" selection-end-column="24" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/danet/test101.sh">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="22">
@@ -553,16 +558,6 @@
           <caret line="21" column="27" lean-forward="true" selection-start-line="21" selection-start-column="27" selection-end-line="21" selection-end-column="27" />
           <folding>
             <element signature="e#0#32#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/encoding/nn/attention.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="1012">
-          <caret line="74" column="18" lean-forward="true" selection-start-line="74" selection-start-column="18" selection-end-line="74" selection-end-column="18" />
-          <folding>
-            <element signature="e#226#244#0" expanded="true" />
           </folding>
         </state>
       </provider>
@@ -643,17 +638,41 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/encoding/models/convmtx_mask_generater.py">
+    <entry file="file://$PROJECT_DIR$/encoding/nn/mask_softmax.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="87">
-          <caret line="34" column="37" lean-forward="true" selection-start-line="34" selection-start-column="37" selection-end-line="34" selection-end-column="37" />
+        <state relative-caret-position="458">
+          <caret line="99" column="76" selection-start-line="99" selection-start-column="76" selection-end-line="99" selection-end-column="76" />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/encoding/nn/mask_softmax.py">
+    <entry file="file://$PROJECT_DIR$/encoding/models/convmtx_mask_generater.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="788">
-          <caret line="99" column="76" selection-start-line="99" selection-start-column="76" selection-end-line="99" selection-end-column="76" />
+        <state relative-caret-position="176">
+          <caret line="98" column="26" lean-forward="true" selection-start-line="98" selection-start-column="26" selection-end-line="98" selection-end-column="26" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/danet/test50.sh">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="22">
+          <caret line="1" column="24" selection-end-line="1" selection-end-column="227" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/danet/vis50.sh">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="22">
+          <caret line="1" column="12" lean-forward="true" selection-start-line="1" selection-start-column="12" selection-end-line="1" selection-end-column="12" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/encoding/nn/attention.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="458">
+          <caret line="110" column="16" selection-start-line="110" selection-start-column="16" selection-end-line="110" selection-end-column="16" />
+          <folding>
+            <element signature="e#226#244#0" expanded="true" />
+          </folding>
         </state>
       </provider>
     </entry>
