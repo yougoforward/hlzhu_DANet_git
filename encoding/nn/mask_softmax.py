@@ -82,16 +82,19 @@ def mask_softmax(input, mask=None, dim=-1):
         exp_input = torch.exp(input)
     else:
         mask=[mask[0].to(device=input.device), mask[1].to(device=input.device)]
+        # mask = [mask[0].to(device=input.device)]
         N,H,W = mask[0].size()
+        exp_input = torch.exp(input)
+        zero_mask = torch.zeros(exp_input.size()).to(device=exp_input.device)
         if N==1:
-            exp_input = torch.mul(torch.exp(input), mask[0][0])
+            exp_input = torch.where(mask[0][0], exp_input, zero_mask)
         else:
             Sm = 0
-            exp_input=torch.exp(input)
             for i in range(N):
-                mask_exp_input = torch.mul(exp_input,mask[0][i])
-                Sm=Sm+torch.div(mask_exp_input, torch.sum(mask_exp_input, dim=dim, keepdim=True))
-                # Sm = Sm + mask_exp_input
+                mask_exp_input =torch.where(mask[0][i], exp_input, zero_mask)
+                # mask_exp_input = torch.mul(exp_input,mask[0][i])
+                # Sm = Sm + ws[i]*torch.div(mask_exp_input, torch.sum(mask_exp_input, dim=dim, keepdim=True))
+                Sm = Sm + torch.div(mask_exp_input, torch.sum(mask_exp_input, dim=dim, keepdim=True))
             return torch.mul(Sm, mask[1])
             # return Sm
     return torch.div(exp_input, torch.sum(exp_input, dim=dim, keepdim=True))
