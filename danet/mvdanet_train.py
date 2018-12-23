@@ -93,6 +93,7 @@ class Trainer():
             self.logger.info("=> loaded checkpoint '{}' (epoch {})".format(args.ft_resume, checkpoint['epoch']))
         # resuming checkpoint
         if args.resume:
+            resume_ckpt = "%s/%s_model/%s/" % (args.dataset, args.model, args.checkname)
             if not os.path.isfile(args.resume):
                 raise RuntimeError("=> no checkpoint found at '{}'" .format(args.resume))
             checkpoint = torch.load(args.resume)

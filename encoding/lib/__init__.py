@@ -18,3 +18,5 @@ if torch.cuda.is_available():
             os.path.join(gpu_path, 'syncbn_kernel.cu'),
             os.path.join(gpu_path, 'roi_align_kernel.cu'),
         ], build_directory=gpu_path, verbose=False)
+
+# update
