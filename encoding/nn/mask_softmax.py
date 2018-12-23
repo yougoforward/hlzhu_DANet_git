@@ -80,10 +80,13 @@ def mask_softmax(input, mask=None, dim=-1):
 
         """
     if mask is None:
-        exp_input = torch.exp(input)
+        return F.softmax(input, dim=dim, _stacklevel=5)
     else:
-        exp_input = torch.mul(torch.exp(input),mask.to(device=input.device))
-    return torch.div(exp_input, torch.sum(exp_input, dim=dim, keepdim=True))
+        max_input = input.max(dim=dim, keepdim=True)
+        exp_input = torch.exp(input - max_input[0])
+        mask_exp_input = torch.mul(exp_input,mask.to(device=input.device))
+        print(exp_input.sum(dim=-1).max())
+        return torch.div(mask_exp_input, torch.sum(mask_exp_input, dim=dim, keepdim=True))
 
 def mvmask_softmax(input, mask=None, dim=-1):
     # type: (Tensor, Optional[int], int, Optional[int]) -> Tensor

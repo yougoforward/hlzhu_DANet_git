@@ -39,7 +39,7 @@ class mview_DANet(BaseNet):
 
     def __init__(self, nclass, backbone, mviews=[13,25,49,96], aux=False, se_loss=False, norm_layer=nn.BatchNorm2d, **kwargs):
         super(mview_DANet, self).__init__(nclass, backbone, aux, se_loss, norm_layer=norm_layer, **kwargs)
-        self.head = mview_DANetHead(2048, nclass, norm_layer, mask=convmtx2_bf(H=torch.ones(12,12),M=96,N=96))
+        self.head = mview_DANetHead(2048, nclass, norm_layer, mask=convmtx2_bf(H=torch.ones(49,49),M=96,N=96))
 
     def forward(self, x):
         imsize = x.size()[2:]
