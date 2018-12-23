@@ -85,7 +85,7 @@ def mask_softmax(input, mask=None, dim=-1):
         max_input = input.max(dim=dim, keepdim=True)
         exp_input = torch.exp(input - max_input[0])
         mask_exp_input = torch.mul(exp_input,mask.to(device=input.device))
-        print(mask_exp_input.sum(dim=-1).max())
+        # print(mask_exp_input.sum(dim=-1).max())
         return torch.div(mask_exp_input, torch.sum(mask_exp_input, dim=dim, keepdim=True))
 
 def mvmask_softmax(input, mask=None, dim=-1):
