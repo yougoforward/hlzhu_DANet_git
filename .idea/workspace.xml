@@ -1,10 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="1428f973-e346-43b0-ae5c-c76136770046" name="Default" comment="">
-      <change beforePath="$PROJECT_DIR$/danet/mvdanet_train.py" beforeDir="false" afterPath="$PROJECT_DIR$/danet/mvdanet_train.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/encoding/lib/__init__.py" beforeDir="false" afterPath="$PROJECT_DIR$/encoding/lib/__init__.py" afterDir="false" />
-    </list>
+    <list default="true" id="1428f973-e346-43b0-ae5c-c76136770046" name="Default" comment="" />
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="TRACKING_ENABLED" value="true" />
     <option name="SHOW_DIALOG" value="false" />
@@ -198,6 +195,13 @@
               <item name="hlzhu_DANet_git" type="462c0819:PsiDirectoryNode" />
               <item name="encoding" type="462c0819:PsiDirectoryNode" />
               <item name="lib" type="462c0819:PsiDirectoryNode" />
+            </path>
+            <path>
+              <item name="hlzhu_DANet_git" type="b2602c69:ProjectViewProjectNode" />
+              <item name="hlzhu_DANet_git" type="462c0819:PsiDirectoryNode" />
+              <item name="encoding" type="462c0819:PsiDirectoryNode" />
+              <item name="lib" type="462c0819:PsiDirectoryNode" />
+              <item name="cpu" type="462c0819:PsiDirectoryNode" />
             </path>
             <path>
               <item name="hlzhu_DANet_git" type="b2602c69:ProjectViewProjectNode" />
