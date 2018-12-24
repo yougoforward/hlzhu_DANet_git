@@ -91,11 +91,12 @@ def mask_softmax(input, mask=None, dim=-1):
         max_input = input.max(dim=dim, keepdim=True)
         exp_input = torch.exp(input - max_input[0])
         # mask_exp_input = torch.mul(exp_input, mask.to(device=input.device))
-        mask = mask.to(device=input.device)
+        # mask = mask.to(device=input.device)
         mask_exp_input = torch.where(mask, exp_input, zero_mask)
         sum_mask_exp_input = torch.sum(mask_exp_input, dim=dim, keepdim=True) + 1e-10
         # print(mask_exp_input.sum(dim=-1).max())
-        return torch.where(mask, torch.div(mask_exp_input, sum_mask_exp_input), zero_mask)
+        # return torch.where(mask, torch.div(mask_exp_input, sum_mask_exp_input), zero_mask)
+        return torch.div(mask_exp_input, sum_mask_exp_input)
 
 
 def mvmask_softmax(input, mask=None, dim=-1):
@@ -140,13 +141,14 @@ def mvmask_softmax(input, mask=None, dim=-1):
             # mask_exp_input = torch.mul(exp_input, mask)
             mask_exp_input = torch.where(mask[0], exp_input, zero_mask)
             sum_mask_exp_input = torch.sum(mask_exp_input, dim=dim, keepdim=True) + 1e-10
-            return torch.where(mask[0], torch.div(mask_exp_input, sum_mask_exp_input), zero_mask)
-
+            # return torch.where(mask[0], torch.div(mask_exp_input, sum_mask_exp_input), zero_mask)
+            return torch.div(mask_exp_input, sum_mask_exp_input)
         else:
             Sm = 0
             for i in range(N):
                 mask_exp_input =torch.where(mask[0][i], exp_input, zero_mask)
                 sum_mask_exp_input = torch.sum(mask_exp_input, dim=dim, keepdim=True) + 1e-10
-                Sm = Sm + torch.where(mask[0][i], torch.div(mask_exp_input, sum_mask_exp_input), zero_mask)
+                # Sm = Sm + torch.where(mask[0][i], torch.div(mask_exp_input, sum_mask_exp_input), zero_mask)
+                Sm = Sm + torch.div(mask_exp_input, sum_mask_exp_input)
             return torch.mul(Sm, mask[1])
             # return Sm
