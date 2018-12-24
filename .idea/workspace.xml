@@ -2,9 +2,8 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="1428f973-e346-43b0-ae5c-c76136770046" name="Default" comment="">
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/danet/mvtrain50_cascade.sh" beforeDir="false" afterPath="$PROJECT_DIR$/danet/mvtrain50_cascade.sh" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/encoding/nn/attention.py" beforeDir="false" afterPath="$PROJECT_DIR$/encoding/nn/attention.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/encoding/models/convmtx_mask_generater.py" beforeDir="false" afterPath="$PROJECT_DIR$/encoding/models/convmtx_mask_generater.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/encoding/nn/mask_softmax.py" beforeDir="false" afterPath="$PROJECT_DIR$/encoding/nn/mask_softmax.py" afterDir="false" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="TRACKING_ENABLED" value="true" />
@@ -15,7 +14,7 @@
   </component>
   <component name="FileEditorManager">
     <leaf SIDE_TABS_SIZE_LIMIT_KEY="300">
-      <file leaf-file-name="attention.py" pinned="false" current-in-tab="true">
+      <file leaf-file-name="attention.py" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/encoding/nn/attention.py">
           <provider selected="true" editor-type-id="text-editor">
             <state relative-caret-position="-339">
@@ -69,8 +68,8 @@
       <file leaf-file-name="convmtx_mask_generater.py" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/encoding/models/convmtx_mask_generater.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="2266">
-              <caret line="109" column="39" selection-start-line="109" selection-start-column="39" selection-end-line="109" selection-end-column="39" />
+            <state relative-caret-position="286">
+              <caret line="109" column="33" selection-start-line="109" selection-start-column="33" selection-end-line="109" selection-end-column="33" />
             </state>
           </provider>
         </entry>
@@ -87,11 +86,11 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="mask_softmax.py" pinned="false" current-in-tab="false">
+      <file leaf-file-name="mask_softmax.py" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/encoding/nn/mask_softmax.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="3256">
-              <caret line="151" column="23" selection-start-line="151" selection-start-column="23" selection-end-line="151" selection-end-column="23" />
+            <state relative-caret-position="84">
+              <caret line="87" column="50" selection-start-line="87" selection-start-column="50" selection-end-line="87" selection-end-column="50" />
             </state>
           </provider>
         </entry>
@@ -147,11 +146,11 @@
         <option value="$PROJECT_DIR$/danet/mvtrain50.sh" />
         <option value="$PROJECT_DIR$/danet/mvdanet_train.py" />
         <option value="$PROJECT_DIR$/encoding/lib/__init__.py" />
-        <option value="$PROJECT_DIR$/encoding/models/convmtx_mask_generater.py" />
         <option value="$PROJECT_DIR$/encoding/models/mview_danet.py" />
-        <option value="$PROJECT_DIR$/encoding/nn/mask_softmax.py" />
         <option value="$PROJECT_DIR$/danet/mvtrain50_cascade.sh" />
         <option value="$PROJECT_DIR$/encoding/nn/attention.py" />
+        <option value="$PROJECT_DIR$/encoding/models/convmtx_mask_generater.py" />
+        <option value="$PROJECT_DIR$/encoding/nn/mask_softmax.py" />
       </list>
     </option>
   </component>
@@ -255,14 +254,14 @@
     <frame x="65" y="24" width="1855" height="1056" extended-state="0" />
     <editor active="true" />
     <layout>
-      <window_info active="true" content_ui="combo" id="Project" order="1" visible="true" weight="0.25" />
+      <window_info content_ui="combo" id="Project" order="1" visible="true" weight="0.25" />
       <window_info anchor="bottom" id="TODO" order="10" />
       <window_info anchor="bottom" id="Event Log" order="2" side_tool="true" />
       <window_info anchor="bottom" id="Run" order="6" />
       <window_info anchor="bottom" id="Version Control" order="3" />
       <window_info anchor="bottom" id="Python Console" order="0" weight="0.32972974" />
       <window_info id="Structure" order="2" side_tool="true" weight="0.25" />
-      <window_info anchor="bottom" id="Terminal" order="1" visible="true" weight="0.32972974" />
+      <window_info active="true" anchor="bottom" id="Terminal" order="1" visible="true" weight="0.32972974" />
       <window_info anchor="bottom" id="Debug" order="7" weight="0.4" />
       <window_info id="Favorites" order="0" side_tool="true" />
       <window_info anchor="right" content_ui="combo" id="Hierarchy" order="2" weight="0.25" />
@@ -565,20 +564,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/encoding/nn/mask_softmax.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="3256">
-          <caret line="151" column="23" selection-start-line="151" selection-start-column="23" selection-end-line="151" selection-end-column="23" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/encoding/models/convmtx_mask_generater.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="2266">
-          <caret line="109" column="39" selection-start-line="109" selection-start-column="39" selection-end-line="109" selection-end-column="39" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/encoding/models/cascade_mvdanet.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="264">
@@ -600,6 +585,20 @@
           <folding>
             <element signature="e#226#244#0" expanded="true" />
           </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/encoding/models/convmtx_mask_generater.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="286">
+          <caret line="109" column="33" selection-start-line="109" selection-start-column="33" selection-end-line="109" selection-end-column="33" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/encoding/nn/mask_softmax.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="84">
+          <caret line="87" column="50" selection-start-line="87" selection-start-column="50" selection-end-line="87" selection-end-column="50" />
         </state>
       </provider>
     </entry>

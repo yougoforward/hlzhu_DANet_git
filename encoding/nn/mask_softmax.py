@@ -82,19 +82,14 @@ def mask_softmax(input, mask=None, dim=-1):
     if mask is None:
         return F.softmax(input, dim=dim, _stacklevel=5)
     else:
-        # max_input = input.max(dim=dim, keepdim=True)
-        # exp_input = torch.exp(input - max_input[0])
-        # mask_exp_input = torch.mul(exp_input,mask.to(device=input.device))
-        # # print(mask_exp_input.sum(dim=-1).max())
-        # return torch.div(mask_exp_input, torch.sum(mask_exp_input, dim=dim, keepdim=True))
-        zero_mask = torch.zeros(input.size()).to(device=input.device)
+        # zero_mask = torch.zeros(input.size()).to(device=input.device)
         max_input = input.max(dim=dim, keepdim=True)
         exp_input = torch.exp(input - max_input[0])
-        # mask_exp_input = torch.mul(exp_input, mask.to(device=input.device))
+        mask_exp_input = torch.mul(exp_input, mask)
         # mask = mask.to(device=input.device)
-        mask_exp_input = torch.where(mask, exp_input, zero_mask)
+        # mask_exp_input = torch.where(mask, exp_input, zero_mask)
         sum_mask_exp_input = torch.sum(mask_exp_input, dim=dim, keepdim=True) + 1e-10
-        # print(mask_exp_input.sum(dim=-1).max())
+
         # return torch.where(mask, torch.div(mask_exp_input, sum_mask_exp_input), zero_mask)
         return torch.div(mask_exp_input, sum_mask_exp_input)
 
@@ -138,15 +133,16 @@ def mvmask_softmax(input, mask=None, dim=-1):
         exp_input = torch.exp(input - max_input[0])
         zero_mask = torch.zeros(input.size()).to(device=input.device)
         if N==1:
-            # mask_exp_input = torch.mul(exp_input, mask)
-            mask_exp_input = torch.where(mask[0], exp_input, zero_mask)
+            mask_exp_input = torch.mul(exp_input, mask[0])
+            # mask_exp_input = torch.where(mask[0], exp_input, zero_mask)
             sum_mask_exp_input = torch.sum(mask_exp_input, dim=dim, keepdim=True) + 1e-10
             # return torch.where(mask[0], torch.div(mask_exp_input, sum_mask_exp_input), zero_mask)
             return torch.div(mask_exp_input, sum_mask_exp_input)
         else:
             Sm = 0
             for i in range(N):
-                mask_exp_input =torch.where(mask[0][i], exp_input, zero_mask)
+                mask_exp_input = torch.mul(exp_input, mask[0][i])
+                # mask_exp_input =torch.where(mask[0][i], exp_input, zero_mask)
                 sum_mask_exp_input = torch.sum(mask_exp_input, dim=dim, keepdim=True) + 1e-10
                 # Sm = Sm + torch.where(mask[0][i], torch.div(mask_exp_input, sum_mask_exp_input), zero_mask)
                 Sm = Sm + torch.div(mask_exp_input, sum_mask_exp_input)

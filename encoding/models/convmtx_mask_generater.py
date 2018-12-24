@@ -107,7 +107,7 @@ def convmtx2_bf2MV(mviews=[13,25,49,96], M=96, N=96):
     else:
         Mva2=1./(Mva+1e-9)
         Mva=torch.where(Mva>0.5,Mva2,Mva)
-    return Tmv.view((mv,M*N,M*N)).byte(), Mva.view((M*N,M*N))
+    return Tmv.view((mv,M*N,M*N)), Mva.view((M*N,M*N))
 
 
 def convmtx2_bf(H=torch.ones(3,3), M=5, N=5):
