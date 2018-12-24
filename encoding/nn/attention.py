@@ -118,7 +118,8 @@ class mvPAM_Module_mask_cascade(Module):
 
         self.query_conv = Conv2d(in_channels=in_dim, out_channels=in_dim//inter_rate, kernel_size=1)
         self.key_conv = Conv2d(in_channels=in_dim, out_channels=in_dim//inter_rate, kernel_size=1)
-        self.value_conv = Conv2d(in_channels=in_dim, out_channels=in_dim, kernel_size=1)
+        self.value_conv0 = Conv2d(in_channels=in_dim, out_channels=in_dim, kernel_size=1)
+        self.value_conv1 = Conv2d(in_channels=in_dim, out_channels=in_dim, kernel_size=1)
         self.value_conv2 = Conv2d(in_channels=in_dim, out_channels=in_dim, kernel_size=1)
         self.value_conv3 = Conv2d(in_channels=in_dim, out_channels=in_dim, kernel_size=1)
         self.gamma = Parameter(torch.zeros(1))
@@ -126,7 +127,7 @@ class mvPAM_Module_mask_cascade(Module):
         self.mask_softmax0 = Mask_Softmax(mask=mask[0][0], dim=-1)
         self.mask_softmax1 = Mask_Softmax(mask=mask[0][1], dim=-1)
         self.mask_softmax2 = Mask_Softmax(mask=mask[0][2], dim=-1)
-        # self.mask_softmax3 = Mask_Softmax(mask=mask[0][3], dim=-1)
+        self.mask_softmax3 = Mask_Softmax(mask=None, dim=-1)
 
 
     def forward(self, x):
@@ -145,17 +146,18 @@ class mvPAM_Module_mask_cascade(Module):
         attention0 = self.mask_softmax0(energy)
         attention1 = self.mask_softmax1(energy)
         attention2 = self.mask_softmax2(energy)
-        # attention3 = self.mask_softmax3(energy)
+        attention3 = self.mask_softmax3(energy)
 
 
-        proj_value = self.value_conv(x).view(m_batchsize, -1, width*height)
+        proj_value = self.value_conv0(x).view(m_batchsize, -1, width*height)
 
         out0 = torch.bmm(proj_value, attention0.permute(0, 2, 1))
-        out0=self.value_conv2(out0.view(m_batchsize, C, height, width)).view(m_batchsize, -1, width * height)
-        out1 = torch.bmm(out0, attention1.permute(0, 2, 1))
-        out1 = self.value_conv3(out1.view(m_batchsize, C, height, width)).view(m_batchsize, -1, width * height)
-        out = torch.bmm(out1, attention2.permute(0, 2, 1))
-        # out = torch.bmm(out2, attention3.permute(0, 2, 1))
+        out1 = self.value_conv1(out0.view(m_batchsize, C, height, width)).view(m_batchsize, -1, width * height)
+        out1 = torch.bmm(out1, attention1.permute(0, 2, 1))
+        out2 = self.value_conv2(out1.view(m_batchsize, C, height, width)).view(m_batchsize, -1, width * height)
+        out2 = torch.bmm(out2, attention2.permute(0, 2, 1))
+        out3 = self.value_conv3(out2.view(m_batchsize, C, height, width)).view(m_batchsize, -1, width * height)
+        out = torch.bmm(out3, attention3.permute(0, 2, 1))
 
         out = out.view(m_batchsize, C, height, width)
 

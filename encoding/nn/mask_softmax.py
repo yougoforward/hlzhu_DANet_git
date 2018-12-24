@@ -48,7 +48,7 @@ class Mask_Softmax(Module):
             self.dim = None
 
     def forward(self, input):
-        return mask_softmax(input, self.mask, self.dim)
+        return mvmask_softmax(input, self.mask, self.dim)
 
 
 
@@ -128,27 +128,25 @@ def mvmask_softmax(input, mask=None, dim=-1):
     if mask is None:
         return F.softmax(input, dim=dim, _stacklevel=5)
     else:
+        if torch.is_tensor(mask):
+            return mask_softmax(input, mask=mask, dim=dim)
+
         mask=[mask[0].to(device=input.device), mask[1].to(device=input.device)]
-        # mask = mask.to(device=input.device)
         N,H,W = mask[0].size()
         max_input = input.max(dim=dim, keepdim=True)
         exp_input = torch.exp(input - max_input[0])
-
-        zero_mask = torch.zeros(exp_input.size()).to(device=input.device)
+        zero_mask = torch.zeros(input.size()).to(device=input.device)
         if N==1:
-            # mask_exp_input = torch.mul(exp_input,mask[0])
-            # mask_exp_input = torch.mul(exp_input, mask[0])
+            # mask_exp_input = torch.mul(exp_input, mask)
             mask_exp_input = torch.where(mask[0], exp_input, zero_mask)
-            return torch.div(mask_exp_input, torch.sum(mask_exp_input, dim=dim, keepdim=True))
+            sum_mask_exp_input = torch.sum(mask_exp_input, dim=dim, keepdim=True) + 1e-10
+            return torch.where(mask[0], torch.div(mask_exp_input, sum_mask_exp_input), zero_mask)
 
         else:
             Sm = 0
             for i in range(N):
-                mask_exp_input =torch.where(mask[0][i], torch.exp(input), torch.zeros(input.size()).to(device=input.device))
-                # mask_exp_input = torch.mul(exp_input,mask[0][i])
-                # Sm = Sm + ws[i]*torch.div(mask_exp_input, torch.sum(mask_exp_input, dim=dim, keepdim=True))
-                # Sm = Sm + torch.div(mask_exp_input, torch.sum(mask_exp_input, dim=dim, keepdim=True)) / N
-                Sm = Sm + torch.div(mask_exp_input, torch.sum(mask_exp_input, dim=dim, keepdim=True))
+                mask_exp_input =torch.where(mask[0][i], exp_input, zero_mask)
+                sum_mask_exp_input = torch.sum(mask_exp_input, dim=dim, keepdim=True) + 1e-10
+                Sm = Sm + torch.where(mask[0][i], torch.div(mask_exp_input, sum_mask_exp_input), zero_mask)
             return torch.mul(Sm, mask[1])
             # return Sm
-    # return torch.div(exp_input, torch.sum(exp_input, dim=dim, keepdim=True))
