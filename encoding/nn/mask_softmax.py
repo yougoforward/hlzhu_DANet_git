@@ -116,17 +116,19 @@ def mvmask_softmax(input, mask=None, dim=-1):
 
         """
     if mask is None:
-        exp_input = torch.exp(input)
-        return torch.div(exp_input, torch.sum(exp_input, dim=dim, keepdim=True))
+        return F.softmax(input, dim=dim, _stacklevel=5)
     else:
         mask=[mask[0].to(device=input.device), mask[1].to(device=input.device)]
         # mask = mask.to(device=input.device)
         N,H,W = mask[0].size()
-        exp_input = torch.exp(input)
-        # zero_mask = torch.zeros(exp_input.size()).to(device=exp_input.device)
+        max_input = input.max(dim=dim, keepdim=True)
+        exp_input = torch.exp(input - max_input[0])
+
+        zero_mask = torch.zeros(exp_input.size()).to(device=input.device)
         if N==1:
             # mask_exp_input = torch.mul(exp_input,mask[0])
-            mask_exp_input = torch.where(mask[0], exp_input, torch.zeros(input.size()).to(device=input.device))
+            # mask_exp_input = torch.mul(exp_input, mask[0])
+            mask_exp_input = torch.where(mask[0], exp_input, zero_mask)
             return torch.div(mask_exp_input, torch.sum(mask_exp_input, dim=dim, keepdim=True))
 
         else:

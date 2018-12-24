@@ -9,6 +9,7 @@ from .msdanet import *
 from .msdanet2 import *
 from .mview_danet import *
 from .mview_danet2 import *
+from .cascade_mvdanet import *
 
 def get_segmentation_model(name, **kwargs):
     from .fcn import get_fcn
@@ -20,6 +21,7 @@ def get_segmentation_model(name, **kwargs):
         'msdanet': get_msdanet,
         'msdanet2': get_msdanet2,
         'mvdanet': get_mvdanet,
+        'cascade_mvdanet': get_cascade_mvdanet,
         'mvdanet2': get_mvdanet2,
     }
     return models[name.lower()](**kwargs)
