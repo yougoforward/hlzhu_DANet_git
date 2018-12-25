@@ -2,7 +2,6 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="1428f973-e346-43b0-ae5c-c76136770046" name="Default" comment="">
-      <change beforePath="$PROJECT_DIR$/encoding/models/convmtx_mask_generater.py" beforeDir="false" afterPath="$PROJECT_DIR$/encoding/models/convmtx_mask_generater.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/encoding/nn/mask_softmax.py" beforeDir="false" afterPath="$PROJECT_DIR$/encoding/nn/mask_softmax.py" afterDir="false" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
@@ -89,8 +88,8 @@
       <file leaf-file-name="mask_softmax.py" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/encoding/nn/mask_softmax.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="84">
-              <caret line="87" column="50" selection-start-line="87" selection-start-column="50" selection-end-line="87" selection-end-column="50" />
+            <state relative-caret-position="216">
+              <caret line="16" column="26" lean-forward="true" selection-start-line="16" selection-start-column="26" selection-end-line="16" selection-end-column="26" />
             </state>
           </provider>
         </entry>
@@ -597,8 +596,8 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/encoding/nn/mask_softmax.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="84">
-          <caret line="87" column="50" selection-start-line="87" selection-start-column="50" selection-end-line="87" selection-end-column="50" />
+        <state relative-caret-position="216">
+          <caret line="16" column="26" lean-forward="true" selection-start-line="16" selection-start-column="26" selection-end-line="16" selection-end-column="26" />
         </state>
       </provider>
     </entry>
