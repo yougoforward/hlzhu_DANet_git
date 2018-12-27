@@ -127,7 +127,7 @@ def mvmask_softmax(input, mask=None, dim=-1):
         if torch.is_tensor(mask):
             return mask_softmax(input, mask=mask, dim=dim)
 
-        # mask=[mask[0].to(device=input.device), mask[1].to(device=input.device)]
+        mask=[mask[0].to(device=input.device), mask[1].to(device=input.device)]
         N,H,W = mask[0].size()
         max_input = input.max(dim=dim, keepdim=True)
         exp_input = torch.exp(input - max_input[0])
