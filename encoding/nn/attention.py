@@ -125,14 +125,14 @@ class mvPAM_Module_mask_cascade(Module):
         # self.value_conv3 = Conv2d(in_channels=in_dim, out_channels=in_dim, kernel_size=1)
         self.gamma = Parameter(torch.zeros(1))
 
-        self.mask0 = Parameter(mask[0][0], requires_grad=False)
+        # self.mask0 = Parameter(mask[0][0], requires_grad=False)
         self.mask1 = Parameter(mask[0][1], requires_grad=False)
-        # self.mask2 = Parameter(mask[0][2], requires_grad=False)
+        self.mask2 = Parameter(mask[0][2], requires_grad=False)
 
-        self.mask_softmax0 = Mask_Softmax(mask=self.mask0, dim=-1)
+        self.mask_softmax0 = Mask_Softmax(mask=None, dim=-1)
         self.mask_softmax1 = Mask_Softmax(mask=self.mask1, dim=-1)
-        # self.mask_softmax2 = Mask_Softmax(mask=self.mask2, dim=-1)
-        self.mask_softmax2 = Mask_Softmax(mask=None, dim=-1)
+        self.mask_softmax2 = Mask_Softmax(mask=self.mask2, dim=-1)
+        # self.mask_softmax2 = Mask_Softmax(mask=None, dim=-1)
 
 
     def forward(self, x):
