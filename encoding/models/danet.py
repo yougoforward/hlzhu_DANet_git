@@ -47,12 +47,12 @@ class DANet(BaseNet):
         x = self.head(c4)
         x = list(x)
         x[0] = upsample(x[0], imsize, **self._up_kwargs)
-        x[1] = upsample(x[1], imsize, **self._up_kwargs)
-        x[2] = upsample(x[2], imsize, **self._up_kwargs)
+        # x[1] = upsample(x[1], imsize, **self._up_kwargs)
+        # x[2] = upsample(x[2], imsize, **self._up_kwargs)
 
         outputs = [x[0]]
-        outputs.append(x[1])
-        outputs.append(x[2])
+        # outputs.append(x[1])
+        # outputs.append(x[2])
         return tuple(outputs)
         
 class DANetHead(nn.Module):
@@ -87,18 +87,20 @@ class DANetHead(nn.Module):
         sa_conv = self.conv51(sa_feat)
         sa_output = self.conv6(sa_conv)
 
-        feat2 = self.conv5c(x)
-        sc_feat = self.sc(feat2)
-        sc_conv = self.conv52(sc_feat)
-        sc_output = self.conv7(sc_conv)
+        output = [sa_output]
 
-        feat_sum = sa_conv+sc_conv
-        
-        sasc_output = self.conv8(feat_sum)
+        # feat2 = self.conv5c(x)
+        # sc_feat = self.sc(feat2)
+        # sc_conv = self.conv52(sc_feat)
+        # sc_output = self.conv7(sc_conv)
+        #
+        # feat_sum = sa_conv+sc_conv
+        #
+        # sasc_output = self.conv8(feat_sum)
 
-        output = [sasc_output]
-        output.append(sa_output)
-        output.append(sc_output)
+        # output = [sasc_output]
+        # output.append(sa_output)
+        # output.append(sc_output)
         return tuple(output)
 
 
