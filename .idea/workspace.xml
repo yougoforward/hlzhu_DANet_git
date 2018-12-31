@@ -2,9 +2,6 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="1428f973-e346-43b0-ae5c-c76136770046" name="Default" comment="">
-      <change beforePath="$PROJECT_DIR$/encoding/models/cascade_mvdanet.py" beforeDir="false" afterPath="$PROJECT_DIR$/encoding/models/cascade_mvdanet.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/encoding/models/danet.py" beforeDir="false" afterPath="$PROJECT_DIR$/encoding/models/danet.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/encoding/models/mview_danet.py" beforeDir="false" afterPath="$PROJECT_DIR$/encoding/models/mview_danet.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/encoding/nn/customize.py" beforeDir="false" afterPath="$PROJECT_DIR$/encoding/nn/customize.py" afterDir="false" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
@@ -58,10 +55,10 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="cascade_mvdanet.py" pinned="false" current-in-tab="true">
+      <file leaf-file-name="cascade_mvdanet.py" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/encoding/models/cascade_mvdanet.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="198">
+            <state relative-caret-position="1188">
               <caret line="92" column="8" selection-start-line="92" selection-start-column="8" selection-end-line="92" selection-end-column="8" />
               <folding>
                 <element signature="e#225#256#0" expanded="true" />
@@ -91,8 +88,8 @@
       <file leaf-file-name="mvdanet_train.py" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/danet/mvdanet_train.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="2266">
-              <caret line="139" column="36" selection-start-line="139" selection-start-column="36" selection-end-line="139" selection-end-column="36" />
+            <state relative-caret-position="352">
+              <caret line="76" column="40" selection-start-line="76" selection-start-column="40" selection-end-line="76" selection-end-column="40" />
               <folding>
                 <element signature="e#226#235#0" expanded="true" />
               </folding>
@@ -136,11 +133,11 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="customize.py" pinned="false" current-in-tab="false">
+      <file leaf-file-name="customize.py" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/encoding/nn/customize.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="-67">
-              <caret line="100" column="12" selection-start-line="100" selection-start-column="12" selection-end-line="100" selection-end-column="12" />
+            <state relative-caret-position="307">
+              <caret line="102" column="43" lean-forward="true" selection-start-line="102" selection-start-column="43" selection-end-line="102" selection-end-column="43" />
             </state>
           </provider>
         </entry>
@@ -218,9 +215,9 @@
         <option value="$PROJECT_DIR$/encoding/nn/attention.py" />
         <option value="$PROJECT_DIR$/encoding/models/convmtx_mask_generater.py" />
         <option value="$PROJECT_DIR$/encoding/models/danet.py" />
-        <option value="$PROJECT_DIR$/encoding/nn/customize.py" />
         <option value="$PROJECT_DIR$/encoding/models/mview_danet.py" />
         <option value="$PROJECT_DIR$/encoding/models/cascade_mvdanet.py" />
+        <option value="$PROJECT_DIR$/encoding/nn/customize.py" />
       </list>
     </option>
   </component>
@@ -324,14 +321,14 @@
     <frame x="65" y="24" width="1855" height="1056" extended-state="0" />
     <editor active="true" />
     <layout>
-      <window_info active="true" content_ui="combo" id="Project" order="1" visible="true" weight="0.24690028" />
+      <window_info content_ui="combo" id="Project" order="1" visible="true" weight="0.24690028" />
       <window_info anchor="bottom" id="TODO" order="10" />
       <window_info anchor="bottom" id="Event Log" order="2" side_tool="true" />
       <window_info anchor="bottom" id="Version Control" order="3" />
       <window_info anchor="bottom" id="Python Console" order="0" weight="0.32972974" />
       <window_info anchor="bottom" id="Run" order="6" />
       <window_info id="Structure" order="2" side_tool="true" weight="0.25" />
-      <window_info anchor="bottom" id="Terminal" order="1" visible="true" weight="0.32172996" />
+      <window_info active="true" anchor="bottom" id="Terminal" order="1" visible="true" weight="0.32172996" />
       <window_info id="Favorites" order="0" side_tool="true" />
       <window_info anchor="bottom" id="Debug" order="7" weight="0.4" />
       <window_info anchor="right" content_ui="combo" id="Hierarchy" order="2" weight="0.25" />
@@ -619,16 +616,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/danet/mvdanet_train.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="2266">
-          <caret line="139" column="36" selection-start-line="139" selection-start-column="36" selection-end-line="139" selection-end-column="36" />
-          <folding>
-            <element signature="e#226#235#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/danet/option.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="2288">
@@ -647,13 +634,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="-191">
           <caret line="104" column="6" selection-start-line="104" selection-start-column="6" selection-end-line="104" selection-end-column="6" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/encoding/nn/customize.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="-67">
-          <caret line="100" column="12" selection-start-line="100" selection-start-column="12" selection-end-line="100" selection-end-column="12" />
         </state>
       </provider>
     </entry>
@@ -683,11 +663,28 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/encoding/models/cascade_mvdanet.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="198">
+        <state relative-caret-position="1188">
           <caret line="92" column="8" selection-start-line="92" selection-start-column="8" selection-end-line="92" selection-end-column="8" />
           <folding>
             <element signature="e#225#256#0" expanded="true" />
           </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/danet/mvdanet_train.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="352">
+          <caret line="76" column="40" selection-start-line="76" selection-start-column="40" selection-end-line="76" selection-end-column="40" />
+          <folding>
+            <element signature="e#226#235#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/encoding/nn/customize.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="307">
+          <caret line="102" column="43" lean-forward="true" selection-start-line="102" selection-start-column="43" selection-end-line="102" selection-end-column="43" />
         </state>
       </provider>
     </entry>
