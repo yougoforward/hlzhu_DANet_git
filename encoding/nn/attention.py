@@ -7,14 +7,14 @@
 import numpy as np
 import torch
 import math
-from torch.nn import Module, Sequential, Conv2d, ReLU,AdaptiveMaxPool2d, AdaptiveAvgPool2d, \
-    NLLLoss, BCELoss, CrossEntropyLoss, AvgPool2d, MaxPool2d, Parameter, Linear, Sigmoid, Softmax, Dropout, Embedding
+from torch.nn import Module, Sequential, Conv2d, ReLU,AdaptiveMaxPool2d, AdaptiveAvgPool2d, BatchNorm2d, \
+    NLLLoss, BCELoss, CrossEntropyLoss, AvgPool2d, MaxPool2d, Parameter, Linear, Sigmoid, Softmax,Dropout2d, Dropout, Embedding
 from torch.nn import functional as F
 from torch.autograd import Variable
 from .mask_softmax import Mask_Softmax
 torch_ver = torch.__version__[:3]
 
-__all__ = ['mvPAM_Module_unfold','mvPAM_Module_mask','mvPAM_Module_mask_cascade','msPAM_Module','PAM_Module', 'CAM_Module']
+__all__ = ['SE_CAM_module','pool_CAM_Module','ASPP_Module','mvPAM_Module_unfold','mvPAM_Module_mask','mvPAM_Module_mask_cascade','msPAM_Module','PAM_Module', 'CAM_Module']
 
 
 class mvPAM_Module_unfold(Module):
@@ -204,6 +204,53 @@ class msPAM_Module(Module):
         out = self.gamma * out
         return out
 
+
+class ASPP_Module(Module):
+    """
+    Reference:
+        Chen, Liang-Chieh, et al. *"Rethinking Atrous Convolution for Semantic Image Segmentation."*
+    """
+
+    def __init__(self, features, inner_features=256, out_features=256, dilations=(12, 24, 36)):
+        super(ASPP_Module, self).__init__()
+
+        self.conv1 = Sequential(AdaptiveAvgPool2d((1, 1)),
+                                   Conv2d(features, inner_features, kernel_size=1, padding=0, dilation=1,
+                                             bias=False),
+                                BatchNorm2d(inner_features),ReLU())
+        self.conv2 = Sequential(
+            Conv2d(features, inner_features, kernel_size=1, padding=0, dilation=1, bias=False),
+            BatchNorm2d(inner_features),ReLU())
+        self.conv3 = Sequential(
+            Conv2d(features, inner_features, kernel_size=3, padding=dilations[0], dilation=dilations[0], bias=False),
+            BatchNorm2d(inner_features),ReLU())
+        self.conv4 = Sequential(
+            Conv2d(features, inner_features, kernel_size=3, padding=dilations[1], dilation=dilations[1], bias=False),
+            BatchNorm2d(inner_features),ReLU())
+        self.conv5 = Sequential(
+            Conv2d(features, inner_features, kernel_size=3, padding=dilations[2], dilation=dilations[2], bias=False),
+            BatchNorm2d(inner_features),ReLU())
+
+        self.bottleneck = Sequential(
+            Conv2d(inner_features * 5, out_features, kernel_size=1, padding=0, dilation=1, bias=False),
+            BatchNorm2d(out_features),ReLU(),
+            Dropout2d(0.1)
+        )
+
+    def forward(self, x):
+        _, _, h, w = x.size()
+
+        feat1 = F.upsample(self.conv1(x), size=(h, w), mode='bilinear', align_corners=True)
+
+        feat2 = self.conv2(x)
+        feat3 = self.conv3(x)
+        feat4 = self.conv4(x)
+        feat5 = self.conv5(x)
+        out = torch.cat((feat1, feat2, feat3, feat4, feat5), 1)
+
+        bottle = self.bottleneck(out)
+        return bottle
+
 class PAM_Module(Module):
     """ Position attention module"""
     #Ref from SAGAN
@@ -239,6 +286,8 @@ class PAM_Module(Module):
         return out
 
 
+
+
 class CAM_Module(Module):
     """ Channel attention module"""
     def __init__(self, in_dim):
@@ -270,3 +319,301 @@ class CAM_Module(Module):
         out = self.gamma*out + x
         return out
 
+class pool_CAM_Module(Module):
+    """ Channel attention module"""
+    def __init__(self, in_dim):
+        super(pool_CAM_Module, self).__init__()
+        self.chanel_in = in_dim
+
+
+        self.gamma = Parameter(torch.zeros(1))
+        self.softmax  = Softmax(dim=-1)
+        self.avgpool = AvgPool2d(2, 2)
+
+        self.se = Sequential(AdaptiveAvgPool2d((1, 1)),
+                             Conv2d(in_dim, in_dim // 8, kernel_size=1, padding=0, dilation=1,
+                                    bias=False),
+                             BatchNorm2d(in_dim // 8), ReLU(),
+                             Conv2d(in_dim // 8, in_dim, kernel_size=1, padding=0, dilation=1,
+                                    bias=False),
+                             Sigmoid()
+                             )
+
+    def forward(self,x):
+        """
+            inputs :
+                x : input feature maps( B X C X H X W)
+            returns :
+                out : attention value + input feature
+                attention: B X C X C
+        """
+        m_batchsize, C, height, width = x.size()
+
+        pool_x = self.avgpool(x)
+
+        proj_query = pool_x.view(m_batchsize, C, -1)
+        proj_key = pool_x.view(m_batchsize, C, -1).permute(0, 2, 1)
+
+        energy = torch.bmm(proj_query, proj_key)
+
+        energy_new = torch.max(energy, -1, keepdim=True)[0].expand_as(energy)-energy
+        attention = self.softmax(energy_new)
+        proj_value = x.view(m_batchsize, C, -1)
+
+        out = torch.bmm(attention, proj_value)
+        out = out.view(m_batchsize, C, height, width)
+
+        # out = self.gamma * out + x
+
+        se_x = self.se(x)
+        se_out = se_x * x
+
+        out = se_out + self.gamma * out + x
+        return out
+
+class SE_CAM_module(Module):
+    """ Channel attention module"""
+
+    def __init__(self, in_dim):
+        super(SE_CAM_module, self).__init__()
+        self.chanel_in = in_dim
+
+        self.se = Sequential(AdaptiveAvgPool2d((1, 1)),
+                                Conv2d(in_dim, in_dim//8, kernel_size=1, padding=0, dilation=1,
+                                       bias=False),
+                                BatchNorm2d(in_dim//8), ReLU(),
+                                Conv2d(in_dim//8, in_dim, kernel_size=1, padding=0, dilation=1,
+                                       bias=False),
+                                Sigmoid()
+                                )
+
+    def forward(self, x):
+        """
+            inputs :
+                x : input feature maps( B X C X H X W)
+            returns :
+                out : attention value + input feature
+                attention: B X C X 1 X 1
+        """
+        se_x = self.se(x)
+        out = se_x*x
+        # out = out + x
+
+        return out
+
+class concat_mvPAM_Module_mask_cascade(Module):
+    """ Position attention module"""
+    #Ref from SAGAN
+    def __init__(self, in_dim, inter_rate, mask=None):
+        super(mvPAM_Module_mask_cascade, self).__init__()
+        self.chanel_in = in_dim
+
+        self.query_conv = Conv2d(in_channels=in_dim, out_channels=in_dim//inter_rate, kernel_size=1)
+        self.key_conv = Conv2d(in_channels=in_dim, out_channels=in_dim//inter_rate, kernel_size=1)
+        self.value_conv0 = Conv2d(in_channels=in_dim, out_channels=in_dim, kernel_size=1)
+        self.value_conv1 = Conv2d(in_channels=in_dim, out_channels=in_dim, kernel_size=1)
+        self.value_conv2 = Conv2d(in_channels=in_dim, out_channels=in_dim, kernel_size=1)
+        # self.value_conv3 = Conv2d(in_channels=in_dim, out_channels=in_dim, kernel_size=1)
+        self.gamma = Parameter(torch.zeros(1))
+
+        # self.mask0 = Parameter(mask[0][0], requires_grad=False)
+        self.mask1 = Parameter(mask[0][1], requires_grad=False)
+        self.mask2 = Parameter(mask[0][2], requires_grad=False)
+
+        self.mask_softmax0 = Mask_Softmax(mask=None, dim=-1)
+        self.mask_softmax1 = Mask_Softmax(mask=self.mask1, dim=-1)
+        self.mask_softmax2 = Mask_Softmax(mask=self.mask2, dim=-1)
+        # self.mask_softmax2 = Mask_Softmax(mask=None, dim=-1)
+
+        self.bottleneck = Sequential(
+            Conv2d(in_dim * 4, in_dim, kernel_size=1, padding=0, dilation=1, bias=False),
+            BatchNorm2d(in_dim), ReLU(),
+            Dropout2d(0.1)
+        )
+
+
+    def forward(self, x):
+        """
+            inputs :
+                x : input feature maps( B X C X H X W)
+            returns :
+                out : attention value + input feature
+                attention: B X (HxW) X (HxW)
+        """
+        m_batchsize, C, height, width = x.size()
+        proj_query = self.query_conv(x).view(m_batchsize, -1, width*height).permute(0, 2, 1)
+        proj_key = self.key_conv(x).view(m_batchsize, -1, width*height)
+        energy = torch.bmm(proj_query, proj_key)
+
+        attention0 = self.mask_softmax0(energy)
+        attention1 = self.mask_softmax1(energy)
+        attention2 = self.mask_softmax2(energy)
+        # attention3 = self.mask_softmax3(energy)
+
+
+        proj_value0 = self.value_conv0(x).view(m_batchsize, -1, width*height)
+        proj_value1 = self.value_conv0(x).view(m_batchsize, -1, width * height)
+        proj_value2 = self.value_conv0(x).view(m_batchsize, -1, width * height)
+
+        out0 = torch.bmm(proj_value0, attention0.permute(0, 2, 1)).view(m_batchsize, C, height, width)
+        # out0 = self.value_conv1(out0.view(m_batchsize, C, height, width)).view(m_batchsize, -1, width * height)
+        out1 = torch.bmm(proj_value1, attention1.permute(0, 2, 1)).view(m_batchsize, C, height, width)
+        # out1 = self.value_conv2(out1.view(m_batchsize, C, height, width)).view(m_batchsize, -1, width * height)
+        out2 = torch.bmm(proj_value2, attention2.permute(0, 2, 1)).view(m_batchsize, C, height, width)
+        # out2 = self.value_conv3(out2.view(m_batchsize, C, height, width)).view(m_batchsize, -1, width * height)
+        # out = torch.bmm(out2, attention3.permute(0, 2, 1))
+
+        out = torch.cat((out0, out1, out2, x), 1)
+        out = self.bottleneck(out)
+
+        # out = self.gamma*out + x
+        return out
+
+
+class add_mvPAM_Module_mask_cascade(Module):
+    """ Position attention module"""
+
+    # Ref from SAGAN
+    def __init__(self, in_dim, inter_rate, mask=None):
+        super(mvPAM_Module_mask_cascade, self).__init__()
+        self.chanel_in = in_dim
+
+        self.query_conv = Conv2d(in_channels=in_dim, out_channels=in_dim // inter_rate, kernel_size=1)
+        self.key_conv = Conv2d(in_channels=in_dim, out_channels=in_dim // inter_rate, kernel_size=1)
+        self.value_conv0 = Conv2d(in_channels=in_dim, out_channels=in_dim, kernel_size=1)
+        self.value_conv1 = Conv2d(in_channels=in_dim, out_channels=in_dim, kernel_size=1)
+        self.value_conv2 = Conv2d(in_channels=in_dim, out_channels=in_dim, kernel_size=1)
+        # self.value_conv3 = Conv2d(in_channels=in_dim, out_channels=in_dim, kernel_size=1)
+        self.gamma0 = Parameter(torch.zeros(1))
+        self.gamma1 = Parameter(torch.zeros(1))
+        self.gamma2 = Parameter(torch.zeros(1))
+
+        # self.mask0 = Parameter(mask[0][0], requires_grad=False)
+        self.mask1 = Parameter(mask[0][1], requires_grad=False)
+        self.mask2 = Parameter(mask[0][2], requires_grad=False)
+
+        self.mask_softmax0 = Mask_Softmax(mask=None, dim=-1)
+        self.mask_softmax1 = Mask_Softmax(mask=self.mask1, dim=-1)
+        self.mask_softmax2 = Mask_Softmax(mask=self.mask2, dim=-1)
+        # self.mask_softmax2 = Mask_Softmax(mask=None, dim=-1)
+
+        # self.bottleneck = Sequential(
+        #     Conv2d(in_dim * 4, in_dim, kernel_size=1, padding=0, dilation=1, bias=False),
+        #     BatchNorm2d(in_dim), ReLU(),
+        #     Dropout2d(0.1)
+        # )
+
+    def forward(self, x):
+        """
+            inputs :
+                x : input feature maps( B X C X H X W)
+            returns :
+                out : attention value + input feature
+                attention: B X (HxW) X (HxW)
+        """
+        m_batchsize, C, height, width = x.size()
+        proj_query = self.query_conv(x).view(m_batchsize, -1, width * height).permute(0, 2, 1)
+        proj_key = self.key_conv(x).view(m_batchsize, -1, width * height)
+        energy = torch.bmm(proj_query, proj_key)
+
+        attention0 = self.mask_softmax0(energy)
+        attention1 = self.mask_softmax1(energy)
+        attention2 = self.mask_softmax2(energy)
+        # attention3 = self.mask_softmax3(energy)
+
+        proj_value0 = self.value_conv0(x).view(m_batchsize, -1, width * height)
+        proj_value1 = self.value_conv0(x).view(m_batchsize, -1, width * height)
+        proj_value2 = self.value_conv0(x).view(m_batchsize, -1, width * height)
+
+        out0 = torch.bmm(proj_value0, attention0.permute(0, 2, 1)).view(m_batchsize, C, height, width)
+        # out0 = self.value_conv1(out0.view(m_batchsize, C, height, width)).view(m_batchsize, -1, width * height)
+        out1 = torch.bmm(proj_value1, attention1.permute(0, 2, 1)).view(m_batchsize, C, height, width)
+        # out1 = self.value_conv2(out1.view(m_batchsize, C, height, width)).view(m_batchsize, -1, width * height)
+        out2 = torch.bmm(proj_value2, attention2.permute(0, 2, 1)).view(m_batchsize, C, height, width)
+        # out2 = self.value_conv3(out2.view(m_batchsize, C, height, width)).view(m_batchsize, -1, width * height)
+        # out = torch.bmm(out2, attention3.permute(0, 2, 1))
+
+        out = self.gamma0*out0+self.gamma1*out1+self.gamma2*out2 + x
+        return out
+
+class cascaded_mvPAM_Module_mask(Module):
+    """ Position attention module"""
+
+    # Ref from SAGAN
+    def __init__(self, in_dim, inter_rate, mask=None):
+        super(mvPAM_Module_mask_cascade, self).__init__()
+        self.chanel_in = in_dim
+
+        self.query_conv = Conv2d(in_channels=in_dim, out_channels=in_dim // inter_rate, kernel_size=1)
+        self.key_conv = Conv2d(in_channels=in_dim, out_channels=in_dim // inter_rate, kernel_size=1)
+        self.value_conv0 = Conv2d(in_channels=in_dim, out_channels=in_dim, kernel_size=1)
+        self.value_conv1 = Conv2d(in_channels=in_dim, out_channels=in_dim, kernel_size=1)
+        self.value_conv2 = Conv2d(in_channels=in_dim, out_channels=in_dim, kernel_size=1)
+
+        self.attention_conv1 = Conv2d(in_channels=in_dim, out_channels=in_dim, kernel_size=1)
+        self.attention_conv2 = Conv2d(in_channels=in_dim, out_channels=in_dim, kernel_size=1)
+        self.attention_sigmoid1 = Sigmoid()
+        self.attention_sigmoid2 = Sigmoid()
+
+        # self.value_conv3 = Conv2d(in_channels=in_dim, out_channels=in_dim, kernel_size=1)
+        self.gamma0 = Parameter(torch.zeros(1))
+        self.gamma1 = Parameter(torch.zeros(1))
+        self.gamma2 = Parameter(torch.zeros(1))
+
+        # self.mask0 = Parameter(mask[0][0], requires_grad=False)
+        self.mask1 = Parameter(mask[0][1], requires_grad=False)
+        self.mask2 = Parameter(mask[0][2], requires_grad=False)
+
+        # range from large to small 1, 1/2, 1/4
+        self.mask_softmax0 = Mask_Softmax(mask=None, dim=-1)
+        self.mask_softmax1 = Mask_Softmax(mask=self.mask1, dim=-1)
+        self.mask_softmax2 = Mask_Softmax(mask=self.mask2, dim=-1)
+        # self.mask_softmax2 = Mask_Softmax(mask=None, dim=-1)
+
+        self.bottleneck = Sequential(
+            Conv2d(in_dim * 4, in_dim, kernel_size=1, padding=0, dilation=1, bias=False),
+            BatchNorm2d(in_dim), ReLU(),
+            Dropout2d(0.1)
+        )
+
+    def forward(self, x):
+        """
+            inputs :
+                x : input feature maps( B X C X H X W)
+            returns :
+                out : attention value + input feature
+                attention: B X (HxW) X (HxW)
+        """
+        m_batchsize, C, height, width = x.size()
+        proj_query = self.query_conv(x).view(m_batchsize, -1, width * height).permute(0, 2, 1)
+        proj_key = self.key_conv(x).view(m_batchsize, -1, width * height)
+        energy = torch.bmm(proj_query, proj_key)
+
+        attention0 = self.mask_softmax0(energy)
+        attention1 = self.mask_softmax1(energy)
+        attention2 = self.mask_softmax2(energy)
+        # attention3 = self.mask_softmax3(energy)
+
+        proj_value0 = self.value_conv0(x).view(m_batchsize, -1, width * height)
+        proj_value1 = self.value_conv0(x).view(m_batchsize, -1, width * height)
+        proj_value2 = self.value_conv0(x).view(m_batchsize, -1, width * height)
+
+        out0 = torch.bmm(proj_value0, attention0.permute(0, 2, 1)).view(m_batchsize, C, height, width)
+        cascaded_attention1 = self.attention_conv1(out0)
+        cascaded_attention1 = self.attention_sigmoid1(cascaded_attention1)
+
+        # out0 = self.value_conv1(out0.view(m_batchsize, C, height, width)).view(m_batchsize, -1, width * height)
+        proj_value1 = torch.mul(proj_value1, cascaded_attention1)
+        out1 = torch.bmm(proj_value1, attention1.permute(0, 2, 1)).view(m_batchsize, C, height, width)
+        cascaded_attention2 = self.attention_conv1(out1)
+        cascaded_attention2 = self.attention_sigmoid1(cascaded_attention2)
+        # out1 = self.value_conv2(out1.view(m_batchsize, C, height, width)).view(m_batchsize, -1, width * height)
+        proj_value2 = torch.mul(proj_value2, cascaded_attention2)
+        out2 = torch.bmm(proj_value2, attention2.permute(0, 2, 1)).view(m_batchsize, C, height, width)
+        # out2 = self.value_conv3(out2.view(m_batchsize, C, height, width)).view(m_batchsize, -1, width * height)
+        # out = torch.bmm(out2, attention3.permute(0, 2, 1))
+
+        out = torch.cat((out0, out1, out2, x), 1)
+        out = self.bottleneck(out)
+        # out = self.gamma0*out0+self.gamma1*out1+self.gamma2*out2 + x
+        return out

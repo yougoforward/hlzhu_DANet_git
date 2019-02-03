@@ -9,15 +9,15 @@ import numpy as np
 import torch
 import torch.nn as nn
 from torch.nn.functional import upsample, normalize
-from ..nn import mvPAM_Module_unfold
-from ..nn import mvPAM_Module_mask
 from ..nn import PAM_Module
-from ..nn import CAM_Module
+from ..nn import pool_CAM_Module
+from ..nn import ASPP_Module
 from ..models import BaseNet
-from .convmtx_mask_generater import *
-__all__ = ['mview_DANet2', 'get_mvdanet2']
 
-class mview_DANet2(BaseNet):
+__all__ = ['GLCNet', 'get_glcnet']
+
+
+class GLCNet(BaseNet):
     r"""Fully Convolutional Networks for Semantic Segmentation
 
     Parameters
@@ -39,8 +39,8 @@ class mview_DANet2(BaseNet):
     """
 
     def __init__(self, nclass, backbone, aux=False, se_loss=False, norm_layer=nn.BatchNorm2d, **kwargs):
-        super(mview_DANet2, self).__init__(nclass, backbone, aux, se_loss, norm_layer=norm_layer, **kwargs)
-        self.head = mview_DANetHead2(2048, nclass, norm_layer)
+        super(GLCNet, self).__init__(nclass, backbone, aux, se_loss, norm_layer=norm_layer, **kwargs)
+        self.head = GLCNetHead(2048, nclass, norm_layer)
 
     def forward(self, x):
         imsize = x.size()[2:]
@@ -58,54 +58,69 @@ class mview_DANet2(BaseNet):
         return tuple(outputs)
 
 
-class mview_DANetHead2(nn.Module):
+class GLCNetHead(nn.Module):
     def __init__(self, in_channels, out_channels, norm_layer):
-        super(mview_DANetHead2, self).__init__()
+        super(GLCNetHead, self).__init__()
         inter_channels = in_channels // 4
         self.conv5a = nn.Sequential(nn.Conv2d(in_channels, inter_channels, 3, padding=1, bias=False),
                                     norm_layer(inter_channels),
                                     nn.ReLU())
 
-        self.conv5c = nn.Sequential(nn.Conv2d(in_channels, inter_channels, 3, padding=1, bias=False),
+        self.conv5c = nn.Sequential(nn.Conv2d(in_channels, inter_channels, 1, padding=0, bias=False),
                                     norm_layer(inter_channels),
                                     nn.ReLU())
 
-        self.sa = mvPAM_Module_unfold(inter_channels, inter_rate=64, view=7)
-        self.sc = CAM_Module(inter_channels)
+        self.sa = PAM_Module(inter_channels)
+        self.sc = pool_CAM_Module(256)
+        self.aspp = ASPP_Module(inter_channels, inner_features=256, out_features=256, dilations=(12, 24, 36))
+
         self.conv51 = nn.Sequential(nn.Conv2d(inter_channels, inter_channels, 3, padding=1, bias=False),
                                     norm_layer(inter_channels),
                                     nn.ReLU())
-        self.conv52 = nn.Sequential(nn.Conv2d(inter_channels, inter_channels, 3, padding=1, bias=False),
-                                    norm_layer(inter_channels),
+        self.conv52 = nn.Sequential(nn.Conv2d(256, 256, 3, padding=1, bias=False),
+                                    norm_layer(256),
                                     nn.ReLU())
 
         self.conv6 = nn.Sequential(nn.Dropout2d(0.1, False), nn.Conv2d(512, out_channels, 1))
-        self.conv7 = nn.Sequential(nn.Dropout2d(0.1, False), nn.Conv2d(512, out_channels, 1))
+        self.conv7 = nn.Sequential(nn.Dropout2d(0.1, False), nn.Conv2d(256, out_channels, 1))
 
-        self.conv8 = nn.Sequential(nn.Dropout2d(0.1, False), nn.Conv2d(512, out_channels, 1))
+        self.conv8 = nn.Sequential(nn.Dropout2d(0.1, False), nn.Conv2d(256, out_channels, 1))
 
+        self.avgpool = nn.AvgPool2d(2,2)
     def forward(self, x):
-        feat1 = self.conv5a(x)
+        n,c,h,w = x.size()
+
+        # pool_x=self.avgpool(x)
+        pool_x=x
+        feat1 = self.conv5a(pool_x)
         sa_feat = self.sa(feat1)
         sa_conv = self.conv51(sa_feat)
+        # sa_feat2 = upsample(sa_conv, (h, w))
+        sa_feat2 =sa_conv
+
         sa_output = self.conv6(sa_conv)
 
         feat2 = self.conv5c(x)
-        sc_feat = self.sc(feat2)
+        feat_fuse=sa_feat2+feat2
+        aspp_feat=self.aspp(feat_fuse)
+
+        aspp_output = self.conv7(aspp_feat)
+
+        sc_feat = self.sc(aspp_feat)
         sc_conv = self.conv52(sc_feat)
-        sc_output = self.conv7(sc_conv)
 
-        feat_sum = sa_conv + sc_conv
+        sc_output = self.conv8(sc_conv)
 
-        sasc_output = self.conv8(feat_sum)
+        # feat_sum = sa_conv + sc_conv
+        # sasc_output = self.conv8(feat_sum)
 
-        output = [sasc_output]
+        output = [sc_output]
         output.append(sa_output)
-        output.append(sc_output)
+        output.append(aspp_output)
         return tuple(output)
 
 
-def get_mvdanet2(dataset='pascal_voc', backbone='resnet50', pretrained=False,
+def get_glcnet(dataset='pascal_voc', backbone='resnet50', pretrained=False,
               root='./pretrain_models', **kwargs):
     r"""DANet model from the paper `"Dual Attention Network for Scene Segmentation"
     <https://arxiv.org/abs/1809.02983.pdf>`
@@ -119,7 +134,7 @@ def get_mvdanet2(dataset='pascal_voc', backbone='resnet50', pretrained=False,
     }
     # infer number of classes
     from ..datasets import datasets, VOCSegmentation, VOCAugSegmentation, ADE20KSegmentation
-    model = mview_DANet2(datasets[dataset.lower()].NUM_CLASS, backbone=backbone, root=root, **kwargs)
+    model = GLCNet(datasets[dataset.lower()].NUM_CLASS, backbone=backbone, root=root, **kwargs)
     if pretrained:
         from .model_store import get_model_file
         model.load_state_dict(torch.load(
