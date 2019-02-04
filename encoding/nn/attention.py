@@ -663,7 +663,7 @@ class reduce_PAM_Module(Module):
     """ Position attention module"""
     #Ref from SAGAN
     def __init__(self, in_dim, stride):
-        super(PAM_Module, self).__init__()
+        super(reduce_PAM_Module, self).__init__()
         self.chanel_in = in_dim
         self.stride = stride
 
