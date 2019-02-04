@@ -685,13 +685,13 @@ class reduce_PAM_Module(Module):
         """
         m_batchsize, C, height, width = x.size()
         proj_query = self.query_conv(x).view(m_batchsize, -1, width*height)
-        proj_key = self.key_conv(x).view(m_batchsize, -1, width//self.stride*height//self.stride).permute(0, 2, 1)
+        proj_key = self.key_conv(x).view(m_batchsize, -1, (width//self.stride)*(height//self.stride)).permute(0, 2, 1)
         energy = torch.bmm(proj_key, proj_query)
         attention = self.softmax(energy)
         proj_value = self.value_conv(x).view(m_batchsize, -1, width*height)
 
         out = torch.bmm(proj_value, attention.permute(0, 2, 1))
-        out = out.view(m_batchsize, C, height//self.stride, width//self.stride)
+        out = out.view(m_batchsize, C, (height//self.stride), (width//self.stride))
 
         out = self.gamma*out + self.res_conv(x)
         return out
