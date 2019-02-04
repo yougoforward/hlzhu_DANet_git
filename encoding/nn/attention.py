@@ -14,7 +14,7 @@ from torch.autograd import Variable
 from .mask_softmax import Mask_Softmax
 torch_ver = torch.__version__[:3]
 
-__all__ = ['SE_CAM_module','pool_CAM_Module','ASPP_Module','mvPAM_Module_unfold','mvPAM_Module_mask','mvPAM_Module_mask_cascade','msPAM_Module','PAM_Module', 'CAM_Module']
+__all__ = ['SE_ASPP_Module','reduce_CAM_Module','reduce_PAM_Module','SE_module','pool_CAM_Module','ASPP_Module','mvPAM_Module_unfold','mvPAM_Module_mask','mvPAM_Module_mask_cascade','msPAM_Module','PAM_Module', 'CAM_Module']
 
 
 class mvPAM_Module_unfold(Module):
@@ -371,11 +371,11 @@ class pool_CAM_Module(Module):
         out = se_out + self.gamma * out + x
         return out
 
-class SE_CAM_module(Module):
+class SE_module(Module):
     """ Channel attention module"""
 
     def __init__(self, in_dim):
-        super(SE_CAM_module, self).__init__()
+        super(SE_module, self).__init__()
         self.chanel_in = in_dim
 
         self.se = Sequential(AdaptiveAvgPool2d((1, 1)),
@@ -397,7 +397,7 @@ class SE_CAM_module(Module):
         """
         se_x = self.se(x)
         out = se_x*x
-        # out = out + x
+        out = out + x
 
         return out
 
@@ -617,3 +617,186 @@ class cascaded_mvPAM_Module_mask(Module):
         out = self.bottleneck(out)
         # out = self.gamma0*out0+self.gamma1*out1+self.gamma2*out2 + x
         return out
+
+
+class reduce_CAM_Module(Module):
+    """ Channel attention module"""
+    def __init__(self, in_dim,out_dim):
+        super(reduce_CAM_Module, self).__init__()
+        self.channel_in = in_dim
+        self.channel_out = out_dim
+        self.key_conv = Conv2d(in_channels=in_dim, out_channels=out_dim, kernel_size=1)
+
+        self.res_conv = Conv2d(in_channels=in_dim, out_channels=out_dim, kernel_size=1)
+        self.gamma = Parameter(torch.zeros(1))
+        self.softmax  = Softmax(dim=-1)
+
+        self.avgpool = AvgPool2d(2, 2)
+    def forward(self,x):
+        """
+            inputs :
+                x : input feature maps( B X C X H X W)
+            returns :
+                out : attention value + input feature
+                attention: B X C X C
+        """
+        m_batchsize, C, height, width = x.size()
+
+        pool_x = self.avgpool(x)
+
+        proj_query = pool_x.view(m_batchsize, C, -1).permute(0, 2, 1)
+        proj_key = self.key_conv(pool_x).view(m_batchsize, self.channel_out, -1)
+
+        energy = torch.bmm(proj_key,proj_query)
+        energy_new = torch.max(energy, -1, keepdim=True)[0].expand_as(energy)-energy
+        attention = self.softmax(energy_new)
+        proj_value = x.view(m_batchsize, C, -1)
+
+        out = torch.bmm(attention, proj_value)
+        out = out.view(m_batchsize, self.channel_out, height, width)
+
+        out = self.gamma*out + self.res_conv(x)
+        return out
+
+
+class reduce_PAM_Module(Module):
+    """ Position attention module"""
+    #Ref from SAGAN
+    def __init__(self, in_dim, stride):
+        super(PAM_Module, self).__init__()
+        self.chanel_in = in_dim
+        self.stride = stride
+
+        self.query_conv = Conv2d(in_channels=in_dim, out_channels=in_dim//8, kernel_size=1)
+        self.key_conv = Conv2d(in_channels=in_dim, out_channels=in_dim//8, kernel_size=3,stride=stride)
+        self.value_conv = Conv2d(in_channels=in_dim, out_channels=in_dim, kernel_size=1)
+        self.gamma = Parameter(torch.zeros(1))
+
+        self.res_conv = Conv2d(in_channels=in_dim, out_channels=in_dim, kernel_size=3, stride=stride)
+
+        self.softmax = Softmax(dim=-1)
+    def forward(self, x):
+        """
+            inputs :
+                x : input feature maps( B X C X H X W)
+            returns :
+                out : attention value + input feature
+                attention: B X (HxW) X (HxW)
+        """
+        m_batchsize, C, height, width = x.size()
+        proj_query = self.query_conv(x).view(m_batchsize, -1, width*height)
+        proj_key = self.key_conv(x).view(m_batchsize, -1, width/self.stride*height/self.stride).permute(0, 2, 1)
+        energy = torch.bmm(proj_key, proj_query)
+        attention = self.softmax(energy)
+        proj_value = self.value_conv(x).view(m_batchsize, -1, width*height)
+
+        out = torch.bmm(proj_value, attention.permute(0, 2, 1))
+        out = out.view(m_batchsize, C, height/self.stride, width/self.stride)
+
+        out = self.gamma*out + self.res_conv(x)
+        return out
+
+class ASPP_Module(Module):
+    """
+    Reference:
+        Chen, Liang-Chieh, et al. *"Rethinking Atrous Convolution for Semantic Image Segmentation."*
+    """
+
+    def __init__(self, features, inner_features=256, out_features=256, dilations=(12, 24, 36)):
+        super(ASPP_Module, self).__init__()
+
+        self.conv1 = Sequential(AdaptiveAvgPool2d((1, 1)),
+                                   Conv2d(features, inner_features, kernel_size=1, padding=0, dilation=1,
+                                             bias=False),
+                                BatchNorm2d(inner_features),ReLU())
+        self.conv2 = Sequential(
+            Conv2d(features, inner_features, kernel_size=1, padding=0, dilation=1, bias=False),
+            BatchNorm2d(inner_features),ReLU())
+        self.conv3 = Sequential(
+            Conv2d(features, inner_features, kernel_size=3, padding=dilations[0], dilation=dilations[0], bias=False),
+            BatchNorm2d(inner_features),ReLU())
+        self.conv4 = Sequential(
+            Conv2d(features, inner_features, kernel_size=3, padding=dilations[1], dilation=dilations[1], bias=False),
+            BatchNorm2d(inner_features),ReLU())
+        self.conv5 = Sequential(
+            Conv2d(features, inner_features, kernel_size=3, padding=dilations[2], dilation=dilations[2], bias=False),
+            BatchNorm2d(inner_features),ReLU())
+
+        self.bottleneck = Sequential(
+            Conv2d(inner_features * 5, out_features, kernel_size=1, padding=0, dilation=1, bias=False),
+            BatchNorm2d(out_features),ReLU(),
+            Dropout2d(0.1)
+        )
+
+    def forward(self, x):
+        _, _, h, w = x.size()
+
+        feat1 = F.upsample(self.conv1(x), size=(h, w), mode='bilinear', align_corners=True)
+
+        feat2 = self.conv2(x)
+        feat3 = self.conv3(x)
+        feat4 = self.conv4(x)
+        feat5 = self.conv5(x)
+        out = torch.cat((feat1, feat2, feat3, feat4, feat5), 1)
+
+        bottle = self.bottleneck(out)
+        return bottle
+
+class SE_ASPP_Module(Module):
+    """
+    Reference:
+        Chen, Liang-Chieh, et al. *"Rethinking Atrous Convolution for Semantic Image Segmentation."*
+    """
+
+    def __init__(self, features, inner_features=256, out_features=256, dilations=(12, 24, 36)):
+        super(SE_ASPP_Module, self).__init__()
+
+        self.conv1 = Sequential(AdaptiveAvgPool2d((1, 1)),
+                                   Conv2d(features, inner_features, kernel_size=1, padding=0, dilation=1,
+                                             bias=False),
+                                BatchNorm2d(inner_features),ReLU())
+        self.conv2 = Sequential(
+            Conv2d(features, inner_features, kernel_size=1, padding=0, dilation=1, bias=False),
+            BatchNorm2d(inner_features),ReLU())
+        self.conv3 = Sequential(
+            Conv2d(features, inner_features, kernel_size=3, padding=dilations[0], dilation=dilations[0], bias=False),
+            BatchNorm2d(inner_features),ReLU())
+        self.conv4 = Sequential(
+            Conv2d(features, inner_features, kernel_size=3, padding=dilations[1], dilation=dilations[1], bias=False),
+            BatchNorm2d(inner_features),ReLU())
+        self.conv5 = Sequential(
+            Conv2d(features, inner_features, kernel_size=3, padding=dilations[2], dilation=dilations[2], bias=False),
+            BatchNorm2d(inner_features),ReLU())
+
+        self.bottleneck = Sequential(
+            Conv2d(inner_features * 5, out_features, kernel_size=1, padding=0, dilation=1, bias=False),
+            BatchNorm2d(out_features),ReLU(),
+            Dropout2d(0.1)
+        )
+
+        self.se = Sequential(AdaptiveAvgPool2d((1, 1)),
+                             Conv2d(features, features // 8, kernel_size=1, padding=0, dilation=1,
+                                    bias=False),
+                             BatchNorm2d(features // 8), ReLU(),
+                             Conv2d(features // 8, inner_features, kernel_size=1, padding=0, dilation=1,
+                                    bias=False),
+                             Sigmoid()
+                             )
+
+    def forward(self, x):
+        _, _, h, w = x.size()
+
+        feat1 = F.upsample(self.conv1(x), size=(h, w), mode='bilinear', align_corners=True)
+
+        feat2 = self.conv2(x)
+        feat3 = self.conv3(x)
+        feat4 = self.conv4(x)
+        feat5 = self.conv5(x)
+        out = torch.cat((feat1, feat2, feat3, feat4, feat5), 1)
+
+        se_attention=self.se(out)
+        bottle = self.bottleneck(out)
+
+        bottle = bottle+bottle*se_attention
+
+        return bottle
