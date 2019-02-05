@@ -776,10 +776,10 @@ class SE_ASPP_Module(Module):
         )
 
         self.se = Sequential(AdaptiveAvgPool2d((1, 1)),
-                             Conv2d(features, features // 8, kernel_size=1, padding=0, dilation=1,
+                             Conv2d(inner_features*5, inner_features*5 // 8, kernel_size=1, padding=0, dilation=1,
                                     bias=False),
-                             BatchNorm2d(features // 8), ReLU(),
-                             Conv2d(features // 8, inner_features, kernel_size=1, padding=0, dilation=1,
+                             BatchNorm2d(inner_features*5 // 8), ReLU(),
+                             Conv2d(inner_features*5 // 8, inner_features, kernel_size=1, padding=0, dilation=1,
                                     bias=False),
                              Sigmoid()
                              )
