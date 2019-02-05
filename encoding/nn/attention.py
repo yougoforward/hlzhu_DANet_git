@@ -625,9 +625,11 @@ class reduce_CAM_Module(Module):
         super(reduce_CAM_Module, self).__init__()
         self.channel_in = in_dim
         self.channel_out = out_dim
-        self.key_conv = Conv2d(in_channels=in_dim, out_channels=out_dim, kernel_size=1)
+        self.key_conv = Sequential(Conv2d(in_channels=in_dim, out_channels=out_dim, kernel_size=1),
+                                   BatchNorm2d(out_dim), ReLU())
 
-        self.res_conv = Conv2d(in_channels=in_dim, out_channels=out_dim, kernel_size=1)
+        self.res_conv = Sequential(Conv2d(in_channels=in_dim, out_channels=out_dim, kernel_size=1),
+                                   BatchNorm2d(out_dim), ReLU())
         self.gamma = Parameter(torch.zeros(1))
         self.softmax  = Softmax(dim=-1)
 
@@ -670,10 +672,12 @@ class reduce_PAM_Module(Module):
         self.query_conv = Conv2d(in_channels=in_dim, out_channels=in_dim//8, kernel_size=1)
 
         self.key_conv = Conv2d(in_channels=in_dim, out_channels=in_dim//8, kernel_size=3,stride=stride,padding=1)
-        self.value_conv = Conv2d(in_channels=in_dim, out_channels=in_dim, kernel_size=1)
+        self.value_conv = Sequential(Conv2d(in_channels=in_dim, out_channels=in_dim, kernel_size=1),
+                                     BatchNorm2d(in_dim), ReLU())
         self.gamma = Parameter(torch.zeros(1))
 
-        self.res_conv = Conv2d(in_channels=in_dim, out_channels=in_dim, kernel_size=3, stride=stride, padding=1)
+        self.res_conv = Sequential(Conv2d(in_channels=in_dim, out_channels=in_dim, kernel_size=3, stride=stride, padding=1),
+                                   BatchNorm2d(in_dim), ReLU())
 
         self.softmax = Softmax(dim=-1)
     def forward(self, x):
