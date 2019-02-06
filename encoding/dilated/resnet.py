@@ -3,6 +3,7 @@ import math
 import torch
 import torch.utils.model_zoo as model_zoo
 import torch.nn as nn
+from ..nn import pooling_PAM_Module
 
 __all__ = ['ResNet', 'resnet18', 'resnet34', 'resnet50', 'resnet101',
            'resnet152', 'BasicBlock', 'Bottleneck']

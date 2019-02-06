@@ -14,7 +14,7 @@ from torch.autograd import Variable
 from .mask_softmax import Mask_Softmax
 torch_ver = torch.__version__[:3]
 
-__all__ = ['SE_ASPP_Module','reduce_CAM_Module','reduce_PAM_Module','SE_module','pool_CAM_Module','ASPP_Module','mvPAM_Module_unfold','mvPAM_Module_mask','mvPAM_Module_mask_cascade','msPAM_Module','PAM_Module', 'CAM_Module']
+__all__ = ['pooling_PAM_Module','SE_ASPP_Module','reduce_CAM_Module','reduce_PAM_Module','SE_module','pool_CAM_Module','ASPP_Module','mvPAM_Module_unfold','mvPAM_Module_mask','mvPAM_Module_mask_cascade','msPAM_Module','PAM_Module', 'CAM_Module']
 
 
 class mvPAM_Module_unfold(Module):
@@ -572,7 +572,7 @@ class cascaded_mvPAM_Module_mask(Module):
 
         self.bottleneck = Sequential(
             Conv2d(in_dim * 4, in_dim, kernel_size=1, padding=0, dilation=1, bias=False),
-            BatchNorm2d(in_dim), ReLU(),
+            BatchNorm2d(in_dim), ReLU(inplace=True),
             Dropout2d(0.1)
         )
 
@@ -626,10 +626,10 @@ class reduce_CAM_Module(Module):
         self.channel_in = in_dim
         self.channel_out = out_dim
         self.key_conv = Sequential(Conv2d(in_channels=in_dim, out_channels=out_dim, kernel_size=1),
-                                   BatchNorm2d(out_dim), ReLU())
+                                   BatchNorm2d(out_dim), ReLU(inplace=True))
 
         self.res_conv = Sequential(Conv2d(in_channels=in_dim, out_channels=out_dim, kernel_size=1),
-                                   BatchNorm2d(out_dim), ReLU())
+                                   BatchNorm2d(out_dim), ReLU(inplace=True))
         self.gamma = Parameter(torch.zeros(1))
         self.softmax  = Softmax(dim=-1)
 
@@ -673,11 +673,11 @@ class reduce_PAM_Module(Module):
 
         self.key_conv = Conv2d(in_channels=in_dim, out_channels=in_dim//8, kernel_size=3,stride=stride,padding=1)
         self.value_conv = Sequential(Conv2d(in_channels=in_dim, out_channels=in_dim, kernel_size=1),
-                                     BatchNorm2d(in_dim), ReLU())
+                                     BatchNorm2d(in_dim), ReLU(inplace=True))
         self.gamma = Parameter(torch.zeros(1))
 
         self.res_conv = Sequential(Conv2d(in_channels=in_dim, out_channels=in_dim, kernel_size=3, stride=stride, padding=1),
-                                   BatchNorm2d(in_dim), ReLU())
+                                   BatchNorm2d(in_dim), ReLU(inplace=True))
 
         self.softmax = Softmax(dim=-1)
     def forward(self, x):
@@ -713,23 +713,23 @@ class ASPP_Module(Module):
         self.conv1 = Sequential(AdaptiveAvgPool2d((1, 1)),
                                    Conv2d(features, inner_features, kernel_size=1, padding=0, dilation=1,
                                              bias=False),
-                                BatchNorm2d(inner_features),ReLU())
+                                BatchNorm2d(inner_features),ReLU(inplace=True))
         self.conv2 = Sequential(
             Conv2d(features, inner_features, kernel_size=1, padding=0, dilation=1, bias=False),
-            BatchNorm2d(inner_features),ReLU())
+            BatchNorm2d(inner_features),ReLU(inplace=True))
         self.conv3 = Sequential(
             Conv2d(features, inner_features, kernel_size=3, padding=dilations[0], dilation=dilations[0], bias=False),
-            BatchNorm2d(inner_features),ReLU())
+            BatchNorm2d(inner_features),ReLU(inplace=True))
         self.conv4 = Sequential(
             Conv2d(features, inner_features, kernel_size=3, padding=dilations[1], dilation=dilations[1], bias=False),
-            BatchNorm2d(inner_features),ReLU())
+            BatchNorm2d(inner_features),ReLU(inplace=True))
         self.conv5 = Sequential(
             Conv2d(features, inner_features, kernel_size=3, padding=dilations[2], dilation=dilations[2], bias=False),
-            BatchNorm2d(inner_features),ReLU())
+            BatchNorm2d(inner_features),ReLU(inplace=True))
 
         self.bottleneck = Sequential(
             Conv2d(inner_features * 5, out_features, kernel_size=1, padding=0, dilation=1, bias=False),
-            BatchNorm2d(out_features),ReLU(),
+            BatchNorm2d(out_features),ReLU(inplace=True),
             Dropout2d(0.1)
         )
 
@@ -759,30 +759,30 @@ class SE_ASPP_Module(Module):
         self.conv1 = Sequential(AdaptiveAvgPool2d((1, 1)),
                                    Conv2d(features, inner_features, kernel_size=1, padding=0, dilation=1,
                                              bias=False),
-                                BatchNorm2d(inner_features),ReLU())
+                                BatchNorm2d(inner_features),ReLU(inplace=True))
         self.conv2 = Sequential(
             Conv2d(features, inner_features, kernel_size=1, padding=0, dilation=1, bias=False),
-            BatchNorm2d(inner_features),ReLU())
+            BatchNorm2d(inner_features),ReLU(inplace=True))
         self.conv3 = Sequential(
             Conv2d(features, inner_features, kernel_size=3, padding=dilations[0], dilation=dilations[0], bias=False),
-            BatchNorm2d(inner_features),ReLU())
+            BatchNorm2d(inner_features),ReLU(inplace=True))
         self.conv4 = Sequential(
             Conv2d(features, inner_features, kernel_size=3, padding=dilations[1], dilation=dilations[1], bias=False),
-            BatchNorm2d(inner_features),ReLU())
+            BatchNorm2d(inner_features),ReLU(inplace=True))
         self.conv5 = Sequential(
             Conv2d(features, inner_features, kernel_size=3, padding=dilations[2], dilation=dilations[2], bias=False),
-            BatchNorm2d(inner_features),ReLU())
+            BatchNorm2d(inner_features),ReLU(inplace=True))
 
         self.bottleneck = Sequential(
             Conv2d(inner_features * 5, out_features, kernel_size=1, padding=0, dilation=1, bias=False),
-            BatchNorm2d(out_features),ReLU(),
+            BatchNorm2d(out_features),ReLU(inplace=True),
             Dropout2d(0.1)
         )
 
         self.se = Sequential(AdaptiveAvgPool2d((1, 1)),
                              Conv2d(inner_features*5, inner_features*5 // 8, kernel_size=1, padding=0, dilation=1,
                                     bias=False),
-                             BatchNorm2d(inner_features*5 // 8), ReLU(),
+                             BatchNorm2d(inner_features*5 // 8), ReLU(inplace=True),
                              Conv2d(inner_features*5 // 8, inner_features, kernel_size=1, padding=0, dilation=1,
                                     bias=False),
                              Sigmoid()
@@ -805,3 +805,36 @@ class SE_ASPP_Module(Module):
         bottle = bottle+bottle*se_attention
 
         return bottle
+
+
+class pooling_PAM_Module(Module):
+    """ Position attention module"""
+    #Ref from SAGAN
+    def __init__(self, in_dim, stride):
+        super(pooling_PAM_Module, self).__init__()
+        self.chanel_in = in_dim
+        self.stride = stride
+
+        self.query_conv = Conv2d(in_channels=in_dim, out_channels=in_dim//8, kernel_size=1)
+
+        self.key_conv = Conv2d(in_channels=in_dim, out_channels=in_dim//8, kernel_size=1,stride=stride)
+
+        self.softmax = Softmax(dim=-1)
+    def forward(self, x):
+        """
+            inputs :
+                x : input feature maps( B X C X H X W)
+            returns :
+                out : attention value + input feature
+                attention: B X (HxW) X (HxW)
+        """
+        m_batchsize, C, height, width = x.size()
+        proj_query = self.query_conv(x).view(m_batchsize, -1, width*height)
+        proj_key = self.key_conv(x).view(m_batchsize, -1, (width//self.stride)*(height//self.stride)).permute(0, 2, 1)
+        energy = torch.bmm(proj_key, proj_query)
+        attention = self.softmax(energy)
+        proj_value = x.view(m_batchsize, -1, width*height)
+
+        out = torch.bmm(proj_value, attention.permute(0, 2, 1))
+        out = out.view(m_batchsize, C, (height//self.stride), (width//self.stride))
+        return out

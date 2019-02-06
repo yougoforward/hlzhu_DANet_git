@@ -9,7 +9,7 @@ import numpy as np
 import torch
 import torch.nn as nn
 from torch.nn.functional import upsample, normalize
-from ..nn import reduce_PAM_Module
+from ..nn import PAM_Module
 from ..nn import reduce_CAM_Module
 from ..nn import SE_ASPP_Module
 
@@ -66,8 +66,8 @@ class GLCNet_fastHead(nn.Module):
         inter_channels = in_channels//4
 
         self.sc = reduce_CAM_Module(in_channels,inter_channels)
-        self.sa = reduce_PAM_Module(inter_channels, stride=2)
-
+        # self.sa = reduce_PAM_Module(inter_channels, stride=2)
+        self.sa = PAM_Module(inter_channels)
         self.seaspp = SE_ASPP_Module(inter_channels, inner_features=256, out_features=256, dilations=(6, 12, 18))
 
         self.conv6 = nn.Sequential(nn.Dropout2d(0.1, False), nn.Conv2d(inter_channels, out_channels, 1))
