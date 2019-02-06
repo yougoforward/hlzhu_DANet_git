@@ -48,6 +48,14 @@ class BaseNet(nn.Module):
             self.pretrained = resnet.resnet152(pretrained=True, dilated=dilated,
                                                norm_layer=norm_layer, root=root,
                                                multi_grid=multi_grid, multi_dilation=multi_dilation)
+        elif backbone == 'resnet50_nlp':
+            self.pretrained = resnet.resnet50_nlp(pretrained=True, dilated=dilated,
+                                              norm_layer=norm_layer, root=root,
+                                              multi_grid=multi_grid, multi_dilation=multi_dilation)
+        elif backbone == 'resnet101_nlp':
+            self.pretrained = resnet.resnet101_nlp(pretrained=True, dilated=dilated,
+                                               norm_layer=norm_layer, root=root,
+                                               multi_grid=multi_grid,multi_dilation=multi_dilation)
         else:
             raise RuntimeError('unknown backbone: {}'.format(backbone))
         # bilinear upsample options
