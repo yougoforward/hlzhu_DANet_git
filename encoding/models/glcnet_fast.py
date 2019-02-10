@@ -68,7 +68,7 @@ class GLCNet_fastHead(nn.Module):
         self.sc = reduce_CAM_Module(in_channels,inter_channels)
         # self.sa = reduce_PAM_Module(inter_channels, stride=2)
         self.sa = PAM_Module(inter_channels)
-        self.seaspp = SE_ASPP_Module(inter_channels, inner_features=256, out_features=256, dilations=(6, 12, 18))
+        self.seaspp = SE_ASPP_Module(inter_channels, inner_features=256, out_features=256, dilations=(12, 24, 36))
 
         self.conv6 = nn.Sequential(nn.Dropout2d(0.1, False), nn.Conv2d(inter_channels, out_channels, 1))
         self.conv7 = nn.Sequential(nn.Dropout2d(0.1, False), nn.Conv2d(inter_channels, out_channels, 1))
