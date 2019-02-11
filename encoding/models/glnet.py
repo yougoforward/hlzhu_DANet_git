@@ -44,6 +44,7 @@ class GLNet(BaseNet):
 
     def __init__(self, nclass, backbone, mviews=25, aux=False, se_loss=False, norm_layer=nn.BatchNorm2d, **kwargs):
         super(GLNet, self).__init__(nclass, backbone, aux, se_loss, norm_layer=norm_layer, **kwargs)
+        print(kwargs)
         self.head = GLNetHead(2048, nclass, norm_layer, mask=convmtx2_bf2MV_gaussian(mviews, M=int(kwargs['crop_size']/8), N=int(kwargs['crop_size']/8)))
         # self.head = GLNetHead(2048, nclass, norm_layer)
 
