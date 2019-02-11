@@ -7,7 +7,7 @@
 import numpy as np
 import torch
 import math
-from torch.nn import Module, Sequential, Conv2d, ReLU,AdaptiveMaxPool2d, AdaptiveAvgPool2d, BatchNorm2d, \
+from torch.nn import Module, Sequential, Conv1d, Conv2d, ReLU,AdaptiveMaxPool2d, AdaptiveAvgPool2d, BatchNorm2d, \
     NLLLoss, BCELoss, CrossEntropyLoss, AvgPool2d, MaxPool2d, Parameter, Linear, Sigmoid, Softmax,Dropout2d, Dropout, Embedding
 from torch.nn import functional as F
 from torch.autograd import Variable
@@ -891,8 +891,8 @@ class Cls_gloRe_Module(Module):
         self.class_aware_pred= Sequential(Conv2d(in_channels=self.chanel_in, out_channels=self.chanel_out, kernel_size=1), Sigmoid())
         self.chanel_reduce = Sequential(Conv2d(in_channels=self.chanel_in, out_channels=self.inter_chanel, kernel_size=1), BatchNorm2d(self.inter_chanel), ReLU(inplace=True))
 
-        self.node_conv = Conv2d(in_channels=self.chanel_out, out_channels=self.chanel_out, kernel_size=1)
-        self.chanel_conv = Conv2d(in_channels=self.inter_chanel, out_channels=self.inter_chanel, kernel_size=1)
+        self.node_conv = Conv1d(in_channels=self.chanel_out, out_channels=self.chanel_out, kernel_size=1)
+        self.chanel_conv = Conv1d(in_channels=self.inter_chanel, out_channels=self.inter_chanel, kernel_size=1)
         self.relu = ReLU()
 
         self.chanel_expand = Conv2d(in_channels=self.inter_chanel, out_channels=self.chanel_in, kernel_size=1)
