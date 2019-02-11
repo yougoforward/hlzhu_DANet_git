@@ -895,7 +895,7 @@ class Cls_gloRe_Module(Module):
         self.chanel_conv = Conv1d(in_channels=self.inter_chanel, out_channels=self.inter_chanel, kernel_size=1)
         self.relu = ReLU()
 
-        self.chanel_expand = Sequential(Conv2d(in_channels=self.inter_chanel, out_channels=self.chanel_in, kernel_size=1), BatchNorm2d(self.inter_chanel), ReLU(inplace=True))
+        self.chanel_expand = Sequential(Conv2d(in_channels=self.inter_chanel, out_channels=self.chanel_in, kernel_size=1), BatchNorm2d(self.chanel_in), ReLU(inplace=True))
 
         # self.adj = Parameter(torch.randn(self.chanel_out,self.chanel_out))
         # self.diag = torch.diag(torch.ones(self.chanel_out))
