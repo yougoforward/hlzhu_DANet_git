@@ -12,9 +12,10 @@ from torch.nn import Module, Sequential, Conv2d, ReLU,AdaptiveMaxPool2d, Adaptiv
 from torch.nn import functional as F
 from torch.autograd import Variable
 from .mask_softmax import Mask_Softmax
+from .mask_softmax import gauss_Mask_Softmax
 torch_ver = torch.__version__[:3]
 
-__all__ = ['pooling_PAM_Module','SE_ASPP_Module','reduce_CAM_Module','reduce_PAM_Module','SE_module','pool_CAM_Module','ASPP_Module','mvPAM_Module_unfold','mvPAM_Module_mask','mvPAM_Module_mask_cascade','msPAM_Module','PAM_Module', 'CAM_Module']
+__all__ = ['PRI_CAM_Module','PAM_Module_gaussmask','pooling_PAM_Module','SE_ASPP_Module','reduce_CAM_Module','reduce_PAM_Module','SE_module','pool_CAM_Module','ASPP_Module','mvPAM_Module_unfold','mvPAM_Module_mask','mvPAM_Module_mask_cascade','msPAM_Module','PAM_Module', 'CAM_Module']
 
 
 class mvPAM_Module_unfold(Module):
@@ -949,6 +950,42 @@ class mvPAM_Module_mask(Module):
         out = self.gamma*out + x
         return out
 
+class PAM_Module_gaussmask(Module):
+    """ Position attention module"""
+    #Ref from SAGAN
+    def __init__(self, in_dim, inter_rate, mask=None):
+        super(PAM_Module_gaussmask, self).__init__()
+        self.chanel_in = in_dim
+
+        self.query_conv = Conv2d(in_channels=in_dim, out_channels=in_dim//inter_rate, kernel_size=1)
+        self.key_conv = Conv2d(in_channels=in_dim, out_channels=in_dim//inter_rate, kernel_size=1)
+        self.value_conv = Conv2d(in_channels=in_dim, out_channels=in_dim, kernel_size=1)
+        self.gamma = Parameter(torch.zeros(1))
+
+        self.mask0 = Parameter(mask[0], requires_grad=False)
+        self.mask1 = Parameter(mask[1], requires_grad=False)
+        self.mask_softmax = gauss_Mask_Softmax(mask=[self.mask0, self.mask1], dim=-1)
+    def forward(self, x):
+        """
+            inputs :
+                x : input feature maps( B X C X H X W)
+            returns :
+                out : attention value + input feature
+                attention: B X (HxW) X (HxW)
+        """
+        m_batchsize, C, height, width = x.size()
+        proj_query = self.query_conv(x).view(m_batchsize, -1, width*height).permute(0, 2, 1)
+        proj_key = self.key_conv(x).view(m_batchsize, -1, width*height)
+        energy = torch.bmm(proj_query, proj_key)
+        attention = self.mask_softmax(energy)
+        proj_value = self.value_conv(x).view(m_batchsize, -1, width*height)
+
+        out = torch.bmm(proj_value, attention.permute(0, 2, 1))
+        out = out.view(m_batchsize, C, height, width)
+
+        out = self.gamma*out + x
+        return out
+
 class mvPAM_Module_mask_cascade(Module):
     """ Position attention module"""
     #Ref from SAGAN
@@ -1676,4 +1713,113 @@ class pooling_PAM_Module(Module):
 
         out = torch.bmm(proj_value, attention.permute(0, 2, 1))
         out = out.view(m_batchsize, C, (height//self.stride), (width//self.stride))
+        return out
+
+
+class Cls_gloRe_Module(Module):
+    """ Channel attention module"""
+    def __init__(self, in_dim, num_cls):
+        super(Cls_gloRe_Module, self).__init__()
+        self.chanel_in = in_dim
+        self.inter_chanel = in_dim//2
+        self.chanel_out = num_cls
+        self.class_aware_pred= Sequential(Conv2d(in_channels=self.chanel_in, out_channels=self.chanel_out, kernel_size=1), Sigmoid())
+        self.chanel_reduce = Sequential(Conv2d(in_channels=self.chanel_in, out_channels=self.inter_chanel, kernel_size=1), BatchNorm2d(self.inter_chanel), ReLU(inplace=True))
+
+        self.node_conv = Conv2d(in_channels=self.chanel_out, out_channels=self.chanel_out, kernel_size=1)
+        self.chanel_conv = Conv2d(in_channels=self.inter_chanel, out_channels=self.inter_chanel, kernel_size=1)
+        self.relu = ReLU()
+
+        self.chanel_expand = Conv2d(in_channels=self.inter_chanel, out_channels=self.chanel_in, kernel_size=1)
+
+        self.adj = Parameter(torch.randn(self.chanel_out,self.chanel_out))
+        self.diag = torch.diagnal(torch.ones(self.chanel_out))
+
+
+        self.gamma = Parameter(torch.zeros(1))
+
+    def forward(self,x):
+        """
+            inputs :
+                x : input feature maps( B X C X H X W)
+            returns :
+                out : attention value + input feature
+                attention: B X C X C
+        """
+        m_batchsize, C, height, width = x.size()
+
+        proj_query = self.class_aware_pred(x).view(m_batchsize, self.chanel_out, -1)
+        proj_key = self.chanel_reduce(x).view(m_batchsize, self.inter_chanel, -1).permute(0, 2, 1)
+
+        Nodes = torch.bmm(proj_query, proj_key)
+
+        graph_conv = self.chanel_conv(self.relu(Nodes-self.node_conv(Nodes)).permute(0,2,1))
+
+        out = self.chanel_expand(torch.matmul(graph_conv, proj_query))
+        # out = self.gamma*out + x
+        out = self.gamma * out
+        return out
+
+
+class PRI_CAM_Module(Module):
+    """ Channel attention module"""
+    def __init__(self, in_dim):
+        super(PRI_CAM_Module, self).__init__()
+        self.chanel_in = in_dim
+
+
+        self.gamma = Parameter(torch.zeros(1))
+        self.softmax  = Softmax(dim=-1)
+        self.avgpool = AvgPool2d(2, 2)
+
+        self.se = Sequential(AdaptiveAvgPool2d((1, 1)),
+                             Conv2d(in_dim, in_dim // 8, kernel_size=1, padding=0, dilation=1,
+                                    bias=False),
+                             BatchNorm2d(in_dim // 8), ReLU(inplace=True),
+                             Conv2d(in_dim // 8, in_dim, kernel_size=1, padding=0, dilation=1,
+                                    bias=False),
+                             Sigmoid()
+                             )
+
+        self.ClsgloRe = Cls_gloRe_Module(self.chanel_in, num_cls=19)
+
+    def forward(self,x):
+        """
+            inputs :
+                x : input feature maps( B X C X H X W)
+            returns :
+                out : attention value + input feature
+                attention: B X C X C
+        """
+
+        #pixel level
+        m_batchsize, C, height, width = x.size()
+
+        pool_x = self.avgpool(x)
+
+        proj_query = pool_x.view(m_batchsize, C, -1)
+        proj_key = pool_x.view(m_batchsize, C, -1).permute(0, 2, 1)
+
+        energy = torch.bmm(proj_query, proj_key)
+
+        energy_new = torch.max(energy, -1, keepdim=True)[0].expand_as(energy)-energy
+        attention = self.softmax(energy_new)
+        proj_value = x.view(m_batchsize, C, -1)
+
+        out = torch.bmm(attention, proj_value)
+        out = out.view(m_batchsize, C, height, width)
+
+
+
+        # out = self.gamma * out + x
+
+        #region level
+        ClsgloRe = self.ClsgloRe(x)
+
+        #image level
+        se_x = self.se(x)
+        se_out = se_x * x
+
+
+        out = se_out + self.gamma * out + ClsgloRe + x
         return out

@@ -104,15 +104,31 @@ def convmtx2_bf2MV(mviews=[13,25,49,96], M=96, N=96):
                 X[i:i+P,j:j+Q]=1
                 Tmv[n,i,j]=X[rc:M+P-1-rc,rw:N+Q-1-rw]
                 X = torch.zeros(M + P - 1, N + Q - 1)
-    Mva = Tmv.sum(dim=0)
-    if mviews0[-1] == M:
-        Mva=1./Mva
-    else:
-        Mva2=1./(Mva+1e-9)
-        Mva=torch.where(Mva>0.5,Mva2,Mva)
+    # Mva = Tmv.sum(dim=0)
+    # if mviews0[-1] == M:
+    #     Mva=1./Mva
+    # else:
+    #     Mva2=1./(Mva+1e-9)
+    #     Mva=torch.where(Mva>0.5,Mva2,Mva)
+    # return Tmv.view((mv,M*N,M*N)), Mva.view((M * N, M * N))
+    return Tmv.view((mv,M*N,M*N))
 
-    return Tmv.view((mv,M*N,M*N)), Mva.view((M * N, M * N))
-
+def convmtx2_bf2MV_gaussian(mviews=25, M=96, N=96):
+    Tmv = torch.zeros(M, N, M, N)
+    if mviews == M:
+        return None
+    #generate grid for coordinates
+    tic=time.time()
+    grid_x,grid_y= torch.meshgrid(torch.arange(0,M),torch.arange(0,N))
+    print(time.time()-tic)
+    H = torch.ones(mviews, mviews)
+    P, Q = H.size()[0], H.size()[1]
+    rc = int((P - 1) / 2)
+    for i in range(M):
+        for j in range(N):
+            # Tmv[i, j] = torch.exp(-(torch.pow(grid_x-i,2)+torch.pow(grid_y-j,2)).float()/(rc**2))
+            Tmv[i, j] = -(torch.pow(grid_x - i, 2) + torch.pow(grid_y - j, 2)).float() / (rc ** 2)
+    return Tmv.view((M*N,M*N))
 
 def convmtx2_bf(H=torch.ones(3,3), M=5, N=5):
     '''convmtx2 2-D convolution matrix. this script is modyfied according to MATLAB convmtx2.m
@@ -197,10 +213,19 @@ def im2col():
 
 
 if __name__ == '__main__':
+    tic = time.time()
+    tmv=convmtx2_bf2MV_gaussian(mviews=25, M=96, N=96)
+    toc=time.time()
+    print(toc-tic)
+    np.save("gaussian_mask25.npy",tmv.numpy())
+    tic = time.time()
+    tmv2=np.load("gaussian_mask25.npy")
+    toc=time.time()
+    print(toc - tic)
     tic=time.time()
-    output1=convmtx2_bf(H=torch.ones(13, 13), M=96, N=96)
+    output1=convmtx2_bf(H=torch.ones(25, 25), M=96, N=96)
     toc1=time.time()
-    output2=convmtx2_bf2(H=torch.ones(13,13), M=96, N=96)
+    output2=convmtx2_bf2(H=torch.ones(25,25), M=96, N=96)
     toc2=time.time()
     print(toc1-tic)
     print(toc2-toc1)

@@ -24,7 +24,6 @@ from encoding.models import get_segmentation_model
 
 from option import Options
 
-
 torch_ver = torch.__version__[:3]
 if torch_ver == '0.3':
     from torch.autograd import Variable
@@ -54,6 +53,8 @@ class Trainer():
         self.valloader = data.DataLoader(testset, batch_size=args.batch_size,
                                          drop_last=False, shuffle=False, **kwargs)
         self.nclass = trainset.num_class
+
+
         # model
         model = get_segmentation_model(args.model, dataset=args.dataset,
                                        backbone=args.backbone,
@@ -105,6 +106,8 @@ class Trainer():
                 self.optimizer.load_state_dict(checkpoint['optimizer'])
             self.best_pred = checkpoint['best_pred']
             self.logger.info("=> loaded checkpoint '{}' (epoch {})".format(args.resume, checkpoint['epoch']))
+
+
         # lr scheduler
         self.scheduler = utils.LR_Scheduler(args.lr_scheduler, args.lr,
                                             args.epochs, len(self.trainloader), logger=self.logger,
