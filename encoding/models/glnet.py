@@ -68,11 +68,7 @@ class GLNetHead(nn.Module):
     def __init__(self, in_channels, out_channels, norm_layer, mask):
         super(GLNetHead, self).__init__()
         inter_channels = in_channels//4
-        self.conv5a = nn.Sequential(nn.Conv2d(in_channels, inter_channels, 3, padding=1, bias=False),
-                                    norm_layer(inter_channels),
-                                    nn.ReLU(inplace=True))
-
-        self.conv5c = nn.Sequential(nn.Conv2d(in_channels, inter_channels, 1, padding=0, bias=False),
+        self.conv5a = nn.Sequential(nn.Conv2d(inter_channels, inter_channels, 3, padding=1, bias=False),
                                     norm_layer(inter_channels),
                                     nn.ReLU(inplace=True))
 
@@ -91,9 +87,9 @@ class GLNetHead(nn.Module):
         rcm_feat = self.rcm(x)
         rcm_output = self.conv6(rcm_feat)
 
-        rcm_feat_conv = self.conv(rcm_feat)
+        rcm_feat_conv = self.conv5a(rcm_feat)
         pmg_feat = self.pmg(rcm_feat_conv)
-        pmg_feat = pmg_feat + rcm_feat_conv
+        pmg_feat = pmg_feat + rcm_feat
         pmg_output = self.conv7(pmg_feat)
 
         pcm_feat = self.pcm(pmg_feat)
