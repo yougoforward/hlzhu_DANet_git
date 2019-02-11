@@ -121,6 +121,7 @@ def convmtx2_bf2MV_gaussian(mviews=25, M=96, N=96):
     tic=time.time()
     grid_x,grid_y= torch.meshgrid(torch.arange(0,M),torch.arange(0,N))
     print(time.time()-tic)
+    print(mviews)
     H = torch.ones(mviews, mviews)
     P, Q = H.size()[0], H.size()[1]
     rc = int((P - 1) / 2)
