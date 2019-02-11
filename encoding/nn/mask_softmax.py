@@ -85,7 +85,7 @@ class gauss_Mask_Softmax(Module):
     """
 
     def __init__(self, mask=None, dim=None):
-        super(Mask_Softmax, self).__init__()
+        super(gauss_Mask_Softmax, self).__init__()
         self.dim = dim
         self.mask = mask
 
