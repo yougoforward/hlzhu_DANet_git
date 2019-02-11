@@ -820,9 +820,9 @@ class PAM_Module_gaussmask(Module):
         self.value_conv = Conv2d(in_channels=in_dim, out_channels=in_dim, kernel_size=1)
         self.gamma = Parameter(torch.zeros(1))
 
-        self.mask0 = Parameter(mask[0], requires_grad=False)
-        self.mask1 = Parameter(mask[1], requires_grad=False)
-        self.mask_softmax = gauss_Mask_Softmax(mask=[self.mask0, self.mask1], dim=-1)
+        self.mask0 = Parameter(mask, requires_grad=False)
+
+        self.mask_softmax = gauss_Mask_Softmax(mask=self.mask0, dim=-1)
     def forward(self, x):
         """
             inputs :
