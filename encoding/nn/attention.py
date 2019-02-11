@@ -897,8 +897,8 @@ class Cls_gloRe_Module(Module):
 
         self.chanel_expand = Conv2d(in_channels=self.inter_chanel, out_channels=self.chanel_in, kernel_size=1)
 
-        self.adj = Parameter(torch.randn(self.chanel_out,self.chanel_out))
-        self.diag = torch.diagnal(torch.ones(self.chanel_out))
+        # self.adj = Parameter(torch.randn(self.chanel_out,self.chanel_out))
+        # self.diag = torch.diag(torch.ones(self.chanel_out))
 
 
         self.gamma = Parameter(torch.zeros(1))
