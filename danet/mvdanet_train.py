@@ -54,6 +54,8 @@ class Trainer():
         self.valloader = data.DataLoader(testset, batch_size=args.batch_size,
                                          drop_last=False, shuffle=False, **kwargs)
         self.nclass = trainset.num_class
+
+
         # model
         model = get_segmentation_model(args.model, dataset=args.dataset,
                                        backbone=args.backbone, mviews=args.mviews,
@@ -93,7 +95,6 @@ class Trainer():
             self.logger.info("=> loaded checkpoint '{}' (epoch {})".format(args.ft_resume, checkpoint['epoch']))
         # resuming checkpoint
         if args.resume:
-            resume_ckpt = "%s/%s_model/%s/" % (args.dataset, args.model, args.checkname)
             if not os.path.isfile(args.resume):
                 raise RuntimeError("=> no checkpoint found at '{}'" .format(args.resume))
             checkpoint = torch.load(args.resume)
@@ -106,6 +107,8 @@ class Trainer():
                 self.optimizer.load_state_dict(checkpoint['optimizer'])
             self.best_pred = checkpoint['best_pred']
             self.logger.info("=> loaded checkpoint '{}' (epoch {})".format(args.resume, checkpoint['epoch']))
+
+
         # lr scheduler
         self.scheduler = utils.LR_Scheduler(args.lr_scheduler, args.lr,
                                             args.epochs, len(self.trainloader), logger=self.logger,
