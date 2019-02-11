@@ -921,6 +921,7 @@ class Cls_gloRe_Module(Module):
         graph_conv = self.chanel_conv(self.relu(Nodes-self.node_conv(Nodes)).permute(0,2,1))
 
         out = self.chanel_expand(torch.matmul(graph_conv, proj_query))
+        out = out.view(m_batchsize, C, height, width)
         # out = self.gamma*out + x
         out = self.gamma * out
         return out
