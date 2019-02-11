@@ -66,7 +66,7 @@ class GLNet(BaseNet):
 
 class GLNetHead(nn.Module):
     def __init__(self, in_channels, out_channels, norm_layer, mask):
-        super(GLNet, self).__init__()
+        super(GLNetHead, self).__init__()
         inter_channels = in_channels//4
         self.conv5a = nn.Sequential(nn.Conv2d(in_channels, inter_channels, 3, padding=1, bias=False),
                                     norm_layer(inter_channels),
