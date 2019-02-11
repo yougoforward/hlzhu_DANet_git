@@ -895,7 +895,7 @@ class Cls_gloRe_Module(Module):
         self.chanel_conv = Conv1d(in_channels=self.inter_chanel, out_channels=self.inter_chanel, kernel_size=1)
         self.relu = ReLU()
 
-        self.chanel_expand = Conv2d(in_channels=self.inter_chanel, out_channels=self.chanel_in, kernel_size=1)
+        self.chanel_expand = Sequential(Conv2d(in_channels=self.inter_chanel, out_channels=self.chanel_in, kernel_size=1), BatchNorm2d(self.inter_chanel), ReLU(inplace=True))
 
         # self.adj = Parameter(torch.randn(self.chanel_out,self.chanel_out))
         # self.diag = torch.diag(torch.ones(self.chanel_out))
@@ -920,7 +920,7 @@ class Cls_gloRe_Module(Module):
 
         graph_conv = self.chanel_conv(self.relu(Nodes-self.node_conv(Nodes)).permute(0,2,1))
 
-        out = self.chanel_expand(torch.matmul(graph_conv, proj_query).view(m_batchsize, -1, height, width))
+        out = self.chanel_expand(self.relu(torch.matmul(graph_conv, proj_query).view(m_batchsize, -1, height, width)))
         # out = self.gamma*out + x
         out = self.gamma * out
         return out
