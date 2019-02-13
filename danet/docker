@@ -34,3 +34,46 @@ CUDA_VISIBLE_DEVICES=4,5,6,7 python3 mvdanet_train.py --dataset cityscapes --mvi
 --resume-dir cityscapes/mvdanet_model/mvdanet50
 
 CUDA_VISIBLE_DEVICES=0,1,2,3 python3 train.py --dataset cityscapes --model  glcnet --backbone resnet50 --checkname glcnet50 --resume cityscapes/glcnet_model/glcnet50/checkpoint.pth.tar --base-size 1024 --crop-size 768 --epochs 240 --batch-size 8 --lr 0.003 --workers 2 --scale
+
+
+CUDA_VISIBLE_DEVICES=0,1,2,3 python3 train.py --dataset cityscapes --model  glcnet --backbone resnet50 --checkname glcnet50_da_mg  --base-size 1024 --crop-size 768 --epochs 240 --batch-size 8 --lr 0.003 --workers 2 --multi-grid --multi-dilation 4 8 16
+CUDA_VISIBLE_DEVICES=0,1,2,3 python3 train.py --dataset cityscapes --model  glcnet --backbone resnet50 --checkname glcnet50  --base-size 1024 --crop-size 768 --epochs 240 --batch-size 8 --lr 0.003 --workers 2 --scale
+CUDA_VISIBLE_DEVICES=4,5,6,7 python3 train.py --dataset cityscapes --model  glcnet --backbone resnet50 --checkname glcnet50_2  --base-size 1024 --crop-size 768 --epochs 240 --batch-size 8 --lr 0.003 --workers 2 --scale
+
+CUDA_VISIBLE_DEVICES=4,5,6,7 python3 train.py --dataset cityscapes --model  glcnet --backbone resnet101 --checkname glcnet101  --base-size 1024 --crop-size 768 --epochs 240 --batch-size 8 --lr 0.003 --workers 2 --scale
+
+
+CUDA_VISIBLE_DEVICES=0,1,2,3 python3 test.py --dataset cityscapes --model glcnet --resume-dir cityscapes/glcnet_model/glcnet50 --base-size 2048 --crop-size 768 --workers 1 --backbone resnet50 --multi-grid --multi-dilation 4 8 16 --eval
+CUDA_VISIBLE_DEVICES=0,1,2,3 python3 test.py --dataset cityscapes --model glcnet --resume-dir cityscapes/glcnet_model/glcnet50 --base-size 2048 --crop-size 768 --workers 1 --backbone resnet50 --scale --eval
+docker run --rm -it --init \
+  --runtime=nvidia \
+  --ipc=host \
+  -u root\
+  --volume=$PWD:/app \
+  anibali/pytorch python3 main.py
+
+
+  CUDA_VISIBLE_DEVICES=0,1,2,3 python3 train.py --dataset cityscapes --model  glcnet --backbone resnet101 --checkname glcnet101_da_md  --base-size 1024 --crop-size 768 --epochs 240 --batch-size 8 --lr 0.003 --workers 2 --multi-grid --multi-dilation 4 8 16
+
+CUDA_VISIBLE_DEVICES=4,5,6,7 python test.py --dataset cityscapes --model glcnet_fast --resume-dir cityscapes/glcnet_fast_model/glcnet_fast50 --base-size 2048 --crop-size 768 --workers 1 --backbone resnet50 --scale --eval
+
+CUDA_VISIBLE_DEVICES=0,1,2,3 python3 test.py --dataset cityscapes --model glcnet --resume-dir cityscapes/glcnet_model/glcnet101_da_md --base-size 2048 --crop-size 768 --workers 1 --backbone resnet101 --multi-grid --multi-dilation 4 8 16 --eval
+
+CUDA_VISIBLE_DEVICES=4,5,6,7 python3 test.py --dataset cityscapes --model glcnet --resume-dir cityscapes/glcnet_model/glcnet101 --base-size 2048 --crop-size 768 --workers 1 --backbone resnet101 --scale --eval
+
+
+CUDA_VISIBLE_DEVICES=4,5,6,7 python3 train.py --dataset cityscapes --model  glcnet_fast --backbone resnet50 --checkname glcnet_fast50  --base-size 1024 --crop-size 768 --epochs 240 --batch-size 8 --lr 0.003 --workers 2 --scale
+
+
+docker run -it --runtime=nvidia --ipc=host -u root -v=$PWD:/app hlzhu-pytorch:latest /bin/bash
+
+CUDA_VISIBLE_DEVICES=4,5,6,7 python3 mvdanet_train.py --dataset cityscapes --mviews 25 --model glnet --backbone resnet50 --checkname glnet50 --base-size 1024 --crop-size 768 --epochs 240 --batch-size 8 --lr 0.003 --workers 2 --scale
+CUDA_VISIBLE_DEVICES=4,5,6,7 python3 mvdanet_test.py --dataset cityscapes --mviews 25 --model glnet --resume-dir cityscapes/glnet_model/glnet50 --base-size 2048 --crop-size 768 --workers 1 --backbone resnet50 --scale --eval
+
+
+--resume-dir cityscapes/mvdanet_model/mvdanet50
+
+CUDA_VISIBLE_DEVICES=0,1,2,3 python3 train.py --dataset cityscapes --model  glcnet --backbone resnet50 --checkname glcnet50 --resume cityscapes/glcnet_model/glcnet50/checkpoint.pth.tar --base-size 1024 --crop-size 768 --epochs 240 --batch-size 8 --lr 0.003 --workers 2 --scale
+
+
+CUDA_VISIBLE_DEVICES=0,1,2,3 python3 train.py --dataset cityscapes --model  glcnet --backbone resnet50 --checkname glcnet50_da_mg  --base-size 1024 --crop-size 768 --epochs 240 --batch-size 8 --lr 0.003 --workers 2 --multi-grid --multi-dilation 4 8 16

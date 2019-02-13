@@ -13,6 +13,7 @@ from .cascade_mvdanet import *
 from .GLCnet import *
 from .glcnet_fast import *
 from .glnet import *
+from .pcnet import *
 def get_segmentation_model(name, **kwargs):
     from .fcn import get_fcn
     models = {
@@ -28,5 +29,6 @@ def get_segmentation_model(name, **kwargs):
         'glcnet': get_glcnet,
         'glcnet_fast': get_glcnet_fast,
         'glnet': get_glnet,
+        'pcnet': get_pcnet(),
     }
     return models[name.lower()](**kwargs)

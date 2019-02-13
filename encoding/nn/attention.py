@@ -15,7 +15,7 @@ from .mask_softmax import Mask_Softmax
 from .mask_softmax import gauss_Mask_Softmax
 torch_ver = torch.__version__[:3]
 
-__all__ = ['PRI_CAM_Module','PAM_Module_gaussmask','pooling_PAM_Module','SE_ASPP_Module','reduce_CAM_Module','reduce_PAM_Module','SE_module','pool_CAM_Module','ASPP_Module','mvPAM_Module_unfold','mvPAM_Module_mask','mvPAM_Module_mask_cascade','msPAM_Module','PAM_Module', 'CAM_Module']
+__all__ = ['PCAM_Module','pyramid_Reason_Module','PRI_CAM_Module','PAM_Module_gaussmask','pooling_PAM_Module','SE_ASPP_Module','reduce_CAM_Module','reduce_PAM_Module','SE_module','pool_CAM_Module','ASPP_Module','mvPAM_Module_unfold','mvPAM_Module_mask','mvPAM_Module_mask_cascade','msPAM_Module','PAM_Module', 'CAM_Module']
 
 
 class mvPAM_Module_unfold(Module):
@@ -918,7 +918,7 @@ class Cls_gloRe_Module(Module):
 
         Nodes = torch.bmm(proj_query, proj_key)
 
-        graph_conv = self.chanel_conv(self.relu(Nodes-self.node_conv(Nodes)).permute(0,2,1))
+        graph_conv = self.chanel_conv(self.relu(self.node_conv(Nodes)).permute(0,2,1))
 
         out = self.chanel_expand(self.relu(torch.matmul(graph_conv, proj_query).view(m_batchsize, -1, height, width)))
         # out = self.gamma*out + x
@@ -960,8 +960,8 @@ class PRI_CAM_Module(Module):
         #pixel level
         m_batchsize, C, height, width = x.size()
 
-        pool_x = self.avgpool(x)
-
+        # pool_x = self.avgpool(x)
+        pool_x = x
         proj_query = pool_x.view(m_batchsize, C, -1)
         proj_key = pool_x.view(m_batchsize, C, -1).permute(0, 2, 1)
 
@@ -987,4 +987,141 @@ class PRI_CAM_Module(Module):
 
 
         out = se_out + self.gamma * out + ClsgloRe + x
+        return out
+
+
+
+class PCAM_Module(Module):
+    """ Position attention module"""
+    #Ref from SAGAN
+    def __init__(self, in_dim=2048):
+        super(PCAM_Module, self).__init__()
+        self.chanel_in = in_dim
+
+        self.query_conv_p = Conv2d(in_channels=in_dim, out_channels=in_dim//16, kernel_size=1)
+        self.pc_conv = Sequential(Conv2d(in_channels=in_dim, out_channels=in_dim//4, kernel_size=1), BatchNorm2d(in_dim//4), ReLU(inplace=True))
+
+        self.key_conv = Conv2d(in_channels=in_dim//4, out_channels=in_dim//16, kernel_size=1)
+        self.value_conv = Conv2d(in_channels=in_dim, out_channels=in_dim, kernel_size=1)
+        self.res_conv_p = Sequential(
+            Conv2d(in_channels=in_dim, out_channels=in_dim//4, kernel_size=1, stride=1, padding=0),
+            BatchNorm2d(in_dim//4), ReLU(inplace=True))
+        self.pfusion_conv = Sequential(
+            Conv2d(in_channels=in_dim//4, out_channels=in_dim // 4, kernel_size=3, stride=1, padding=1),
+            BatchNorm2d(in_dim // 4), ReLU(inplace=True))
+        self.gamma_p = Parameter(torch.zeros(1))
+
+        self.softmax = Softmax(dim=-1)
+
+        self.query_conv_c = Conv2d(in_channels=in_dim, out_channels=in_dim // 4, kernel_size=1)
+        self.res_conv_c = Sequential(
+            Conv2d(in_channels=in_dim, out_channels=in_dim // 4, kernel_size=1, stride=1, padding=0),
+            BatchNorm2d(in_dim // 4), ReLU(inplace=True))
+        self.cfusion_conv = Sequential(
+            Conv2d(in_channels=in_dim // 4, out_channels=in_dim // 4, kernel_size=3, stride=1, padding=1),
+            BatchNorm2d(in_dim // 4), ReLU(inplace=True))
+        self.gamma_c = Parameter(torch.zeros(1))
+    def forward(self, x):
+        """
+            inputs :
+                x : input feature maps( B X C X H X W)
+            returns :
+                out : attention value + input feature
+                attention: B X (HxW) X (HxW)
+        """
+
+        # pam part
+        m_batchsize, C, height, width = x.size()
+        proj_query = self.query_conv_p(x).view(m_batchsize, -1, width*height).permute(0, 2, 1)
+        pc_feat= self.pc_conv(x)
+        proj_key = self.key_conv(pc_feat).view(m_batchsize, -1, width*height)
+        energy = torch.bmm(proj_query, proj_key)
+        attention = self.softmax(energy)
+        proj_value = self.value_conv(x).view(m_batchsize, -1, width*height)
+
+        out_p = torch.bmm(proj_value, attention.permute(0, 2, 1))
+        out_p = out_p.view(m_batchsize, C, height, width)
+
+        out_p = self.gamma_p*out_p + self.res_conv_p(x)
+        out_p = self.pfusion_conv(out_p)
+
+        #cam part
+
+        # pixel level
+
+
+        proj_query = self.query_conv_c(x).view(m_batchsize, self.chanel_in//4, -1)
+        proj_key = pc_feat.view(m_batchsize, self.chanel_in//4, -1).permute(0, 2, 1)
+
+        energy = torch.bmm(proj_query, proj_key)
+
+        energy_new = torch.max(energy, -1, keepdim=True)[0].expand_as(energy) - energy
+        attention = self.softmax(energy_new)
+        proj_value = out_p.view(m_batchsize, self.chanel_in//4, -1)
+
+        out_c = torch.bmm(attention, proj_value)
+        out_c = out_c.view(m_batchsize, C, height, width)
+        out_c = self.gamma_c * out_c + self.res_conv_c(x)
+        out_c = self.cfusion_conv(out_c)
+
+        return out_c
+
+
+
+class pyramid_Reason_Module(Module):
+    """ Position attention module"""
+    #Ref from SAGAN
+    def __init__(self, in_dim=512):
+        super(pyramid_Reason_Module, self).__init__()
+        self.chanel_in = in_dim
+        self.query_conv_p1 = Sequential(
+            Conv2d(in_channels=in_dim, out_channels=in_dim//2, kernel_size=1),
+            BatchNorm2d(in_dim//2), ReLU(inplace=True))
+        self.query_conv_p2 = Sequential(
+            Conv2d(in_channels=in_dim//2, out_channels=in_dim//4, kernel_size=1),
+            BatchNorm2d(in_dim//4), ReLU(inplace=True))
+
+        self.py1_prop = Conv1d(in_channels=in_dim//2, out_channels=in_dim//2, kernel_size=1)
+        self.py2_prop = Conv1d(in_channels=in_dim//2, out_channels=in_dim//2, kernel_size=1)
+
+
+        self.fusion_conv = Sequential(
+            Conv2d(in_channels=in_dim, out_channels=in_dim, kernel_size=3, stride=1, padding=1),
+            BatchNorm2d(in_dim), ReLU(inplace=True))
+        self.gamma = Parameter(torch.zeros(1))
+        self.softmax = Softmax(dim=-1)
+
+
+    def forward(self, x):
+        """
+            inputs :
+                x : input feature maps( B X C X H X W)
+            returns :
+                out : attention value + input feature
+                attention: B X (HxW) X (HxW)
+        """
+
+        # pam part
+        m_batchsize, C, height, width = x.size()
+        py1 = self.query_conv_p1(x)
+        py2 = self.query_conv_p2(py1)
+
+        proj_query_py1 = py1.view(m_batchsize, self.chanel_in//2, -1)
+        proj_key_py1 = x.view(m_batchsize, self.chanel_in, -1).permute(0, 2, 1)
+        energy_py1_prop = self.py1_prop(torch.bmm(proj_query_py1, proj_key_py1)).permute(0,2,1)
+
+        proj_query_py2 = py2.view(m_batchsize, self.chanel_in // 4, -1)
+        proj_key_py2 = py1.view(m_batchsize, self.chanel_in//2, -1).permute(0, 2, 1)
+        energy_py2_prop = self.py1_prop(torch.bmm(proj_query_py2, proj_key_py2).permute(0,2,1))
+
+        energy = torch.bmm(energy_py1_prop, energy_py2_prop)
+        energy_new = torch.max(energy, -1, keepdim=True)[0].expand_as(energy) - energy
+        attention = self.softmax(energy_new)
+        proj_value = py2.view(m_batchsize, self.chanel_in // 4, -1)
+
+        out = torch.bmm(attention, proj_value)
+        out = out.view(m_batchsize, C, height, width)
+        out = self.gamma * out + x
+        out = self.fusion_conv(out)
+
         return out
