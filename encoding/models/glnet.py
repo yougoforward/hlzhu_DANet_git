@@ -75,14 +75,16 @@ class GLNetHead(nn.Module):
 
         self.rcm = reduce_CAM_Module(in_channels,inter_channels)
         self.pmg = PAM_Module_gaussmask(inter_channels, inter_rate=64, mask=mask)
-        self.pcm = PRI_CAM_Module(inter_channels)
+        # self.pcm = PRI_CAM_Module(inter_channels)
 
         self.conv6 = nn.Sequential(nn.Dropout2d(0.1, False), nn.Conv2d(inter_channels, out_channels, 1))
         self.conv7 = nn.Sequential(nn.Dropout2d(0.1, False), nn.Conv2d(inter_channels, out_channels, 1))
-        self.conv8 = nn.Sequential(nn.Dropout2d(0.1, False), nn.Conv2d(inter_channels, out_channels, 1))
+        self.conv8 = nn.Sequential(nn.Dropout2d(0.1, False), nn.Conv2d(in_channels, out_channels, 1))
 
     def forward(self, x):
         # n,c,h,w = x.size()
+
+        pcm_output = self.conv8(x)
 
         rcm_feat = self.rcm(x)
         rcm_output = self.conv6(rcm_feat)
@@ -92,12 +94,12 @@ class GLNetHead(nn.Module):
         pmg_feat = pmg_feat + rcm_feat
         pmg_output = self.conv7(pmg_feat)
 
-        pcm_feat = self.pcm(pmg_feat)
-        pcm_output = self.conv8(pcm_feat)
+        # pcm_feat = self.pcm(pmg_feat)
+        # pcm_output = self.conv8(pcm_feat)
 
-        output = [pcm_output]
+        output = [pmg_output]
         output.append(rcm_output)
-        output.append(pmg_output)
+        output.append(pcm_output)
         return tuple(output)
 
 
