@@ -58,7 +58,7 @@ class PCNet(BaseNet):
 
 
 class PCNetHead(nn.Module):
-    def __init__(self, in_channels, out_channels):
+    def __init__(self, in_channels, out_channels,norm_layer):
         super(PCNetHead, self).__init__()
         inter_channels = in_channels // 4
 
