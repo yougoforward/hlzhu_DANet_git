@@ -1040,7 +1040,7 @@ class PCAM_Module(Module):
         proj_value = self.value_conv(x).view(m_batchsize, -1, width*height)
 
         out_p = torch.bmm(proj_value, attention.permute(0, 2, 1))
-        out_p = out_p.view(m_batchsize, C, height, width)
+        out_p = out_p.view(m_batchsize, -1, height, width)
 
         out_p = self.gamma_p*out_p + self.res_conv_p(x)
         out_p = self.pfusion_conv(out_p)
