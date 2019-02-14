@@ -78,7 +78,7 @@ class PCNetHead(nn.Module):
         pcam_feat = self.pcam(x)
         pcam_output = self.conv7(pcam_feat)
 
-        prm_feat = self.prm(x)
+        prm_feat = self.prm(pcam_feat)
         prm_output = self.conv7(prm_feat)
 
         output = [prm_output]
