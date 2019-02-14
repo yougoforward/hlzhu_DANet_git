@@ -1002,7 +1002,7 @@ class PCAM_Module(Module):
         self.pc_conv = Sequential(Conv2d(in_channels=in_dim, out_channels=in_dim//4, kernel_size=1), BatchNorm2d(in_dim//4), ReLU(inplace=True))
 
         self.key_conv = Conv2d(in_channels=in_dim//4, out_channels=in_dim//16, kernel_size=1)
-        self.value_conv = Conv2d(in_channels=in_dim, out_channels=in_dim, kernel_size=1)
+        self.value_conv = Conv2d(in_channels=in_dim, out_channels=in_dim//4, kernel_size=1)
         self.res_conv_p = Sequential(
             Conv2d(in_channels=in_dim, out_channels=in_dim//4, kernel_size=1, stride=1, padding=0),
             BatchNorm2d(in_dim//4), ReLU(inplace=True))
@@ -1060,7 +1060,7 @@ class PCAM_Module(Module):
         proj_value = out_p.view(m_batchsize, self.chanel_in//4, -1)
 
         out_c = torch.bmm(attention, proj_value)
-        out_c = out_c.view(m_batchsize, C, height, width)
+        out_c = out_c.view(m_batchsize, -1, height, width)
         out_c = self.gamma_c * out_c + self.res_conv_c(x)
         out_c = self.cfusion_conv(out_c)
 
