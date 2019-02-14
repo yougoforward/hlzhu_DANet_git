@@ -29,6 +29,6 @@ def get_segmentation_model(name, **kwargs):
         'glcnet': get_glcnet,
         'glcnet_fast': get_glcnet_fast,
         'glnet': get_glnet,
-        'pcnet': get_pcnet(),
+        'pcnet': get_pcnet,
     }
     return models[name.lower()](**kwargs)
