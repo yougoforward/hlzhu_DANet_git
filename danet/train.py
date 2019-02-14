@@ -137,7 +137,7 @@ class Trainer():
             # save checkpoint every 10 epoch
             filename = "checkpoint_%s.pth.tar"%(epoch+1)
             is_best = False
-            if epoch > 99:
+            if epoch > 20:
                 if not epoch % 5:
                     utils.save_checkpoint({
                         'epoch': epoch + 1,
