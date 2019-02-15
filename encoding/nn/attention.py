@@ -1064,7 +1064,7 @@ class PCAM_Module(Module):
         out_c = self.gamma_c * out_c + self.res_conv_c(x)
         out_c = self.cfusion_conv(out_c)
 
-        return out_c
+        return out_c, out_p
 
 
 
