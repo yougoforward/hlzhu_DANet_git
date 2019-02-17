@@ -70,7 +70,7 @@ class mview_DANetHead2(nn.Module):
                                     norm_layer(inter_channels),
                                     nn.ReLU())
 
-        self.sa = mvPAM_Module_unfold(inter_channels, inter_rate=64, view=7)
+        self.sa = mvPAM_Module_unfold(inter_channels, inter_rate=8, view=7)
         self.sc = CAM_Module(inter_channels)
         self.conv51 = nn.Sequential(nn.Conv2d(inter_channels, inter_channels, 3, padding=1, bias=False),
                                     norm_layer(inter_channels),

@@ -15,7 +15,7 @@ from .mask_softmax import Mask_Softmax
 from .mask_softmax import gauss_Mask_Softmax
 torch_ver = torch.__version__[:3]
 
-__all__ = ['PCAM_Module','pyramid_Reason_Module','PRI_CAM_Module','PAM_Module_gaussmask','pooling_PAM_Module','SE_ASPP_Module','reduce_CAM_Module','reduce_PAM_Module','SE_module','pool_CAM_Module','ASPP_Module','mvPAM_Module_unfold','mvPAM_Module_mask','mvPAM_Module_mask_cascade','msPAM_Module','PAM_Module', 'CAM_Module']
+__all__ = ['cascaded_mvPAM_Module_mask','PCAM_Module','pyramid_Reason_Module','PRI_CAM_Module','PAM_Module_gaussmask','pooling_PAM_Module','SE_ASPP_Module','reduce_CAM_Module','reduce_PAM_Module','SE_module','pool_CAM_Module','ASPP_Module','mvPAM_Module_unfold','mvPAM_Module_mask','mvPAM_Module_mask_cascade','msPAM_Module','PAM_Module', 'CAM_Module']
 
 
 class mvPAM_Module_unfold(Module):
@@ -110,6 +110,8 @@ class mvPAM_Module_mask(Module):
 
         out = self.gamma*out + x
         return out
+
+
 
 class mvPAM_Module_mask_cascade(Module):
     """ Position attention module"""

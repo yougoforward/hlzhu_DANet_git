@@ -74,7 +74,7 @@ class GLNetHead(nn.Module):
 
 
         self.rcm = reduce_CAM_Module(in_channels,inter_channels)
-        self.pmg = PAM_Module_gaussmask(inter_channels, inter_rate=64, mask=mask)
+        self.pmg = PAM_Module_gaussmask(inter_channels, inter_rate=8, mask=mask)
         # self.pcm = PRI_CAM_Module(inter_channels)
 
         self.conv6 = nn.Sequential(nn.Dropout2d(0.1, False), nn.Conv2d(inter_channels, out_channels, 1))

@@ -70,7 +70,7 @@ class cascade_mview_DANetHead(nn.Module):
                                     norm_layer(inter_channels),
                                     nn.ReLU())
 
-        self.sa = mvPAM_Module_mask_cascade(inter_channels, inter_rate=64, mask=mask)
+        self.sa = mvPAM_Module_mask_cascade(inter_channels, inter_rate=8, mask=mask)
         self.sc = CAM_Module(inter_channels)
         self.conv51 = nn.Sequential(nn.Conv2d(inter_channels, inter_channels, 3, padding=1, bias=False),
                                     norm_layer(inter_channels),

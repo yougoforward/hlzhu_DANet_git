@@ -9,14 +9,15 @@ import numpy as np
 import torch
 import torch.nn as nn
 from torch.nn.functional import upsample, normalize
+from ..nn import mvPAM_Module_mask
+from ..nn import cascaded_mvPAM_Module_mask
 from ..nn import PAM_Module
 from ..nn import CAM_Module
 from ..models import BaseNet
+from .convmtx_mask_generater import *
+__all__ = ['dasignet', 'get_dasignet']
 
-__all__ = ['DANsiget', 'get_dasignet']
-
-
-class DANsiget(BaseNet):
+class dasignet(BaseNet):
     r"""Fully Convolutional Networks for Semantic Segmentation
 
     Parameters
@@ -37,9 +38,9 @@ class DANsiget(BaseNet):
 
     """
 
-    def __init__(self, nclass, backbone, aux=False, se_loss=False, norm_layer=nn.BatchNorm2d, **kwargs):
-        super(DANsiget, self).__init__(nclass, backbone, aux, se_loss, norm_layer=norm_layer, **kwargs)
-        self.head = DAsigNetHead(2048, nclass, norm_layer)
+    def __init__(self, nclass, backbone, mviews=[13,25,49,96], aux=False, se_loss=False, norm_layer=nn.BatchNorm2d, **kwargs):
+        super(dasignet, self).__init__(nclass, backbone, aux, se_loss, norm_layer=norm_layer, **kwargs)
+        self.head = dasignetHead(2048, nclass, norm_layer, mask=convmtx2_bf2MV(mviews,M=int(kwargs['crop_size']/8),N=int(kwargs['crop_size']/8)))
 
     def forward(self, x):
         imsize = x.size()[2:]
@@ -57,9 +58,9 @@ class DANsiget(BaseNet):
         return tuple(outputs)
 
 
-class DAsigNetHead(nn.Module):
-    def __init__(self, in_channels, out_channels, norm_layer):
-        super(DAsigNetHead, self).__init__()
+class dasignetHead(nn.Module):
+    def __init__(self, in_channels, out_channels, norm_layer, mask):
+        super(dasignetHead, self).__init__()
         inter_channels = in_channels // 4
         self.conv5a = nn.Sequential(nn.Conv2d(in_channels, inter_channels, 3, padding=1, bias=False),
                                     norm_layer(inter_channels),
@@ -69,7 +70,7 @@ class DAsigNetHead(nn.Module):
                                     norm_layer(inter_channels),
                                     nn.ReLU())
 
-        self.sa = PAM_Module(inter_channels)
+        self.sa = cascaded_mvPAM_Module_mask(inter_channels, inter_rate=8, mask=mask)
         self.sc = CAM_Module(inter_channels)
         self.conv51 = nn.Sequential(nn.Conv2d(inter_channels, inter_channels, 3, padding=1, bias=False),
                                     norm_layer(inter_channels),
@@ -106,6 +107,7 @@ class DAsigNetHead(nn.Module):
         return tuple(output)
 
 
+
 def get_dasignet(dataset='pascal_voc', backbone='resnet50', pretrained=False,
               root='./pretrain_models', **kwargs):
     r"""DANet model from the paper `"Dual Attention Network for Scene Segmentation"
@@ -120,12 +122,11 @@ def get_dasignet(dataset='pascal_voc', backbone='resnet50', pretrained=False,
     }
     # infer number of classes
     from ..datasets import datasets, VOCSegmentation, VOCAugSegmentation, ADE20KSegmentation
-    model = DANsiget(datasets[dataset.lower()].NUM_CLASS, backbone=backbone, root=root, **kwargs)
+    model = dasignet(datasets[dataset.lower()].NUM_CLASS, backbone=backbone, root=root, **kwargs)
     if pretrained:
         from .model_store import get_model_file
         model.load_state_dict(torch.load(
             get_model_file('fcn_%s_%s' % (backbone, acronyms[dataset]), root=root)),
             strict=False)
     return model
-
 
