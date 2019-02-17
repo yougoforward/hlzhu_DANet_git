@@ -946,7 +946,7 @@ class PRI_CAM_Module(Module):
                              Sigmoid()
                              )
 
-        self.ClsgloRe = Cls_gloRe_Module(self.chanel_in, num_cls=19)
+        self.ClsgloRe = Cls_gloRe_Module(self.chanel_in, num_cls=128)
 
     def forward(self,x):
         """

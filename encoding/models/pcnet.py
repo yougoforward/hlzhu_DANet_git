@@ -76,14 +76,14 @@ class PCNetHead(nn.Module):
         fcn_output = self.conv6(x)
 
         pcam_feat, p_feat = self.pcam(x)
-        pcam_output = self.conv7(pcam_feat)
+        p_output = self.conv7(p_feat)
 
-        prm_feat = self.prm(pcam_feat)
-        prm_output = self.conv8(prm_feat)
+        # prm_feat = self.prm(pcam_feat)
+        pcam_output = self.conv8(pcam_feat)
 
-        output = [prm_output]
+        output = [pcam_output]
         output.append(fcn_output)
-        output.append(pcam_output)
+        output.append(p_output)
         return tuple(output)
 
 
