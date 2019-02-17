@@ -49,12 +49,12 @@ class cascade_mview_DANet(BaseNet):
         x = self.head(c4)
         x = list(x)
         x[0] = upsample(x[0], imsize, **self._up_kwargs)
-        # x[1] = upsample(x[1], imsize, **self._up_kwargs)
-        # x[2] = upsample(x[2], imsize, **self._up_kwargs)
+        x[1] = upsample(x[1], imsize, **self._up_kwargs)
+        x[2] = upsample(x[2], imsize, **self._up_kwargs)
 
         outputs = [x[0]]
-        # outputs.append(x[1])
-        # outputs.append(x[2])
+        outputs.append(x[1])
+        outputs.append(x[2])
         return tuple(outputs)
 
 

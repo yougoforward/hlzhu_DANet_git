@@ -169,17 +169,14 @@ class mvPAM_Module_mask_cascade(Module):
         out0 = torch.bmm(proj_value, attention0.permute(0, 2, 1))
         out0 = out0.view(m_batchsize, C, height, width)
         out0 = self.gamma * out0 + x
-
         out0 = self.value_conv1(out0)
-        out01 = out0.view(m_batchsize, -1, width * height)
 
-        out1 = torch.bmm(out01, attention1.permute(0, 2, 1))
+        out1 = torch.bmm(out0.view(m_batchsize, -1, width * height), attention1.permute(0, 2, 1))
         out1 = out1.view(m_batchsize, C, height, width)
         out1 = self.gamma1 * out1 + out0
         out1 = self.value_conv2(out1)
-        out11 = out1.view(m_batchsize, -1, width * height)
 
-        out2 = torch.bmm(out11, attention2.permute(0, 2, 1))
+        out2 = torch.bmm(out1.view(m_batchsize, -1, width * height), attention2.permute(0, 2, 1))
         out2 = out2.view(m_batchsize, C, height, width)
         out = self.gamma2 * out2 + out1
         # out = self.value_conv2(out1).view(m_batchsize, -1, width * height)
