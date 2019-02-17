@@ -120,12 +120,21 @@ class mvPAM_Module_mask_cascade(Module):
 
         self.query_conv = Conv2d(in_channels=in_dim, out_channels=in_dim//inter_rate, kernel_size=1)
         self.key_conv = Conv2d(in_channels=in_dim, out_channels=in_dim//inter_rate, kernel_size=1)
+
+
         self.value_conv0 = Conv2d(in_channels=in_dim, out_channels=in_dim, kernel_size=1)
-        # self.value_conv1 = Conv2d(in_channels=in_dim, out_channels=in_dim, kernel_size=1)
-        # self.value_conv2 = Conv2d(in_channels=in_dim, out_channels=in_dim, kernel_size=1)
+        self.value_conv1 = Sequential(Conv2d(in_dim, in_dim, 3, padding=1, bias=False),
+                                    BatchNorm2d(in_dim),
+                                    ReLU(inplace=True))
+        self.value_conv2 = Sequential(Conv2d(in_dim, in_dim, 3, padding=1, bias=False),
+                                 BatchNorm2d(in_dim),
+                                 ReLU(inplace=True))
+        # self.value_conv1 = Conv2d(in_channels=in_dim, out_channels=in_dim, kernel_size=3)
+        # self.value_conv2 = Conv2d(in_channels=in_dim, out_channels=in_dim, kernel_size=3)
         # self.value_conv3 = Conv2d(in_channels=in_dim, out_channels=in_dim, kernel_size=1)
         self.gamma = Parameter(torch.zeros(1))
-
+        self.gamma1 = Parameter(torch.zeros(1))
+        self.gamma2 = Parameter(torch.zeros(1))
         # self.mask0 = Parameter(mask[0][0], requires_grad=False)
         self.mask1 = Parameter(mask[0][1], requires_grad=False)
         self.mask2 = Parameter(mask[0][2], requires_grad=False)
@@ -158,16 +167,26 @@ class mvPAM_Module_mask_cascade(Module):
         proj_value = self.value_conv0(x).view(m_batchsize, -1, width*height)
 
         out0 = torch.bmm(proj_value, attention0.permute(0, 2, 1))
-        # out0 = self.value_conv1(out0.view(m_batchsize, C, height, width)).view(m_batchsize, -1, width * height)
+        out0 = out0.view(m_batchsize, C, height, width)
+        out0 = self.gamma * out0 + x
+
+        out0 = self.value_conv1(out0).view(m_batchsize, -1, width * height)
+
         out1 = torch.bmm(out0, attention1.permute(0, 2, 1))
-        # out1 = self.value_conv2(out1.view(m_batchsize, C, height, width)).view(m_batchsize, -1, width * height)
-        out = torch.bmm(out1, attention2.permute(0, 2, 1))
+        out1 = out1.view(m_batchsize, C, height, width)
+        out1 = self.gamma1 * out1 + out0
+        out1 = self.value_conv2(out1).view(m_batchsize, -1, width * height)
+
+        out2 = torch.bmm(out1, attention2.permute(0, 2, 1))
+        out2 = out2.view(m_batchsize, C, height, width)
+        out = self.gamma2 * out2 + out1
+        # out = self.value_conv2(out1).view(m_batchsize, -1, width * height)
         # out2 = self.value_conv3(out2.view(m_batchsize, C, height, width)).view(m_batchsize, -1, width * height)
         # out = torch.bmm(out2, attention3.permute(0, 2, 1))
 
-        out = out.view(m_batchsize, C, height, width)
+        # out = out.view(m_batchsize, C, height, width)
 
-        out = self.gamma*out + x
+        # out = self.gamma*out + x
         return out
 
 class msPAM_Module(Module):
