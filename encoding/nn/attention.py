@@ -112,6 +112,223 @@ class mvPAM_Module_mask(Module):
         return out
 
 
+class sig_attention(Module):
+    """ Position attention module"""
+    #Ref from SAGAN
+    def __init__(self, in_dim):
+        super(sig_attention, self).__init__()
+
+        self.chanel_in = in_dim
+
+        self.conv = Conv2d(in_channels=in_dim, out_channels=in_dim, kernel_size=1)
+        self.sig = Sigmoid()
+
+    def forward(self, x):
+        """
+            inputs :
+                x : input feature maps( B X C X H X W)
+            returns :
+                out : attention value + input feature
+                attention: B X (HxW) X (HxW)
+        """
+        out = torch.mul(self.sig(self.conv(x)),x)
+
+        return out
+
+class chl_attention(Module):
+    """ Channel attention module"""
+    def __init__(self, in_dim):
+        super(chl_attention, self).__init__()
+        self.chanel_in = in_dim
+
+        self.query_conv = Sequential(Conv2d(in_channels=self.chanel_in, out_channels=self.chanel_in//4, kernel_size=1), BatchNorm2d(self.inter_chanel), ReLU(inplace=True))
+        # self.query_conv = Conv2d(in_channels=in_dim, out_channels=in_dim // 4, kernel_size=1)
+        self.exp_conv = Conv1d(in_channels=in_dim//4, out_channels=in_dim, kernel_size=1)
+
+        # self.gamma = Parameter(torch.zeros(1))
+        self.softmax  = Softmax(dim=-1)
+    def forward(self,x):
+        """
+            inputs :
+                x : input feature maps( B X C X H X W)
+            returns :
+                out : attention value + input feature
+                attention: B X C X C
+        """
+        m_batchsize, C, height, width = x.size()
+        proj_query = self.query_conv(x).view(m_batchsize, self.chanel_in//4, -1)
+        proj_key = x.view(m_batchsize, C, -1).permute(0, 2, 1)
+        energy = torch.bmm(proj_query, proj_key)
+        expand_energy = self.exp_conv(energy)
+
+        energy_new = torch.max(expand_energy, -1, keepdim=True)[0].expand_as(energy)-energy
+        attention = self.softmax(energy_new)
+        proj_value = x.view(m_batchsize, C, -1)
+
+        out = torch.bmm(attention, proj_value)
+        out = out.view(m_batchsize, C, height, width)
+
+        # out = self.gamma*out + x
+        return out
+class mvPAM_Module_mask_cascade_chl(Module):
+    """ Position attention module"""
+    #Ref from SAGAN
+    def __init__(self, in_dim, inter_rate, mask=None):
+        super(mvPAM_Module_mask_cascade_chl, self).__init__()
+        self.chanel_in = in_dim
+
+        self.query_conv = Conv2d(in_channels=in_dim, out_channels=in_dim//inter_rate, kernel_size=1)
+        self.key_conv = Conv2d(in_channels=in_dim, out_channels=in_dim//inter_rate, kernel_size=1)
+
+
+        self.value_conv0 = Conv2d(in_channels=in_dim, out_channels=in_dim, kernel_size=1)
+        self.value_conv1 = Sequential(Conv2d(in_dim, in_dim, 3, padding=1, bias=False),
+                                    BatchNorm2d(in_dim),
+                                    ReLU(inplace=True))
+        self.value_conv2 = Sequential(Conv2d(in_dim, in_dim, 3, padding=1, bias=False),
+                                 BatchNorm2d(in_dim),
+                                 ReLU(inplace=True))
+        # self.value_conv1 = Conv2d(in_channels=in_dim, out_channels=in_dim, kernel_size=3)
+        # self.value_conv2 = Conv2d(in_channels=in_dim, out_channels=in_dim, kernel_size=3)
+        # self.value_conv3 = Conv2d(in_channels=in_dim, out_channels=in_dim, kernel_size=1)
+        self.gamma = Parameter(torch.zeros(1))
+        self.gamma1 = Parameter(torch.zeros(1))
+        self.gamma2 = Parameter(torch.zeros(1))
+        # self.mask0 = Parameter(mask[0], requires_grad=False)
+        self.mask1 = Parameter(mask[1], requires_grad=False)
+        self.mask2 = Parameter(mask[2], requires_grad=False)
+
+        self.mask_softmax0 = Mask_Softmax(mask=None, dim=-1)
+        self.mask_softmax1 = Mask_Softmax(mask=self.mask1, dim=-1)
+        self.mask_softmax2 = Mask_Softmax(mask=self.mask2, dim=-1)
+        # self.mask_softmax2 = Mask_Softmax(mask=None, dim=-1)
+
+        self.chla1 = chl_attention(in_dim)
+        self.chla2 = chl_attention(in_dim)
+
+
+    def forward(self, x):
+        """
+            inputs :
+                x : input feature maps( B X C X H X W)
+            returns :
+                out : attention value + input feature
+                attention: B X (HxW) X (HxW)
+        """
+        m_batchsize, C, height, width = x.size()
+        proj_query = self.query_conv(x).view(m_batchsize, -1, width*height).permute(0, 2, 1)
+        proj_key = self.key_conv(x).view(m_batchsize, -1, width*height)
+        energy = torch.bmm(proj_query, proj_key)
+
+        attention0 = self.mask_softmax0(energy)
+        attention1 = self.mask_softmax1(energy)
+        attention2 = self.mask_softmax2(energy)
+        # attention3 = self.mask_softmax3(energy)
+
+
+        proj_value = self.value_conv0(x).view(m_batchsize, -1, width*height)
+
+        out0 = torch.bmm(proj_value, attention0.permute(0, 2, 1))
+        out0 = out0.view(m_batchsize, C, height, width)
+        out0 = self.gamma * out0 + x
+        out0 = self.value_conv1(out0)
+
+        out1 = torch.bmm(self.chla1(out0).view(m_batchsize, -1, width * height), attention1.permute(0, 2, 1))
+        out1 = out1.view(m_batchsize, C, height, width)
+        out1 = self.gamma1 * out1 + out0
+        out1 = self.value_conv2(out1)
+
+        out2 = torch.bmm(self.chla2(out1).view(m_batchsize, -1, width * height), attention2.permute(0, 2, 1))
+        out2 = out2.view(m_batchsize, C, height, width)
+        out = self.gamma2 * out2 + out1
+        # out = self.value_conv2(out1).view(m_batchsize, -1, width * height)
+        # out2 = self.value_conv3(out2.view(m_batchsize, C, height, width)).view(m_batchsize, -1, width * height)
+        # out = torch.bmm(out2, attention3.permute(0, 2, 1))
+
+        # out = out.view(m_batchsize, C, height, width)
+
+        # out = self.gamma*out + x
+        return out
+
+class mvPAM_Module_mask_cascade_sig(Module):
+    """ Position attention module"""
+    #Ref from SAGAN
+    def __init__(self, in_dim, inter_rate, mask=None):
+        super(mvPAM_Module_mask_cascade_sig, self).__init__()
+        self.chanel_in = in_dim
+
+        self.query_conv = Conv2d(in_channels=in_dim, out_channels=in_dim//inter_rate, kernel_size=1)
+        self.key_conv = Conv2d(in_channels=in_dim, out_channels=in_dim//inter_rate, kernel_size=1)
+
+
+        self.value_conv0 = Conv2d(in_channels=in_dim, out_channels=in_dim, kernel_size=1)
+        self.value_conv1 = Sequential(Conv2d(in_dim, in_dim, 3, padding=1, bias=False),
+                                    BatchNorm2d(in_dim),
+                                    ReLU(inplace=True))
+        self.value_conv2 = Sequential(Conv2d(in_dim, in_dim, 3, padding=1, bias=False),
+                                 BatchNorm2d(in_dim),
+                                 ReLU(inplace=True))
+        # self.value_conv1 = Conv2d(in_channels=in_dim, out_channels=in_dim, kernel_size=3)
+        # self.value_conv2 = Conv2d(in_channels=in_dim, out_channels=in_dim, kernel_size=3)
+        # self.value_conv3 = Conv2d(in_channels=in_dim, out_channels=in_dim, kernel_size=1)
+        self.gamma = Parameter(torch.zeros(1))
+        self.gamma1 = Parameter(torch.zeros(1))
+        self.gamma2 = Parameter(torch.zeros(1))
+        # self.mask0 = Parameter(mask[0], requires_grad=False)
+        self.mask1 = Parameter(mask[1], requires_grad=False)
+        self.mask2 = Parameter(mask[2], requires_grad=False)
+
+        self.mask_softmax0 = Mask_Softmax(mask=None, dim=-1)
+        self.mask_softmax1 = Mask_Softmax(mask=self.mask1, dim=-1)
+        self.mask_softmax2 = Mask_Softmax(mask=self.mask2, dim=-1)
+        # self.mask_softmax2 = Mask_Softmax(mask=None, dim=-1)
+
+        self.siga1 = sig_attention(in_dim)
+        self.siga2 = sig_attention(in_dim)
+
+    def forward(self, x):
+        """
+            inputs :
+                x : input feature maps( B X C X H X W)
+            returns :
+                out : attention value + input feature
+                attention: B X (HxW) X (HxW)
+        """
+        m_batchsize, C, height, width = x.size()
+        proj_query = self.query_conv(x).view(m_batchsize, -1, width*height).permute(0, 2, 1)
+        proj_key = self.key_conv(x).view(m_batchsize, -1, width*height)
+        energy = torch.bmm(proj_query, proj_key)
+
+        attention0 = self.mask_softmax0(energy)
+        attention1 = self.mask_softmax1(energy)
+        attention2 = self.mask_softmax2(energy)
+        # attention3 = self.mask_softmax3(energy)
+
+
+        proj_value = self.value_conv0(x).view(m_batchsize, -1, width*height)
+
+        out0 = torch.bmm(proj_value, attention0.permute(0, 2, 1))
+        out0 = out0.view(m_batchsize, C, height, width)
+        out0 = self.gamma * out0 + x
+        out0 = self.value_conv1(out0)
+
+        out1 = torch.bmm(self.siga1(out0).view(m_batchsize, -1, width * height), attention1.permute(0, 2, 1))
+        out1 = out1.view(m_batchsize, C, height, width)
+        out1 = self.gamma1 * out1 + out0
+        out1 = self.value_conv2(out1)
+
+        out2 = torch.bmm(self.siga2(out1).view(m_batchsize, -1, width * height), attention2.permute(0, 2, 1))
+        out2 = out2.view(m_batchsize, C, height, width)
+        out = self.gamma2 * out2 + out1
+        # out = self.value_conv2(out1).view(m_batchsize, -1, width * height)
+        # out2 = self.value_conv3(out2.view(m_batchsize, C, height, width)).view(m_batchsize, -1, width * height)
+        # out = torch.bmm(out2, attention3.permute(0, 2, 1))
+
+        # out = out.view(m_batchsize, C, height, width)
+
+        # out = self.gamma*out + x
+        return out
+
 
 class mvPAM_Module_mask_cascade(Module):
     """ Position attention module"""
@@ -581,9 +798,9 @@ class cascaded_mvPAM_Module_mask(Module):
         self.gamma1 = Parameter(torch.zeros(1))
         self.gamma2 = Parameter(torch.zeros(1))
 
-        # self.mask0 = Parameter(mask[0][0], requires_grad=False)
-        self.mask1 = Parameter(mask[0][1], requires_grad=False)
-        self.mask2 = Parameter(mask[0][2], requires_grad=False)
+        # self.mask0 = Parameter(mask[0], requires_grad=False)
+        self.mask1 = Parameter(mask[1], requires_grad=False)
+        self.mask2 = Parameter(mask[2], requires_grad=False)
 
         # range from large to small 1, 1/2, 1/4
         self.mask_softmax0 = Mask_Softmax(mask=None, dim=-1)
