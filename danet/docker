@@ -177,9 +177,64 @@ CUDA_VISIBLE_DEVICES=4,5 sh cam15_train_cityscapes.sh
 
 CUDA_VISIBLE_DEVICES=0,1,2,3 sh dp_cityscapes.sh 2>&1 |tee dp_cityscapes2.log
 
+docker run -it --runtime=nvidia -p 8097:8097 --ipc=host -u root -v=$PWD:/app hlzhu-pytorch:latest /bin/bash
+docker run -it --runtime=nvidia -p 6006:6006 --ipc=host -u root -v=$PWD:/app hlzhu-pytorch:latest /bin/bash
+
+nvidia-docker run -it --runtime=nvidia -p 8097:8097 -v=$PWD:/workspace  taesungp/pytorch-cyclegan-and-pix2pix
+
 
 CUDA_VISIBLE_DEVICES=4,5,6,7 python mvdanet_train.py --dataset cityscapes --mviews 96 49 25 --model cascade_mvdanet --backbone resnet50 --checkname cascade_mvdanet50 --base-size 1024 --crop-size 768 --epochs 240 --batch-size 8 --lr 0.003 --workers 2 --scale
-CUDA_VISIBLE_DEVICES=4,5,6,7 python mvdanet_test.py --dataset cityscapes --mviews 25 --model glnet --resume-dir cityscapes/glnet_model/glnet50 --base-size 2048 --crop-size 768 --workers 1 --backbone resnet50 --scale --eval
+CUDA_VISIBLE_DEVICES=4,5,6,7 python mvdanet_test.py --dataset cityscapes --mviews 96 49 25 --model cascade_mvdanet --resume-dir cityscapes/cascade_mvdanet_model/cascade_mvdanet50 --base-size 2048 --crop-size 768 --workers 2 --backbone resnet50 --scale --eval
 
 
 CUDA_VISIBLE_DEVICES=4,5 python mvdanet_train.py --dataset cityscapes --mviews 96 49 25 --model dasignet --backbone resnet50 --checkname dasignet50 --base-size 1024 --crop-size 768 --epochs 240 --batch-size 8 --lr 0.006 --workers 2 --scale
+CUDA_VISIBLE_DEVICES=4,5,6,7 python mvdanet_test.py --dataset cityscapes --mviews 96 49 25 --model dasignet --resume-dir cityscapes/dasignet_model/dasignet50 --base-size 2048 --crop-size 768 --workers 2 --backbone resnet50 --scale --eval
+
+
+python train.py --dataroot ./datasets/AL_image_merge/canny_hed --name robot_cyclegan_gray_hed --model cycle_gan --gpu_ids 4,5,6,7 --batch_size 64 --display_id 1 --lambda_A 1 --lambda_B 1 --input_nc 1 --output_nc 1
+
+python train.py --dataroot /workspace/AL_image_merge/canny_hed --name robot_cyclegan_gray_hed --model cycle_gan --gpu_ids 4,5,6,7 --batch_size 64 --display_id 1 --lambda_A 1 --lambda_B 1 --input_nc 1 --output_nc 1
+
+python3 train.py --dataroot ./datasets/cgan5in1 --name robot_pix2pixgan_5v5 --model pix2pix --gpu_ids 4,5,6,7 --batch_size 64  --display_id 1 --input_nc 2 --output_nc 1
+
+python train.py --dataroot ./datasets/canny_hed --name combine_cyclegan --model cycle_gan --gpu_ids 4,5,6,7 --batch_size 64 --display_id 1 --lambda_A 1 --lambda_B 1 --input_nc 1 --output_nc 1
+
+python3 test.py --dataroot ./datasets/canny_hed --name combine_cyclegan --model cycle_gan --gpu_ids 4,5,6,7 --input_nc 1 --output_nc 1
+
+python3 train.py --dataroot ./datasets/combine_hed4in1 --name combine_pix2pixgan_4v1 --model pix2pix --gpu_ids 4,5,6,7 --batch_size 64  --display_id 1 --input_nc 2 --output_nc 1
+
+
+python3 train.py --dataroot ./datasets/brain --name brain_cyclegan --model cycle_gan --gpu_ids 4,5,6,7 --batch_size 8 --display_id 1 --lambda_A 1 --lambda_B 1 --input_nc 1 --output_nc 1
+python3 test.py --dataroot ./datasets/brain --name brain_cyclegan --model cycle_gan --gpu_ids 4,5,6,7 --input_nc 1 --output_nc 1
+
+python3 train.py --dataroot ./datasets/circuit --name circuit_cyclegan --model cycle_gan --gpu_ids 4,5,6,7 --batch_size 8 --display_id 2 --lambda_A 1 --lambda_B 1 --input_nc 1 --output_nc 1
+python3 test.py --dataroot ./datasets/circuit --name circuit_cyclegan --model cycle_gan --gpu_ids 4,5,6,7 --input_nc 1 --output_nc 1
+
+python3 train.py --dataroot ./datasets/ai --name ai_cyclegan --model cycle_gan --gpu_ids 4,5,6,7 --batch_size 8 --display_id 3 --lambda_A 1 --lambda_B 1 --input_nc 1 --output_nc 1
+python3 test.py --dataroot ./datasets/ai --name ai_cyclegan --model cycle_gan --gpu_ids 4,5,6,7 --input_nc 1 --output_nc 1
+
+python3 train.py --dataroot ./datasets/logo --name logo_cyclegan --model cycle_gan --gpu_ids 4,5,6,7 --batch_size 8 --display_id 4 --lambda_A 1 --lambda_B 1 --input_nc 1 --output_nc 1
+python3 test.py --dataroot ./datasets/logo --name logo_cyclegan --model cycle_gan --gpu_ids 4,5,6,7 --input_nc 1 --output_nc 1
+
+python3 train.py --dataroot ./datasets/robot --name robot_cyclegan --model cycle_gan --gpu_ids 4,5,6,7 --batch_size 8 --display_id 5 --lambda_A 1 --lambda_B 1 --input_nc 1 --output_nc 1
+python3 test.py --dataroot ./datasets/robot --name robot_cyclegan --model cycle_gan --gpu_ids 4,5,6,7 --input_nc 1 --output_nc 1
+
+
+
+CUDA_VISIBLE_DEVICES=4,5,6,7 python gan_train.py --data_dir ./datasets/circuit_canny_hed --gpus 0,1,2,3 --log_dir ./runs/circuit
+
+CUDA_VISIBLE_DEVICES=4,5,6,7 python gan_train.py --data_dir ./datasets/brain_canny_hed --gpus 0,1,2,3 --log_dir ./runs/brain
+
+CUDA_VISIBLE_DEVICES=0,1,2,3 python gan_train.py --data_dir ./datasets/combine --gpus 0,1,2,3 --log_dir ./runs/combine
+
+CUDA_VISIBLE_DEVICES=4,5,6,7 python gan_train.py --data_dir ./datasets/robot_canny_hed --gpus 0,1,2,3 --log_dir ./runs/robot
+
+CUDA_VISIBLE_DEVICES=0,1,2,3 python gan_train.py --data_dir ./datasets/logo_canny_hed --gpus 0,1,2,3 --log_dir ./runs/logo
+
+
+
+CUDA_VISIBLE_DEVICES=4,5,6,7 python3 cgan_nogloss_train.py --condition_data_dir ./datasets/circuit --target_data_dir ./datasets/fake_B  --gpus 0,1,2,3 --log_dir ./runs/cgan_nogloss
+
+CUDA_VISIBLE_DEVICES=4,5,6,7 python3 cgan_train.py --condition_data_dir ./datasets/circuit --target_data_dir ./datasets/fake_B  --gpus 0,1,2,3 --log_dir ./runs/cgan
+
+python cgan_train.py --condition_data_dir ./datasets/robot_canny_hed --target_data_dir ./datasets/circuit --gpus 0 --log_dir ./runs/cgan --batch_size 2

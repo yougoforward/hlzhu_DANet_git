@@ -15,7 +15,7 @@ from .mask_softmax import Mask_Softmax
 from .mask_softmax import gauss_Mask_Softmax
 torch_ver = torch.__version__[:3]
 
-__all__ = ['cascaded_mvPAM_Module_mask','PCAM_Module','pyramid_Reason_Module','PRI_CAM_Module','PAM_Module_gaussmask','pooling_PAM_Module','SE_ASPP_Module','reduce_CAM_Module','reduce_PAM_Module','SE_module','pool_CAM_Module','ASPP_Module','mvPAM_Module_unfold','mvPAM_Module_mask','mvPAM_Module_mask_cascade','msPAM_Module','PAM_Module', 'CAM_Module']
+__all__ = ['Propagation_Pooling_Module','cascaded_mvPAM_Module_mask','PCAM_Module','pyramid_Reason_Module','PRI_CAM_Module','PAM_Module_gaussmask','pooling_PAM_Module','SE_ASPP_Module','reduce_CAM_Module','reduce_PAM_Module','SE_module','pool_CAM_Module','ASPP_Module','mvPAM_Module_unfold','mvPAM_Module_mask','mvPAM_Module_mask_cascade','msPAM_Module','PAM_Module', 'CAM_Module']
 
 
 class mvPAM_Module_unfold(Module):
@@ -1362,3 +1362,138 @@ class pyramid_Reason_Module(Module):
         out = self.fusion_conv(out)
 
         return out
+
+
+
+class ori_Propagation_Pooling_Module(Module):
+    """ Position attention module"""
+    #Ref from SAGAN
+    def __init__(self, in_dim=512):
+        super(Propagation_Pooling_Module, self).__init__()
+        self.chanel_in = in_dim
+
+        self.query_conv_p = Conv2d(in_channels=in_dim, out_channels=in_dim // 8, kernel_size=1)
+        self.key_conv_p = Conv2d(in_channels=in_dim, out_channels=in_dim // 8, kernel_size=1)
+
+        self.pc_conv = Sequential(Conv2d(in_channels=in_dim, out_channels=in_dim//4, kernel_size=1), BatchNorm2d(in_dim//4), ReLU(inplace=True))
+
+        self.key_conv = Conv2d(in_channels=in_dim//4, out_channels=in_dim//16, kernel_size=1)
+        self.value_conv = Conv2d(in_channels=in_dim, out_channels=in_dim//4, kernel_size=1)
+        self.res_conv_p = Sequential(
+            Conv2d(in_channels=in_dim, out_channels=in_dim//4, kernel_size=1, stride=1, padding=0),
+            BatchNorm2d(in_dim//4), ReLU(inplace=True))
+        self.pfusion_conv = Sequential(
+            Conv2d(in_channels=in_dim//4, out_channels=in_dim // 4, kernel_size=3, stride=1, padding=1),
+            BatchNorm2d(in_dim // 4), ReLU(inplace=True))
+        self.gamma_p = Parameter(torch.zeros(1))
+
+        self.softmax = Softmax(dim=-1)
+
+        self.query_conv_c = Conv2d(in_channels=in_dim, out_channels=in_dim , kernel_size=3,stride=2, padding=1)
+        self.key_conv_c = Conv2d(in_channels=in_dim, out_channels=in_dim*2, kernel_size=3,stride =2, padding=1)
+
+        self.res_conv_c = Sequential(
+            Conv2d(in_channels=in_dim, out_channels=in_dim // 4, kernel_size=1, stride=1, padding=0),
+            BatchNorm2d(in_dim // 4), ReLU(inplace=True))
+        self.cfusion_conv = Sequential(
+            Conv2d(in_channels=in_dim // 4, out_channels=in_dim // 4, kernel_size=3, stride=1, padding=1),
+            BatchNorm2d(in_dim // 4), ReLU(inplace=True))
+        self.gamma_c = Parameter(torch.zeros(1))
+    def forward(self, x):
+        """
+            inputs :
+                x : input feature maps( B X C X H X W)
+            returns :
+                out : output feature maps( B X 2C X H/2 X W/2)
+            exploit cam and pam in global-noloss-downsampling
+        """
+        m_batchsize, C, height, width = x.size()
+
+        # cam part
+        # expand channels C to 2*C
+
+        proj_c_query = self.query_conv_c(x).view(m_batchsize, 2*C, -1)
+        proj_c_key = self.key_conv_c(x).view(m_batchsize, C, -1).permute(0, 2, 1)
+
+        energy = torch.bmm(proj_c_query, proj_c_key)
+        energy_new = torch.max(energy, -1, keepdim=True)[0].expand_as(energy) - energy
+        attention = self.softmax(energy_new)
+
+        out_c = torch.bmm(attention, x.view(m_batchsize, C, -1))
+        # out_c = out_c.view(m_batchsize, 2*C, height, width)
+
+
+        # pam part
+        # reduce res HxW to H/2*W/2
+
+        proj_p_query = self.query_conv_p(x).view(m_batchsize, C, -1).permute(0, 2, 1)
+
+        proj_key = self.key_conv_p(x).view(m_batchsize, C, -1)
+        energy = torch.bmm(proj_p_query, proj_key)
+        attention = self.softmax(energy)
+
+        # proj_value = self.value_conv(x).view(m_batchsize, -1, width*height)
+        out_p = torch.bmm(out_c, attention.permute(0, 2, 1))
+
+
+        out_p = out_p.view(m_batchsize, -1, height, width)
+
+        # out_p = self.gamma_p*out_p + self.res_conv_p(x)
+        # out_p = self.pfusion_conv(out_p)
+
+        # out_c = self.gamma_c * out_c + self.res_conv_c(x)
+        # out_c = self.cfusion_conv(out_c)
+
+        return out_c, out_p
+
+
+class Propagation_Pooling_Module(Module):
+    """ Position attention module"""
+    #Ref from SAGAN
+    def __init__(self, in_dim=512):
+        super(Propagation_Pooling_Module, self).__init__()
+        self.chanel_in = in_dim
+
+        self.query_conv_p = Conv2d(in_channels=in_dim, out_channels=in_dim // 8, kernel_size=1)
+        self.key_conv_p = Conv2d(in_channels=in_dim, out_channels=in_dim // 8, kernel_size=1)
+
+
+        self.softmax = Softmax(dim=-1)
+
+        self.query_conv_c = Conv2d(in_channels=in_dim, out_channels=in_dim , kernel_size=3,stride=2, padding=1)
+        # self.key_conv_c = Conv2d(in_channels=in_dim, out_channels=in_dim*2, kernel_size=3,stride =2, padding=1)
+
+    def forward(self, x):
+        """
+            inputs :
+                x : input feature maps( B X C X H X W)
+            returns :
+                out : output feature maps( B X 2C X H/2 X W/2)
+            exploit cam and pam in global-noloss-downsampling
+        """
+        m_batchsize, C, height, width = x.size()
+        # cam part
+        # expand channels C to 2*C
+
+        proj_c_query = self.query_conv_c(x).view(m_batchsize, 2*C, -1)
+        # proj_c_key = self.key_conv_c(x).view(m_batchsize, C, -1).permute(0, 2, 1)
+        proj_c_key = x.view(m_batchsize, C, -1).permute(0, 2, 1)
+
+        energy = torch.bmm(proj_c_query, proj_c_key)
+        energy_new = torch.max(energy, -1, keepdim=True)[0].expand_as(energy) - energy
+        attention = self.softmax(energy_new)
+        out_c = torch.bmm(attention, x.view(m_batchsize, C, -1))
+
+        # pam part
+        # reduce res HxW to H/2*W/2
+
+        proj_p_query = self.query_conv_p(x).view(m_batchsize, C, -1).permute(0, 2, 1)
+
+        proj_key = self.key_conv_p(x).view(m_batchsize, C, -1)
+        energy = torch.bmm(proj_p_query, proj_key)
+        attention = self.softmax(energy)
+
+        out_p = torch.bmm(out_c, attention.permute(0, 2, 1))
+        out_p = out_p.view(m_batchsize, -1, height, width)
+
+        return out_c, out_p
