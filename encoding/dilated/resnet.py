@@ -734,7 +734,7 @@ def resnet101_nlp(pretrained=False, root='./pretrain_models', **kwargs):
     Args:
         pretrained (bool): If True, returns a model pre-trained on ImageNet
     """
-    model = ResNet_nlp(Bottleneck, [3, 4, 23, 3], **kwargs)
+    model = ResNet_nlp([Bottleneck_pnlp,Bottleneck], [3, 4, 23, 3], **kwargs)
     #Remove the following lines of comments
     #if u want to train from a pretrained model
     if pretrained:
@@ -749,7 +749,7 @@ def resnet101_pnlp(pretrained=False, root='./pretrain_models', **kwargs):
     Args:
         pretrained (bool): If True, returns a model pre-trained on ImageNet
     """
-    model = ResNet_pnlp(Bottleneck, [3, 4, 23, 3], **kwargs)
+    model = ResNet_pnlp([Bottleneck_pnlp,Bottleneck], [3, 4, 23, 3], **kwargs)
     #Remove the following lines of comments
     #if u want to train from a pretrained model
     if pretrained:
