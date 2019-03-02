@@ -122,7 +122,7 @@ class Bottleneck_nlp(nn.Module):
 
     def __init__(self, inplanes, planes, stride=1, dilation=1,
                  downsample=None, previous_dilation=1, norm_layer=None):
-        super(Bottleneck, self).__init__()
+        super(Bottleneck_nlp, self).__init__()
         self.conv1 = nn.Conv2d(inplanes, planes, kernel_size=1, bias=False)
         self.bn1 = norm_layer(planes)
         self.conv2 = nn.Conv2d(
@@ -181,7 +181,7 @@ class Bottleneck_pnlp(nn.Module):
 
     def __init__(self, inplanes, planes, stride=1, dilation=1,
                  downsample=None, previous_dilation=1, norm_layer=None):
-        super(Bottleneck, self).__init__()
+        super(Bottleneck_pnlp, self).__init__()
         self.conv1 = nn.Conv2d(inplanes, planes, kernel_size=1, bias=False)
         self.bn1 = norm_layer(planes)
         # self.conv2 = nn.Conv2d(
