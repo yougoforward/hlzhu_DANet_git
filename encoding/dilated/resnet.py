@@ -337,11 +337,11 @@ class ResNet_nlp(nn.Module):
         return nn.Sequential(*layers)
     def _make_layer_nlp(self, block, planes, blocks, stride=1, dilation=1, norm_layer=None, multi_grid=False, multi_dilation=None):
         downsample = None
-        if stride != 1 or self.inplanes != planes * block.expansion:
+        if stride != 1 or self.inplanes != planes * block[1].expansion:
             downsample = nn.Sequential(
-                nn.Conv2d(self.inplanes, planes * block.expansion,
+                nn.Conv2d(self.inplanes, planes * block[1].expansion,
                           kernel_size=1, stride=1, bias=False),
-                norm_layer(planes * block.expansion),
+                norm_layer(planes * block[1].expansion),
                 nn.ReLU(inplace=True),
                 pooling_PAM_Module(planes, stride),
 
@@ -360,7 +360,7 @@ class ResNet_nlp(nn.Module):
         else:
             layers.append(block[1](self.inplanes, planes, stride, dilation=multi_dilation[0],
                                 downsample=downsample, previous_dilation=dilation, norm_layer=norm_layer))
-        self.inplanes = planes * block.expansion
+        self.inplanes = planes * block[1].expansion
         if multi_grid:
             div = len(multi_dilation)
             for i in range(1,blocks):
@@ -461,11 +461,11 @@ class ResNet_pnlp(nn.Module):
 
     def _make_layer(self, block, planes, blocks, stride=1, dilation=1, norm_layer=None, multi_grid=False, multi_dilation=None):
         downsample = None
-        if stride != 1 or self.inplanes != planes * block.expansion:
+        if stride != 1 or self.inplanes != planes * block[1].expansion:
             downsample = nn.Sequential(
-                nn.Conv2d(self.inplanes, planes * block.expansion,
+                nn.Conv2d(self.inplanes, planes * block[1].expansion,
                           kernel_size=1, stride=1, bias=False),
-                norm_layer(planes * block.expansion),
+                norm_layer(planes * block[1].expansion),
             )
 
         layers = []
@@ -481,7 +481,7 @@ class ResNet_pnlp(nn.Module):
         else:
             layers.append(block(self.inplanes, planes, stride, dilation=multi_dilation[0],
                                 downsample=downsample, previous_dilation=dilation, norm_layer=norm_layer))
-        self.inplanes = planes * block.expansion
+        self.inplanes = planes * block[1].expansion
         if multi_grid:
             div = len(multi_dilation)
             for i in range(1,blocks):
@@ -502,7 +502,7 @@ class ResNet_pnlp(nn.Module):
                 # nn.Conv2d(self.inplanes, planes * block.expansion,
                 #           kernel_size=1, stride=1, bias=False),
                 Propagation_Pooling_Module(planes, planes * block.expansion, stride),
-                norm_layer(planes * block.expansion),
+                norm_layer(planes * block[1].expansion),
             )
 
         layers = []
@@ -518,7 +518,7 @@ class ResNet_pnlp(nn.Module):
         else:
             layers.append(block[1](self.inplanes, planes, stride, dilation=multi_dilation[0],
                                 downsample=downsample, previous_dilation=dilation, norm_layer=norm_layer))
-        self.inplanes = planes * block.expansion
+        self.inplanes = planes * block[1].expansion
         if multi_grid:
             div = len(multi_dilation)
             for i in range(1,blocks):
