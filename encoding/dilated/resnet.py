@@ -160,7 +160,7 @@ class Bottleneck_nlp(nn.Module):
         out = self.conv2nlp(out)
         out = self.bn2(out)
         out = self.relu(out)
-        out=self.nlp(out)
+        out = self.nlp(out)
 
         out = self.conv3(out)
         out = self.bn3(out)
@@ -343,7 +343,7 @@ class ResNet_nlp(nn.Module):
                           kernel_size=1, stride=1, bias=False),
                 norm_layer(planes * block[1].expansion),
                 nn.ReLU(inplace=True),
-                pooling_PAM_Module(planes, stride),
+                pooling_PAM_Module(planes * block[1].expansion, stride),
 
             )
 
