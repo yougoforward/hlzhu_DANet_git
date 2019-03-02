@@ -420,12 +420,12 @@ class ResNet_pnlp(nn.Module):
         super(ResNet_pnlp, self).__init__()
         self.conv1 = nn.Conv2d(3, 64, kernel_size=7, stride=2, padding=3,
                                bias=False)
-        self.maxpool1= nn.MaxPool2d(kernel_size=3, stride=2, padding=1)
+        # self.maxpool1= nn.MaxPool2d(kernel_size=3, stride=2, padding=1)
 
         self.bn1 = norm_layer(64)
         self.relu = nn.ReLU(inplace=True)
-        self.conv11 = nn.Conv2d(64, 64, kernel_size=3, stride=2, padding=1,
-                               bias=False)
+        # self.conv11 = nn.Conv2d(64, 64, kernel_size=3, stride=2, padding=1,
+        #                        bias=False)
         self.maxpool = nn.MaxPool2d(kernel_size=3, stride=2, padding=1)
         self.layer1 = self._make_layer(block, 64, layers[0], norm_layer=norm_layer)
         self.layer2 = self._make_layer(block, 128, layers[1], stride=2, norm_layer=norm_layer)
@@ -433,7 +433,7 @@ class ResNet_pnlp(nn.Module):
 
         if dilated:
             if multi_grid:
-                self.layer3 = self._make_layer_nlp(block,256,layers[2],stride=2,
+                self.layer3 = self._make_layer_pnlp(block,256,layers[2],stride=2,
                                                dilation=1, norm_layer=norm_layer)
                 self.layer4 = self._make_layer(block,512,layers[3],stride=1,
                                                dilation=2,norm_layer=norm_layer,
@@ -444,9 +444,9 @@ class ResNet_pnlp(nn.Module):
                 self.layer4 = self._make_layer(block, 512, layers[3], stride=1,
                                            dilation=2, norm_layer=norm_layer)
         else:
-            self.layer3 = self._make_layer_nlp(block, 256, layers[2], stride=2,
+            self.layer3 = self._make_layer_pnlp(block, 256, layers[2], stride=2,
                                            norm_layer=norm_layer)
-            self.layer4 = self._make_layer_nlp(block, 512, layers[3], stride=2,
+            self.layer4 = self._make_layer_pnlp(block, 512, layers[3], stride=2,
                                            norm_layer=norm_layer)
         self.avgpool = nn.AvgPool2d(7)
         self.fc = nn.Linear(512 * block.expansion, num_classes)
@@ -727,6 +727,19 @@ def resnet50_pnlp(pretrained=False, root='./pretrain_models', **kwargs):
             get_model_file('resnet50', root=root)), strict=False)
     return model
 
+def resnet50_pnlp(pretrained=False, root='./pretrain_models', **kwargs):
+    """Constructs a ResNet-50 model.
+
+    Args:
+        pretrained (bool): If True, returns a model pre-trained on ImageNet
+    """
+    model = ResNet_pnlp(Bottleneck, [3, 4, 6, 3], **kwargs)
+    if pretrained:
+        from ..models.model_store import get_model_file
+        model.load_state_dict(torch.load(
+            get_model_file('resnet50', root=root)), strict=False)
+    return model
+
 def resnet101_nlp(pretrained=False, root='./pretrain_models', **kwargs):
     """Constructs a ResNet-101 model.
 
@@ -734,6 +747,21 @@ def resnet101_nlp(pretrained=False, root='./pretrain_models', **kwargs):
         pretrained (bool): If True, returns a model pre-trained on ImageNet
     """
     model = ResNet_nlp(Bottleneck, [3, 4, 23, 3], **kwargs)
+    #Remove the following lines of comments
+    #if u want to train from a pretrained model
+    if pretrained:
+       from ..models.model_store import get_model_file
+       model.load_state_dict(torch.load(
+           get_model_file('resnet101', root=root)), strict=False)
+    return model
+
+def resnet101_pnlp(pretrained=False, root='./pretrain_models', **kwargs):
+    """Constructs a ResNet-101 model.
+
+    Args:
+        pretrained (bool): If True, returns a model pre-trained on ImageNet
+    """
+    model = ResNet_pnlp(Bottleneck, [3, 4, 23, 3], **kwargs)
     #Remove the following lines of comments
     #if u want to train from a pretrained model
     if pretrained:
