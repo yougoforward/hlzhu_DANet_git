@@ -291,7 +291,7 @@ class ResNet_nlp(nn.Module):
             self.layer4 = self._make_layer_nlp(block, 512, layers[3], stride=2,
                                            norm_layer=norm_layer)
         self.avgpool = nn.AvgPool2d(7)
-        self.fc = nn.Linear(512 * block.expansion, num_classes)
+        self.fc = nn.Linear(512 * block[1].expansion, num_classes)
 
         for m in self.modules():
             if isinstance(m, nn.Conv2d):
@@ -449,7 +449,7 @@ class ResNet_pnlp(nn.Module):
             self.layer4 = self._make_layer_pnlp(block, 512, layers[3], stride=2,
                                            norm_layer=norm_layer)
         self.avgpool = nn.AvgPool2d(7)
-        self.fc = nn.Linear(512 * block.expansion, num_classes)
+        self.fc = nn.Linear(512 * block[1].expansion, num_classes)
 
         for m in self.modules():
             if isinstance(m, nn.Conv2d):
