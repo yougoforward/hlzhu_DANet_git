@@ -306,7 +306,7 @@ class ResNet_nlp(nn.Module):
         if stride != 1 or self.inplanes != planes * block.expansion:
             downsample = nn.Sequential(
                 nn.Conv2d(self.inplanes, planes * block.expansion,
-                          kernel_size=1, stride=1, bias=False),
+                          kernel_size=1, stride=stride, bias=False),
                 norm_layer(planes * block.expansion),
             )
 
@@ -464,7 +464,7 @@ class ResNet_pnlp(nn.Module):
         if stride != 1 or self.inplanes != planes * block[1].expansion:
             downsample = nn.Sequential(
                 nn.Conv2d(self.inplanes, planes * block[1].expansion,
-                          kernel_size=1, stride=1, bias=False),
+                          kernel_size=1, stride=stride, bias=False),
                 norm_layer(planes * block[1].expansion),
             )
 
