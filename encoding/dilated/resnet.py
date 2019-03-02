@@ -7,7 +7,7 @@ from ..nn import pooling_PAM_Module
 from ..nn import Propagation_Pooling_Module
 
 __all__ = ['ResNet', 'resnet18', 'resnet34', 'resnet50', 'resnet101',
-           'resnet152', 'BasicBlock', 'Bottleneck', 'resnet50_nlp','resnet101_nlp']
+           'resnet152', 'BasicBlock', 'Bottleneck', 'resnet50_nlp','resnet101_nlp','resnet50_pnlp','resnet101_pnlp']
 
 model_urls = {
     'resnet18': 'https://download.pytorch.org/models/resnet18-5c106cde.pth',
