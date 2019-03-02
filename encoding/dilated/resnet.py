@@ -157,10 +157,10 @@ class Bottleneck_nlp(nn.Module):
         out = self.bn1(out)
         out = self.relu(out)
 
-        out=self.nlp(out)
         out = self.conv2nlp(out)
         out = self.bn2(out)
         out = self.relu(out)
+        out=self.nlp(out)
 
         out = self.conv3(out)
         out = self.bn3(out)
@@ -184,13 +184,13 @@ class Bottleneck_pnlp(nn.Module):
         super(Bottleneck, self).__init__()
         self.conv1 = nn.Conv2d(inplanes, planes, kernel_size=1, bias=False)
         self.bn1 = norm_layer(planes)
-        self.conv2 = nn.Conv2d(
-            planes, planes, kernel_size=3, stride=stride,
-            padding=dilation, dilation=dilation, bias=False)
+        # self.conv2 = nn.Conv2d(
+        #     planes, planes, kernel_size=3, stride=stride,
+        #     padding=dilation, dilation=dilation, bias=False)
 
         self.bn2 = norm_layer(planes)
-        self.conv3 = nn.Conv2d(
-            planes, planes * 4, kernel_size=1, bias=False)
+        # self.conv3 = nn.Conv2d(
+        #     planes, planes * 4, kernel_size=1, bias=False)
         self.bn3 = norm_layer(planes * 4)
         self.relu = nn.ReLU(inplace=True)
         self.downsample = downsample
@@ -198,8 +198,8 @@ class Bottleneck_pnlp(nn.Module):
         self.stride = stride
 
         # self.nlp = pooling_PAM_Module(planes, stride)
-        self.pnlp = Propagation_Pooling_Module(planes)
-        self.conv2nlp = nn.Conv2d(
+        self.pnlp = Propagation_Pooling_Module(planes,planes * 4,stride)
+        self.conv2 = nn.Conv2d(
             planes, planes, kernel_size=3, stride=1,
             padding=dilation, dilation=dilation, bias=False)
 
@@ -217,13 +217,16 @@ class Bottleneck_pnlp(nn.Module):
         out = self.bn1(out)
         out = self.relu(out)
 
-        out=self.nlp(out)
-        out = self.conv2nlp(out)
+
+        out = self.conv2(out)
         out = self.bn2(out)
         out = self.relu(out)
 
-        out = self.conv3(out)
+        # out=self.nlp(out)
+        # out = self.conv3(out)
+        out = self.pnlp(out)
         out = self.bn3(out)
+
 
         if self.downsample is not None:
             residual = self.downsample(x)
@@ -336,10 +339,12 @@ class ResNet_nlp(nn.Module):
         downsample = None
         if stride != 1 or self.inplanes != planes * block.expansion:
             downsample = nn.Sequential(
-                pooling_PAM_Module(self.inplanes,stride=stride),
                 nn.Conv2d(self.inplanes, planes * block.expansion,
                           kernel_size=1, stride=1, bias=False),
                 norm_layer(planes * block.expansion),
+                nn.ReLU(inplace=True),
+                pooling_PAM_Module(planes, stride),
+
             )
 
         layers = []
@@ -488,13 +493,15 @@ class ResNet_pnlp(nn.Module):
                                 norm_layer=norm_layer))
 
         return nn.Sequential(*layers)
-    def _make_layer_nlp(self, block, planes, blocks, stride=1, dilation=1, norm_layer=None, multi_grid=False, multi_dilation=None):
+
+    def _make_layer_pnlp(self, block, planes, blocks, stride=1, dilation=1, norm_layer=None, multi_grid=False, multi_dilation=None):
         downsample = None
         if stride != 1 or self.inplanes != planes * block.expansion:
             downsample = nn.Sequential(
-                pooling_PAM_Module(self.inplanes,stride=stride),
-                nn.Conv2d(self.inplanes, planes * block.expansion,
-                          kernel_size=1, stride=1, bias=False),
+
+                # nn.Conv2d(self.inplanes, planes * block.expansion,
+                #           kernel_size=1, stride=1, bias=False),
+                Propagation_Pooling_Module(planes, planes * block.expansion, stride),
                 norm_layer(planes * block.expansion),
             )
 

@@ -1095,7 +1095,7 @@ class pooling_PAM_Module(Module):
 
         self.query_conv = Conv2d(in_channels=in_dim, out_channels=in_dim//8, kernel_size=1)
 
-        self.key_conv = Conv2d(in_channels=in_dim, out_channels=in_dim//8, kernel_size=1,stride=stride)
+        self.key_conv = Conv2d(in_channels=in_dim, out_channels=in_dim//8, kernel_size=3,stride=stride)
 
         self.softmax = Softmax(dim=-1)
     def forward(self, x):
@@ -1450,17 +1450,19 @@ class ori_Propagation_Pooling_Module(Module):
 class Propagation_Pooling_Module(Module):
     """ Position attention module"""
     #Ref from SAGAN
-    def __init__(self, in_dim=512):
+    def __init__(self, in_dim, out_dim, stride):
         super(Propagation_Pooling_Module, self).__init__()
         self.chanel_in = in_dim
+        self.chanel_out = out_dim
+        self.stride=stride
 
-        self.query_conv_p = Conv2d(in_channels=in_dim, out_channels=in_dim // 8, kernel_size=1)
+        self.query_conv_p = Conv2d(in_channels=in_dim, out_channels=in_dim // 8,  kernel_size=3,stride =stride, padding=1)
         self.key_conv_p = Conv2d(in_channels=in_dim, out_channels=in_dim // 8, kernel_size=1)
 
 
         self.softmax = Softmax(dim=-1)
 
-        self.query_conv_c = Conv2d(in_channels=in_dim, out_channels=in_dim , kernel_size=3,stride=2, padding=1)
+        self.query_conv_c = Conv2d(in_channels=in_dim, out_channels=out_dim , kernel_size=1)
         # self.key_conv_c = Conv2d(in_channels=in_dim, out_channels=in_dim*2, kernel_size=3,stride =2, padding=1)
 
     def forward(self, x):
@@ -1473,9 +1475,9 @@ class Propagation_Pooling_Module(Module):
         """
         m_batchsize, C, height, width = x.size()
         # cam part
-        # expand channels C to 2*C
+        # expand channels C to self.chanel_out=2*C
 
-        proj_c_query = self.query_conv_c(x).view(m_batchsize, 2*C, -1)
+        proj_c_query = self.query_conv_c(x).view(m_batchsize, self.chanel_out, -1)
         # proj_c_key = self.key_conv_c(x).view(m_batchsize, C, -1).permute(0, 2, 1)
         proj_c_key = x.view(m_batchsize, C, -1).permute(0, 2, 1)
 
@@ -1487,13 +1489,13 @@ class Propagation_Pooling_Module(Module):
         # pam part
         # reduce res HxW to H/2*W/2
 
-        proj_p_query = self.query_conv_p(x).view(m_batchsize, C, -1).permute(0, 2, 1)
+        proj_p_query = self.query_conv_p(x).view(m_batchsize, -1, height//self.stride*width//self.stride).permute(0, 2, 1)
 
-        proj_key = self.key_conv_p(x).view(m_batchsize, C, -1)
+        proj_key = self.key_conv_p(x).view(m_batchsize, C, height*width)
         energy = torch.bmm(proj_p_query, proj_key)
         attention = self.softmax(energy)
 
         out_p = torch.bmm(out_c, attention.permute(0, 2, 1))
-        out_p = out_p.view(m_batchsize, -1, height, width)
+        out_p = out_p.view(m_batchsize, -1, height//self.stride, width//self.stride)
 
-        return out_c, out_p
+        return out_p

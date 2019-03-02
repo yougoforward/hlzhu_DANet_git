@@ -71,10 +71,17 @@ class Trainer():
             params_list.append({'params': model.head.parameters(), 'lr': args.lr*10})
         if hasattr(model, 'auxlayer'):
             params_list.append({'params': model.auxlayer.parameters(), 'lr': args.lr*10})
+
+        cityscape_weight = torch.FloatTensor(
+            [0.8373, 0.918, 0.866, 1.0345, 1.0166, 0.9969, 0.9754, 1.0489, 0.8786, 1.0023, 0.9539, 0.9843, 1.1116,
+             0.9037, 1.0865, 1.0955, 1.0865, 1.1529, 1.0507]).cuda()
+
         optimizer = torch.optim.SGD(params_list,
                     lr=args.lr,
                     momentum=args.momentum,
                     weight_decay=args.weight_decay)
+        #weight for class imbalance
+        # self.criterion = SegmentationMultiLosses(nclass=self.nclass, weight=cityscape_weight)
         self.criterion = SegmentationMultiLosses(nclass=self.nclass)
         #self.criterion = SegmentationLosses(se_loss=args.se_loss, aux=args.aux,nclass=self.nclass)
 
