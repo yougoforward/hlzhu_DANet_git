@@ -269,21 +269,21 @@ class ResNet_nlp(nn.Module):
         self.bn1 = norm_layer(64)
         self.relu = nn.ReLU(inplace=True)
         self.maxpool = nn.MaxPool2d(kernel_size=3, stride=2, padding=1)
-        self.layer1 = self._make_layer(block, 64, layers[0], norm_layer=norm_layer)
-        self.layer2 = self._make_layer(block, 128, layers[1], stride=2, norm_layer=norm_layer)
+        self.layer1 = self._make_layer(block[1], 64, layers[0], norm_layer=norm_layer)
+        self.layer2 = self._make_layer(block[1], 128, layers[1], stride=2, norm_layer=norm_layer)
 
 
         if dilated:
             if multi_grid:
                 self.layer3 = self._make_layer_nlp(block,256,layers[2],stride=2,
                                                dilation=1, norm_layer=norm_layer)
-                self.layer4 = self._make_layer(block,512,layers[3],stride=1,
+                self.layer4 = self._make_layer(block[1],512,layers[3],stride=1,
                                                dilation=2,norm_layer=norm_layer,
                                                multi_grid=multi_grid, multi_dilation=multi_dilation)
             else:
                 self.layer3 = self._make_layer_nlp(block, 256, layers[2], stride=2,
                                            dilation=1, norm_layer=norm_layer)
-                self.layer4 = self._make_layer(block, 512, layers[3], stride=1,
+                self.layer4 = self._make_layer(block[1], 512, layers[3], stride=1,
                                            dilation=2, norm_layer=norm_layer)
         else:
             self.layer3 = self._make_layer_nlp(block, 256, layers[2], stride=2,
@@ -350,25 +350,25 @@ class ResNet_nlp(nn.Module):
         layers = []
         if multi_grid == False:
             if dilation == 1 or dilation == 2:
-                layers.append(Bottleneck_nlp(self.inplanes, planes, stride, dilation=1,
+                layers.append(block[0](self.inplanes, planes, stride, dilation=1,
                                 downsample=downsample, previous_dilation=dilation, norm_layer=norm_layer))
             elif dilation == 4:
-                layers.append(block(self.inplanes, planes, stride, dilation=2,
+                layers.append(block[1](self.inplanes, planes, stride, dilation=2,
                                 downsample=downsample, previous_dilation=dilation, norm_layer=norm_layer))
             else:
                 raise RuntimeError("=> unknown dilation size: {}".format(dilation))
         else:
-            layers.append(block(self.inplanes, planes, stride, dilation=multi_dilation[0],
+            layers.append(block[1](self.inplanes, planes, stride, dilation=multi_dilation[0],
                                 downsample=downsample, previous_dilation=dilation, norm_layer=norm_layer))
         self.inplanes = planes * block.expansion
         if multi_grid:
             div = len(multi_dilation)
             for i in range(1,blocks):
-                layers.append(block(self.inplanes, planes, dilation=multi_dilation[i%div], previous_dilation=dilation,
+                layers.append(block[1](self.inplanes, planes, dilation=multi_dilation[i%div], previous_dilation=dilation,
                                                     norm_layer=norm_layer))
         else:
             for i in range(1, blocks):
-                layers.append(block(self.inplanes, planes, dilation=dilation, previous_dilation=dilation,
+                layers.append(block[1](self.inplanes, planes, dilation=dilation, previous_dilation=dilation,
                                 norm_layer=norm_layer))
 
         return nn.Sequential(*layers)
@@ -435,13 +435,13 @@ class ResNet_pnlp(nn.Module):
             if multi_grid:
                 self.layer3 = self._make_layer_pnlp(block,256,layers[2],stride=2,
                                                dilation=1, norm_layer=norm_layer)
-                self.layer4 = self._make_layer(block,512,layers[3],stride=1,
+                self.layer4 = self._make_layer(block[1],512,layers[3],stride=1,
                                                dilation=2,norm_layer=norm_layer,
                                                multi_grid=multi_grid, multi_dilation=multi_dilation)
             else:
                 self.layer3 = self._make_layer_nlp(block, 256, layers[2], stride=2,
                                            dilation=1, norm_layer=norm_layer)
-                self.layer4 = self._make_layer(block, 512, layers[3], stride=1,
+                self.layer4 = self._make_layer(block[1], 512, layers[3], stride=1,
                                            dilation=2, norm_layer=norm_layer)
         else:
             self.layer3 = self._make_layer_pnlp(block, 256, layers[2], stride=2,
@@ -508,25 +508,25 @@ class ResNet_pnlp(nn.Module):
         layers = []
         if multi_grid == False:
             if dilation == 1 or dilation == 2:
-                layers.append(Bottleneck_nlp(self.inplanes, planes, stride, dilation=1,
+                layers.append(block[0](self.inplanes, planes, stride, dilation=1,
                                 downsample=downsample, previous_dilation=dilation, norm_layer=norm_layer))
             elif dilation == 4:
-                layers.append(block(self.inplanes, planes, stride, dilation=2,
+                layers.append(block[1](self.inplanes, planes, stride, dilation=2,
                                 downsample=downsample, previous_dilation=dilation, norm_layer=norm_layer))
             else:
                 raise RuntimeError("=> unknown dilation size: {}".format(dilation))
         else:
-            layers.append(block(self.inplanes, planes, stride, dilation=multi_dilation[0],
+            layers.append(block[1](self.inplanes, planes, stride, dilation=multi_dilation[0],
                                 downsample=downsample, previous_dilation=dilation, norm_layer=norm_layer))
         self.inplanes = planes * block.expansion
         if multi_grid:
             div = len(multi_dilation)
             for i in range(1,blocks):
-                layers.append(block(self.inplanes, planes, dilation=multi_dilation[i%div], previous_dilation=dilation,
+                layers.append(block[1](self.inplanes, planes, dilation=multi_dilation[i%div], previous_dilation=dilation,
                                                     norm_layer=norm_layer))
         else:
             for i in range(1, blocks):
-                layers.append(block(self.inplanes, planes, dilation=dilation, previous_dilation=dilation,
+                layers.append(block[1](self.inplanes, planes, dilation=dilation, previous_dilation=dilation,
                                 norm_layer=norm_layer))
 
         return nn.Sequential(*layers)
@@ -707,7 +707,7 @@ def resnet50_nlp(pretrained=False, root='./pretrain_models', **kwargs):
     Args:
         pretrained (bool): If True, returns a model pre-trained on ImageNet
     """
-    model = ResNet_nlp(Bottleneck, [3, 4, 6, 3], **kwargs)
+    model = ResNet_nlp([Bottleneck_nlp,Bottleneck], [3, 4, 6, 3], **kwargs)
     if pretrained:
         from ..models.model_store import get_model_file
         model.load_state_dict(torch.load(
@@ -720,25 +720,13 @@ def resnet50_pnlp(pretrained=False, root='./pretrain_models', **kwargs):
     Args:
         pretrained (bool): If True, returns a model pre-trained on ImageNet
     """
-    model = ResNet_pnlp(Bottleneck, [3, 4, 6, 3], **kwargs)
+    model = ResNet_pnlp([Bottleneck_pnlp,Bottleneck], [3, 4, 6, 3], **kwargs)
     if pretrained:
         from ..models.model_store import get_model_file
         model.load_state_dict(torch.load(
             get_model_file('resnet50', root=root)), strict=False)
     return model
 
-def resnet50_pnlp(pretrained=False, root='./pretrain_models', **kwargs):
-    """Constructs a ResNet-50 model.
-
-    Args:
-        pretrained (bool): If True, returns a model pre-trained on ImageNet
-    """
-    model = ResNet_pnlp(Bottleneck, [3, 4, 6, 3], **kwargs)
-    if pretrained:
-        from ..models.model_store import get_model_file
-        model.load_state_dict(torch.load(
-            get_model_file('resnet50', root=root)), strict=False)
-    return model
 
 def resnet101_nlp(pretrained=False, root='./pretrain_models', **kwargs):
     """Constructs a ResNet-101 model.
