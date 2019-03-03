@@ -1576,7 +1576,7 @@ class nonlocal_sampling_Module(Module):
         """
         m_batchsize, C, height, width = x.size()
         proj_query = self.query_conv(x).view(m_batchsize, -1, width*height)
-        proj_key = F.interpolate(self.key_conv(x),scale_factor=(self.scale,self.scale),mode='bilinear',align_corners=True).view(m_batchsize, -1, (width//self.stride)*(height//self.stride)).permute(0, 2, 1)
+        proj_key = F.interpolate(self.key_conv(x),scale_factor=(self.scale,self.scale),mode='bilinear',align_corners=True).view(m_batchsize, -1, int(height*self.scale)*int(width*self.scale)).permute(0, 2, 1)
         energy = torch.bmm(proj_key, proj_query)
         attention = self.softmax(energy)
         proj_value = x.view(m_batchsize, -1, width*height)

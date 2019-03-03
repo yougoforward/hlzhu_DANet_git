@@ -11,6 +11,7 @@ CUDA_VISIBLE_DEVICES=0,1,2,3 python3 train.py --dataset cityscapes --model  lgne
 CUDA_VISIBLE_DEVICES=4,5 python nll_train.py --dataset cityscapes --model  lnlnet --backbone resnet50 --checkname lnlnet50  --base-size 1024 --crop-size 768 --epochs 240 --batch-size 8 --lr 0.003 --workers 2 --scale
 CUDA_VISIBLE_DEVICES=6,7 python nll_train.py --dataset cityscapes --model  lgcnet --backbone resnet50 --checkname lgcnet50  --base-size 1024 --crop-size 768 --epochs 240 --batch-size 8 --lr 0.003 --workers 2 --scale
 
+CUDA_VISIBLE_DEVICES=4,5,6,7 python3 nll_train.py --dataset cityscapes --model  fast_nllnet --backbone resnet50_pnlp --checkname fast_nllnet50  --base-size 1024 --crop-size 768 --epochs 240 --batch-size 8 --lr 0.003 --workers 2 --scale
 
 
 
