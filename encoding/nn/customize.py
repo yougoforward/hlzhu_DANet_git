@@ -18,7 +18,7 @@ from torch.autograd import Variable
 torch_ver = torch.__version__[:3]
 
 __all__ = ['GramMatrix', 'SegmentationLosses', 'View', 'Sum', 'Mean',
-           'Normalize', 'PyramidPooling','SegmentationMultiLosses']
+           'Normalize', 'PyramidPooling','SegmentationMultiLosses','nll_SegmentationMultiLosses']
 
 class GramMatrix(Module):
     r""" Gram Matrix for a 4D convolutional featuremaps as a mini-batch
