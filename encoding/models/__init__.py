@@ -16,6 +16,7 @@ from .glnet import *
 from .pcnet import *
 from .dasignet import *
 from .LGNet import *
+from .LNLNet import *
 def get_segmentation_model(name, **kwargs):
     from .fcn import get_fcn
     models = {
@@ -34,5 +35,6 @@ def get_segmentation_model(name, **kwargs):
         'pcnet': get_pcnet,
         'dasignet': get_dasignet,
         'lgnet': get_lgnet,
+        'lnlnet': get_lnlnet,
     }
     return models[name.lower()](**kwargs)
