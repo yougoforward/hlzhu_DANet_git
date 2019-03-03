@@ -15,7 +15,7 @@ from .mask_softmax import Mask_Softmax
 from .mask_softmax import gauss_Mask_Softmax
 torch_ver = torch.__version__[:3]
 
-__all__ = ['Propagation_Pooling_Module','cascaded_mvPAM_Module_mask','PCAM_Module','pyramid_Reason_Module','PRI_CAM_Module','PAM_Module_gaussmask','pooling_PAM_Module','SE_ASPP_Module','reduce_CAM_Module','reduce_PAM_Module','SE_module','pool_CAM_Module','ASPP_Module','mvPAM_Module_unfold','mvPAM_Module_mask','mvPAM_Module_mask_cascade','msPAM_Module','PAM_Module', 'CAM_Module']
+__all__ = ['nonlocal_sampling_Module','selective_aggregation_ASPP_Module','selective_channel_aggregation_Module','Propagation_Pooling_Module','cascaded_mvPAM_Module_mask','PCAM_Module','pyramid_Reason_Module','PRI_CAM_Module','PAM_Module_gaussmask','pooling_PAM_Module','SE_ASPP_Module','reduce_CAM_Module','reduce_PAM_Module','SE_module','pool_CAM_Module','ASPP_Module','mvPAM_Module_unfold','mvPAM_Module_mask','mvPAM_Module_mask_cascade','msPAM_Module','PAM_Module', 'CAM_Module']
 
 
 class mvPAM_Module_unfold(Module):
@@ -1085,37 +1085,6 @@ class PAM_Module_gaussmask(Module):
 
 
 
-class pooling_PAM_Module(Module):
-    """ Position attention module"""
-    #Ref from SAGAN
-    def __init__(self, in_dim, stride):
-        super(pooling_PAM_Module, self).__init__()
-        self.chanel_in = in_dim
-        self.stride = stride
-
-        self.query_conv = Conv2d(in_channels=in_dim, out_channels=in_dim//8, kernel_size=1)
-
-        self.key_conv = Conv2d(in_channels=in_dim, out_channels=in_dim//8, kernel_size=3,stride=stride,padding=1)
-
-        self.softmax = Softmax(dim=-1)
-    def forward(self, x):
-        """
-            inputs :
-                x : input feature maps( B X C X H X W)
-            returns :
-                out : attention value + input feature
-                attention: B X (HxW) X (HxW)
-        """
-        m_batchsize, C, height, width = x.size()
-        proj_query = self.query_conv(x).view(m_batchsize, -1, width*height)
-        proj_key = self.key_conv(x).view(m_batchsize, -1, (width//self.stride)*(height//self.stride)).permute(0, 2, 1)
-        energy = torch.bmm(proj_key, proj_query)
-        attention = self.softmax(energy)
-        proj_value = x.view(m_batchsize, -1, width*height)
-
-        out = torch.bmm(proj_value, attention.permute(0, 2, 1))
-        out = out.view(m_batchsize, C, (height//self.stride), (width//self.stride))
-        return out
 
 
 class Cls_gloRe_Module(Module):
@@ -1446,24 +1415,24 @@ class ori_Propagation_Pooling_Module(Module):
 
         return out_c, out_p
 
-
-class Propagation_Pooling_Module(Module):
+class selective_channel_aggregation_Module(Module):
     """ Position attention module"""
     #Ref from SAGAN
-    def __init__(self, in_dim, out_dim, stride):
-        super(Propagation_Pooling_Module, self).__init__()
+    def __init__(self, in_dim, out_dim):
+        super(selective_channel_aggregation_Module, self).__init__()
         self.chanel_in = in_dim
         self.chanel_out = out_dim
-        self.stride=stride
-
-        self.query_conv_p = Conv2d(in_channels=in_dim, out_channels=in_dim // 8,  kernel_size=3,stride =stride, padding=1)
-        self.key_conv_p = Conv2d(in_channels=in_dim, out_channels=in_dim // 8, kernel_size=1)
 
 
+        self.gamma = Parameter(torch.zeros(1))
         self.softmax = Softmax(dim=-1)
 
         self.query_conv_c = Conv2d(in_channels=in_dim, out_channels=out_dim , kernel_size=1)
-        # self.key_conv_c = Conv2d(in_channels=in_dim, out_channels=in_dim*2, kernel_size=3,stride =2, padding=1)
+        # self.res_conv_c = Sequential(
+        #     Conv2d(in_channels=in_dim, out_channels=out_dim, kernel_size=1),
+        #     BatchNorm2d(out_dim), ReLU(inplace=True))
+
+
 
     def forward(self, x):
         """
@@ -1486,10 +1455,60 @@ class Propagation_Pooling_Module(Module):
         attention = self.softmax(energy_new)
         out_c = torch.bmm(attention, x.view(m_batchsize, C, -1))
 
+        out_c = self.gamma * out_c
+        # out_c = self.gamma * out_c + self.res_conv_c(x).view(m_batchsize,self.chanel_out,-1)
+
+        return out_c
+
+
+class Propagation_Pooling_Module(Module):
+    """ Position attention module"""
+    #Ref from SAGAN
+    def __init__(self, in_dim, out_dim, stride):
+        super(Propagation_Pooling_Module, self).__init__()
+        self.chanel_in = in_dim
+        self.chanel_out = out_dim
+        self.stride=stride
+
+        self.query_conv_p = Conv2d(in_channels=in_dim, out_channels=in_dim // 8,  kernel_size=1)
+        self.key_conv_p = Conv2d(in_channels=in_dim, out_channels=in_dim // 8, kernel_size=1)
+
+        self.gamma = Parameter(torch.zeros(1))
+        self.softmax = Softmax(dim=-1)
+
+        self.query_conv_c = Conv2d(in_channels=in_dim, out_channels=out_dim , kernel_size=1)
+        self.res_conv_c = Sequential(
+            Conv2d(in_channels=in_dim, out_channels=out_dim, kernel_size=1),
+            BatchNorm2d(out_dim), ReLU(inplace=True))
+
+
+
+    def forward(self, x):
+        """
+            inputs :
+                x : input feature maps( B X C X H X W)
+            returns :
+                out : output feature maps( B X 2C X H/2 X W/2)
+            exploit cam and pam in global-noloss-downsampling
+        """
+        m_batchsize, C, height, width = x.size()
+        # cam part
+        # expand channels C to self.chanel_out=2*C
+
+        proj_c_query = self.query_conv_c(x).view(m_batchsize, self.chanel_out, -1)
+        # proj_c_key = self.key_conv_c(x).view(m_batchsize, C, -1).permute(0, 2, 1)
+        proj_c_key = x.view(m_batchsize, C, -1).permute(0, 2, 1)
+
+        energy = torch.bmm(proj_c_query, proj_c_key)
+        energy_new = torch.max(energy, -1, keepdim=True)[0].expand_as(energy) - energy
+        attention = self.softmax(energy_new)
+        out_c = torch.bmm(attention, x.view(m_batchsize, C, -1))
+
+        out_c = self.gamma * out_c + self.res_conv_c(x).view(m_batchsize,self.chanel_out,-1)
         # pam part
         # reduce res HxW to H/2*W/2
 
-        proj_p_query = self.query_conv_p(x).view(m_batchsize, -1, height//self.stride*width//self.stride).permute(0, 2, 1)
+        proj_p_query = F.interpolate(self.query_conv_p(x),size=(height//self.stride,width//self.stride),mode='bilinear',align_corners=True).view(m_batchsize, -1, height//self.stride*width//self.stride).permute(0, 2, 1)
 
         proj_key = self.key_conv_p(x).view(m_batchsize, C, height*width)
         energy = torch.bmm(proj_p_query, proj_key)
@@ -1499,3 +1518,117 @@ class Propagation_Pooling_Module(Module):
         out_p = out_p.view(m_batchsize, -1, height//self.stride, width//self.stride)
 
         return out_p
+
+
+class pooling_PAM_Module(Module):
+    """ Position attention module"""
+    #Ref from SAGAN
+    def __init__(self, in_dim, stride):
+        super(pooling_PAM_Module, self).__init__()
+        self.chanel_in = in_dim
+        self.stride = stride
+
+        self.query_conv = Conv2d(in_channels=in_dim, out_channels=in_dim//8, kernel_size=1)
+
+        self.key_conv = Conv2d(in_channels=in_dim, out_channels=in_dim//8, kernel_size=1)
+
+        self.softmax = Softmax(dim=-1)
+    def forward(self, x):
+        """
+            inputs :
+                x : input feature maps( B X C X H X W)
+            returns :
+                out : attention value + input feature
+                attention: B X (HxW) X (HxW)
+        """
+        m_batchsize, C, height, width = x.size()
+        proj_query = self.query_conv(x).view(m_batchsize, -1, width*height)
+        proj_key = F.interpolate(self.key_conv(x),size=(height//self.stride, width//self.stride),mode='bilinear',align_corners=True).view(m_batchsize, -1, (width//self.stride)*(height//self.stride)).permute(0, 2, 1)
+        energy = torch.bmm(proj_key, proj_query)
+        attention = self.softmax(energy)
+        proj_value = x.view(m_batchsize, -1, width*height)
+
+        out = torch.bmm(proj_value, attention.permute(0, 2, 1))
+        out = out.view(m_batchsize, C, height//self.stride, width//self.stride)
+        return out
+
+
+class nonlocal_sampling_Module(Module):
+    """ Position attention module"""
+    #Ref from SAGAN
+    def __init__(self, in_dim, scale_factor):
+        super(nonlocal_sampling_Module, self).__init__()
+        self.chanel_in = in_dim
+        self.scale = scale_factor
+
+        self.query_conv = Conv2d(in_channels=in_dim, out_channels=in_dim//8, kernel_size=1)
+
+        self.key_conv = Conv2d(in_channels=in_dim, out_channels=in_dim//8, kernel_size=1)
+
+        self.softmax = Softmax(dim=-1)
+    def forward(self, x):
+        """
+            inputs :
+                x : input feature maps( B X C X H X W)
+            returns :
+                out : attention value + input feature
+                attention: B X (HxW) X (HxW)
+        """
+        m_batchsize, C, height, width = x.size()
+        proj_query = self.query_conv(x).view(m_batchsize, -1, width*height)
+        proj_key = F.interpolate(self.key_conv(x),scale_factor=(self.scale,self.scale),mode='bilinear',align_corners=True).view(m_batchsize, -1, (width//self.stride)*(height//self.stride)).permute(0, 2, 1)
+        energy = torch.bmm(proj_key, proj_query)
+        attention = self.softmax(energy)
+        proj_value = x.view(m_batchsize, -1, width*height)
+
+        out = torch.bmm(proj_value, attention.permute(0, 2, 1))
+        out = out.view(m_batchsize, C, int(height*self.scale), int(width*self.scale))
+        return out
+
+class selective_aggregation_ASPP_Module(Module):
+    """
+    Reference:
+        Chen, Liang-Chieh, et al. *"Rethinking Atrous Convolution for Semantic Image Segmentation."*
+    """
+
+    def __init__(self, features, inner_features=256, out_features=256, dilations=(12, 24, 36)):
+        super(selective_aggregation_ASPP_Module, self).__init__()
+
+        self.conv1 = Sequential(AdaptiveAvgPool2d((1, 1)),
+                                   Conv2d(features, inner_features, kernel_size=1, padding=0, dilation=1,
+                                             bias=False),
+                                BatchNorm2d(inner_features),ReLU())
+        self.conv2 = Sequential(
+            Conv2d(features, inner_features, kernel_size=1, padding=0, dilation=1, bias=False),
+            BatchNorm2d(inner_features),ReLU())
+        self.conv3 = Sequential(
+            Conv2d(features, inner_features, kernel_size=3, padding=dilations[0], dilation=dilations[0], bias=False),
+            BatchNorm2d(inner_features),ReLU())
+        self.conv4 = Sequential(
+            Conv2d(features, inner_features, kernel_size=3, padding=dilations[1], dilation=dilations[1], bias=False),
+            BatchNorm2d(inner_features),ReLU())
+        self.conv5 = Sequential(
+            Conv2d(features, inner_features, kernel_size=3, padding=dilations[2], dilation=dilations[2], bias=False),
+            BatchNorm2d(inner_features),ReLU())
+
+        self.bottleneck = Sequential(
+            Conv2d(inner_features * 5, out_features, kernel_size=1, padding=0, dilation=1, bias=False),
+            BatchNorm2d(out_features),ReLU(),
+            Dropout2d(0.1)
+        )
+        self.selective_channel_aggregation = selective_channel_aggregation_Module(inner_features * 5, out_features)
+
+    def forward(self, x):
+        _, _, h, w = x.size()
+
+        feat1 = F.upsample(self.conv1(x), size=(h, w), mode='bilinear', align_corners=True)
+
+        feat2 = self.conv2(x)
+        feat3 = self.conv3(x)
+        feat4 = self.conv4(x)
+        feat5 = self.conv5(x)
+        out = torch.cat((feat1, feat2, feat3, feat4, feat5), 1)
+        selective_channel_aggregation = self.selective_channel_aggregation(out)
+        bottle = self.bottleneck(out)
+        bottle = selective_channel_aggregation + bottle
+        return bottle
