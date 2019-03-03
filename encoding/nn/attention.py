@@ -1619,7 +1619,7 @@ class selective_aggregation_ASPP_Module(Module):
         self.selective_channel_aggregation = selective_channel_aggregation_Module(inner_features * 5, out_features)
 
     def forward(self, x):
-        _, _, h, w = x.size()
+        m_batchsize, _, h, w = x.size()
 
         feat1 = F.upsample(self.conv1(x), size=(h, w), mode='bilinear', align_corners=True)
 
@@ -1628,7 +1628,7 @@ class selective_aggregation_ASPP_Module(Module):
         feat4 = self.conv4(x)
         feat5 = self.conv5(x)
         out = torch.cat((feat1, feat2, feat3, feat4, feat5), 1)
-        selective_channel_aggregation = self.selective_channel_aggregation(out)
+        selective_channel_aggregation = self.selective_channel_aggregation(out).view(m_batchsize,-1,h,w)
         bottle = self.bottleneck(out)
         bottle = selective_channel_aggregation + bottle
         return bottle
