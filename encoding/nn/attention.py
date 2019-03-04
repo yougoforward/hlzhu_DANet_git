@@ -1455,16 +1455,17 @@ class selective_channel_aggregation_Module(Module):
     def __init__(self, in_dim, query_dim, out_dim):
         super(selective_channel_aggregation_Module, self).__init__()
         self.chanel_in = in_dim
+        self.query_dim = query_dim
         self.chanel_out = out_dim
 
         self.avgpool = AvgPool2d(2, 2)
         # self.gamma = Parameter(torch.zeros(1))
         self.softmax = Softmax(dim=-1)
 
-        self.query_conv_c = Conv2d(in_channels=in_dim, out_channels=query_dim , kernel_size=1)
+        self.query_conv_c = (Conv2d(in_channels=in_dim, out_channels=query_dim , kernel_size=1, bias=False),BatchNorm2d(query_dim))
 
         self.expand = Sequential(
-            Conv2d(in_channels=query_dim, out_channels=out_dim, kernel_size=1),
+            Conv2d(in_channels=query_dim, out_channels=out_dim, kernel_size=1, bias=False),
             BatchNorm2d(out_dim), ReLU(inplace=True))
 
 
@@ -1482,7 +1483,7 @@ class selective_channel_aggregation_Module(Module):
         # expand channels C to self.chanel_out=2*C
 
         pool_x=self.avgpool(x)
-        proj_c_query = self.query_conv_c(pool_x).view(m_batchsize, self.chanel_out, -1)
+        proj_c_query = self.query_conv_c(pool_x).view(m_batchsize, self.query_dim, -1)
         # proj_c_key = self.key_conv_c(x).view(m_batchsize, C, -1).permute(0, 2, 1)
         proj_c_key = pool_x.view(m_batchsize, C, -1).permute(0, 2, 1)
 
