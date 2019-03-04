@@ -10,7 +10,7 @@ import torch
 import torch.nn as nn
 from torch.nn.functional import upsample, normalize
 from ..nn import PAM_Module
-from ..nn import CAM_Module
+from ..nn import CAM_Module , SE_CAM_Module, selective_aggregation_ASPP_Module, reduce_PAM_Module
 from ..models import BaseNet
 from ..nn import ASPP_Module
 
@@ -75,7 +75,7 @@ class LGCNetHead(nn.Module):
                                     nn.ReLU())
 
         self.sa = PAM_Module(inter_channels)
-        self.sc = CAM_Module(inter_channels)
+        self.sc = SE_CAM_Module(inter_channels)
         self.conv51 = nn.Sequential(nn.Conv2d(inter_channels, inter_channels, 3, padding=1, bias=False),
                                     norm_layer(inter_channels),
                                     nn.ReLU())
@@ -88,7 +88,7 @@ class LGCNetHead(nn.Module):
 
         self.conv8 = nn.Sequential(nn.Dropout2d(0.1, False), nn.Conv2d(512, out_channels, 1))
 
-        self.aspp = ASPP_Module(in_channels, inner_features=256, out_features=512, dilations=(12, 24, 36))
+        self.aspp = selective_aggregation_ASPP_Module(in_channels, inner_features=256, out_features=512, dilations=(12, 24, 36))
 
 
     def forward(self, x):
