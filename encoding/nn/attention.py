@@ -1765,16 +1765,19 @@ class reduce_PAM_Module(Module):
 class  adaptive_Channel_Aggregation_Module(Module):
     """ Position attention module"""
     #Ref from SAGAN
-    def __init__(self, in_dim, key_dim, value_dim):
-        super(reduce_PAM_Module, self).__init__()
+    def __init__(self, in_dim, query_dim, value_dim):
+        super(adaptive_Channel_Aggregation_Module, self).__init__()
         self.chanel_in = in_dim
+        self.query_dim=query_dim
         self.value_dim=value_dim
-        self.query_conv = Sequential(Conv2d(in_channels=in_dim, out_channels=key_dim, kernel_size=1,bias=False), BatchNorm2d(key_dim))
-        self.key_conv = Sequential(Conv2d(in_channels=in_dim, out_channels=key_dim, kernel_size=1,bias=False),BatchNorm2d(key_dim))
-        self.value_conv = Conv2d(in_channels=in_dim, out_channels=value_dim, kernel_size=1)
+        self.query_conv_c = Sequential(Conv2d(in_channels=in_dim, out_channels=query_dim, kernel_size=1,bias=False), BatchNorm2d(query_dim))
+        self.key_conv_c = Sequential(Conv2d(in_channels=in_dim, out_channels=value_dim, kernel_size=1,bias=False),BatchNorm2d(value_dim))
+        self.value_conv_c = Conv2d(in_channels=in_dim, out_channels=value_dim, kernel_size=1)
         # self.gamma = Parameter(torch.zeros(1))
-        self.expand = Sequential(Conv2d(in_channels=value_dim, out_channels=in_dim, kernel_size=1,bias=False),BatchNorm2d(in_dim),ReLU(inplace=True))
+        self.expand = Sequential(Conv2d(in_channels=query_dim, out_channels=value_dim, kernel_size=1,bias=False),BatchNorm2d(in_dim),ReLU(inplace=True))
         self.softmax = Softmax(dim=-1)
+
+        self.avgpool = AvgPool2d(2, 2)
     def forward(self, x):
         """
             inputs :
@@ -1784,14 +1787,18 @@ class  adaptive_Channel_Aggregation_Module(Module):
                 attention: B X (HxW) X (HxW)
         """
         m_batchsize, C, height, width = x.size()
-        proj_query = self.query_conv(x).view(m_batchsize, -1, width*height).permute(0, 2, 1)
-        proj_key = self.key_conv(x).view(m_batchsize, -1, width*height)
-        energy = torch.bmm(proj_query, proj_key)
-        attention = self.softmax(energy)
-        proj_value = self.value_conv(x).view(m_batchsize, -1, width*height)
 
-        out = torch.bmm(proj_value, attention.permute(0, 2, 1))
-        out = out.view(m_batchsize, self.value_dim, height, width)
+        pool_x = self.avgpool(x)
+        proj_c_query = self.query_conv_c(pool_x).view(m_batchsize, self.query_dim, -1)
+        proj_c_key = self.key_conv_c(x).view(m_batchsize, C, -1).permute(0, 2, 1)
 
-        out = self.expand(out) + x
-        return out
+        # proj_c_key = pool_x.view(m_batchsize, C, -1).permute(0, 2, 1)
+        proj_c_value = self.value_conv_c(x)
+        energy = torch.bmm(proj_c_query, proj_c_key)
+        energy_new = torch.max(energy, -1, keepdim=True)[0].expand_as(energy) - energy
+        attention = self.softmax(energy_new)
+        out_c = torch.bmm(attention, proj_c_value.view(m_batchsize, C, -1))
+
+        out_c = self.expand(out_c.view(m_batchsize, -1, height, width))
+
+        return out_c
