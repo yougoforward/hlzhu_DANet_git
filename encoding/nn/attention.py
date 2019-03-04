@@ -1762,7 +1762,7 @@ class reduce_PAM_Module(Module):
         out = self.expand(out) + x
         return out
 
-class reduce_PAM_Module(Module):
+class  adaptive_Channel_Aggregation_Module(Module):
     """ Position attention module"""
     #Ref from SAGAN
     def __init__(self, in_dim, key_dim, value_dim):
