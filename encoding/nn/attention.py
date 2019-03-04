@@ -1527,11 +1527,11 @@ class pooling_PAM_Module(Module):
         super(pooling_PAM_Module, self).__init__()
         self.chanel_in = in_dim
         self.stride = stride
-        self.query_conv = Conv2d(in_channels=in_dim, out_channels=in_dim//8, kernel_size=3, stride=2, padding=1)
-        # self.query_conv = Conv2d(in_channels=in_dim, out_channels=in_dim//8, kernel_size=1)
 
-        self.key_conv = Conv2d(in_channels=in_dim, out_channels=in_dim//8, kernel_size=1)
+        self.query_conv = Conv2d(in_channels=in_dim, out_channels=in_dim//8, kernel_size=1)
 
+        # self.key_conv = Conv2d(in_channels=in_dim, out_channels=in_dim//8, kernel_size=1)
+        self.key_conv = Conv2d(in_channels=in_dim, out_channels=in_dim // 8, kernel_size=3, stride=stride, padding=1)
         self.softmax = Softmax(dim=-1)
     def forward(self, x):
         """
