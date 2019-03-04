@@ -1462,7 +1462,7 @@ class selective_channel_aggregation_Module(Module):
         # self.gamma = Parameter(torch.zeros(1))
         self.softmax = Softmax(dim=-1)
 
-        self.query_conv_c = (Conv2d(in_channels=in_dim, out_channels=query_dim , kernel_size=1, bias=False),BatchNorm2d(query_dim))
+        self.query_conv_c = Sequential(Conv2d(in_channels=in_dim, out_channels=query_dim , kernel_size=1, bias=False),BatchNorm2d(query_dim))
 
         self.expand = Sequential(
             Conv2d(in_channels=query_dim, out_channels=out_dim, kernel_size=1, bias=False),
@@ -1483,7 +1483,7 @@ class selective_channel_aggregation_Module(Module):
         # expand channels C to self.chanel_out=2*C
 
         pool_x=self.avgpool(x)
-        proj_c_query = (self.query_conv_c(pool_x)).view(m_batchsize, self.query_dim, -1)
+        proj_c_query = self.query_conv_c(pool_x).view(m_batchsize, self.query_dim, -1)
         # proj_c_key = self.key_conv_c(x).view(m_batchsize, C, -1).permute(0, 2, 1)
         proj_c_key = pool_x.view(m_batchsize, C, -1).permute(0, 2, 1)
 
