@@ -74,7 +74,7 @@ class LGCNetHead(nn.Module):
                                     norm_layer(inter_channels),
                                     nn.ReLU())
 
-        self.sa = PAM_Module(inter_channels)
+        self.sa = reduce_PAM_Module(inter_channels, 256, 256)
         self.sc = SE_CAM_Module(inter_channels)
         self.conv51 = nn.Sequential(nn.Conv2d(inter_channels, inter_channels, 3, padding=1, bias=False),
                                     norm_layer(inter_channels),
