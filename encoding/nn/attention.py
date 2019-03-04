@@ -1527,8 +1527,8 @@ class pooling_PAM_Module(Module):
         super(pooling_PAM_Module, self).__init__()
         self.chanel_in = in_dim
         self.stride = stride
-
-        self.query_conv = Conv2d(in_channels=in_dim, out_channels=in_dim//8, kernel_size=1)
+        self.query_conv = Conv2d(in_channels=in_dim, out_channels=in_dim//8, kernel_size=3, stride=2, padding=1)
+        # self.query_conv = Conv2d(in_channels=in_dim, out_channels=in_dim//8, kernel_size=1)
 
         self.key_conv = Conv2d(in_channels=in_dim, out_channels=in_dim//8, kernel_size=1)
 
@@ -1543,7 +1543,9 @@ class pooling_PAM_Module(Module):
         """
         m_batchsize, C, height, width = x.size()
         proj_query = self.query_conv(x).view(m_batchsize, -1, width*height)
-        proj_key = F.interpolate(self.key_conv(x),size=(height//self.stride, width//self.stride),mode='bilinear',align_corners=True).view(m_batchsize, -1, (width//self.stride)*(height//self.stride)).permute(0, 2, 1)
+        proj_key = self.key_conv(x).view(m_batchsize, -1, (width//self.stride)*(height//self.stride)).permute(0, 2, 1)
+
+        # proj_key = F.interpolate(self.key_conv(x),size=(height//self.stride, width//self.stride),mode='bilinear',align_corners=True).view(m_batchsize, -1, (width//self.stride)*(height//self.stride)).permute(0, 2, 1)
         energy = torch.bmm(proj_key, proj_query)
         attention = self.softmax(energy)
         proj_value = x.view(m_batchsize, -1, width*height)
