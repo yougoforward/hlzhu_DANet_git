@@ -1656,7 +1656,7 @@ class selective_aggregation_ASPP_Module(Module):
             BatchNorm2d(out_features),ReLU(),
             Dropout2d(0.1)
         )
-        self.selective_channel_aggregation = selective_channel_aggregation_Module(inner_features * 5, out_features)
+        self.selective_channel_aggregation = selective_channel_aggregation_Module(inner_features * 5, inner_features,  out_features)
 
     def forward(self, x):
         m_batchsize, _, h, w = x.size()
