@@ -9,15 +9,15 @@ import numpy as np
 import torch
 import torch.nn as nn
 from torch.nn.functional import upsample, normalize
-from ..nn import PAM_Module, topk_PAM_Module
-from ..nn import CAM_Module , SE_CAM_Module, selective_aggregation_ASPP_Module, reduce_PAM_Module
+from ..nn import PAM_Module
+from ..nn import CAM_Module
 from ..models import BaseNet
 from ..nn import ASPP_Module
 
-__all__ = ['LGCNet', 'get_lgcnet']
+__all__ = ['LNLNet', 'get_lnlnet']
 
 
-class LGCNet(BaseNet):
+class LNLNet(BaseNet):
     r"""Fully Convolutional Networks for Semantic Segmentation
 
     Parameters
@@ -39,8 +39,8 @@ class LGCNet(BaseNet):
     """
 
     def __init__(self, nclass, backbone, aux=False, se_loss=False, norm_layer=nn.BatchNorm2d, **kwargs):
-        super(LGCNet, self).__init__(nclass, backbone, aux, se_loss, norm_layer=norm_layer, **kwargs)
-        self.head = LGCNetHead(2048, nclass, norm_layer)
+        super(LNLNet, self).__init__(nclass, backbone, aux, se_loss, norm_layer=norm_layer, **kwargs)
+        self.head = LNLNetHead(2048, nclass, norm_layer)
 
     def forward(self, x):
         imsize = x.size()[2:]
@@ -52,95 +52,74 @@ class LGCNet(BaseNet):
         x[1] = upsample(x[1], imsize, **self._up_kwargs)
         x[2] = upsample(x[2], imsize, **self._up_kwargs)
         x[3] = upsample(x[3], imsize, **self._up_kwargs)
-        x[4] = upsample(x[4], imsize, **self._up_kwargs)
 
         outputs = [x[0]]
         outputs.append(x[1])
         outputs.append(x[2])
         outputs.append(x[3])
-        outputs.append(x[4])
         return tuple(outputs)
 
 
-class LGCNetHead(nn.Module):
+class LNLNetHead(nn.Module):
     def __init__(self, in_channels, out_channels, norm_layer):
-        super(LGCNetHead, self).__init__()
+        super(LNLNetHead, self).__init__()
         inter_channels = in_channels // 4
 
+        self.conv5 = nn.Sequential(nn.Dropout2d(0.1, False), nn.Conv2d(512, out_channels, 1))
 
-        self.conv5a = nn.Sequential(nn.Conv2d(in_channels, inter_channels, 3, padding=1, bias=False),
-                                    norm_layer(inter_channels),
-                                    nn.ReLU())
+        # self.conv5a = nn.Sequential(nn.Conv2d(in_channels, inter_channels, 3, padding=1, bias=False),
+        #                             norm_layer(inter_channels),
+        #                             nn.ReLU())
+        #
+        # self.conv5c = nn.Sequential(nn.Conv2d(in_channels, inter_channels, 3, padding=1, bias=False),
+        #                             norm_layer(inter_channels),
+        #                             nn.ReLU())
 
-        self.conv5c = nn.Sequential(nn.Conv2d(in_channels, inter_channels, 3, padding=1, bias=False),
-                                    norm_layer(inter_channels),
-                                    nn.ReLU())
-
-        self.sa = topk_PAM_Module(inter_channels, 256, inter_channels, 10)
-        self.sc = SE_CAM_Module(inter_channels)
-        self.sca = SE_CAM_Module(inter_channels)
-
+        self.sa = PAM_Module(inter_channels)
+        self.sc = CAM_Module(inter_channels)
         self.conv51 = nn.Sequential(nn.Conv2d(inter_channels, inter_channels, 3, padding=1, bias=False),
                                     norm_layer(inter_channels),
                                     nn.ReLU())
         self.conv52 = nn.Sequential(nn.Conv2d(inter_channels, inter_channels, 3, padding=1, bias=False),
                                     norm_layer(inter_channels),
                                     nn.ReLU())
-        self.conv53 = nn.Sequential(nn.Conv2d(inter_channels, inter_channels, 3, padding=1, bias=False),
-                                    norm_layer(inter_channels),
-                                    nn.ReLU())
-        self.conv54 = nn.Sequential(nn.Conv2d(inter_channels*3, inter_channels, 1, padding=0, bias=False),
-                                    norm_layer(inter_channels),
-                                    nn.ReLU())
 
-        self.conv5 = nn.Sequential(nn.Dropout2d(0.1, False), nn.Conv2d(512, out_channels, 1))
         self.conv6 = nn.Sequential(nn.Dropout2d(0.1, False), nn.Conv2d(512, out_channels, 1))
-        self.conv7a = nn.Sequential(nn.Dropout2d(0.1, False), nn.Conv2d(512, out_channels, 1))
         self.conv7 = nn.Sequential(nn.Dropout2d(0.1, False), nn.Conv2d(512, out_channels, 1))
 
         self.conv8 = nn.Sequential(nn.Dropout2d(0.1, False), nn.Conv2d(512, out_channels, 1))
 
-        self.aspp = selective_aggregation_ASPP_Module(in_channels, inner_features=256, out_features=512, dilations=(12, 24, 36))
+        self.aspp = ASPP_Module(in_channels, inner_features=256, out_features=512, dilations=(12, 24, 36))
 
 
     def forward(self, x):
         feat1 = self.aspp(x)
         aspp_output = self.conv5(feat1)
-        # feat1 = self.conv5a(x)
 
-        #sa
+        # feat1 = self.conv5a(x)
         sa_feat = self.sa(feat1)
         sa_conv = self.conv51(sa_feat)
         sa_output = self.conv6(sa_conv)
 
-        #sc
-        # feat2 = self.conv5c(x)
-        sca_feat = self.sca(feat1)
-        sca_conv = self.conv52(sca_feat)
-        sca_output = self.conv7a(sca_conv)
-
         # output = [sa_output]
-        #sec
+
         feat2 = self.conv5c(x)
         sc_feat = self.sc(feat2)
-        sc_conv = self.conv53(sc_feat)
+        sc_conv = self.conv52(sc_feat)
         sc_output = self.conv7(sc_conv)
 
-        # feat_sum = sa_conv + sc_conv
-        feat_sum = torch.cat((sa_conv, sc_conv, sca_conv), 1)
-        feat_sum = self.conv54(feat_sum)
+        feat_sum = sa_conv + sc_conv
+
         sasc_output = self.conv8(feat_sum)
 
         output = [sasc_output]
         output.append(sa_output)
         output.append(sc_output)
         output.append(aspp_output)
-        output.append(sca_output)
-
         return tuple(output)
 
 
-def get_lgcnet(dataset='pascal_voc', backbone='resnet50', pretrained=False,
+def get_lnlnet(dataset='pascal_voc', backbone='resnet50', pretrained=False,
               root='./pretrain_models', **kwargs):
     r"""DANet model from the paper `"Dual Attention Network for Scene Segmentation"
     <https://arxiv.org/abs/1809.02983.pdf>`
@@ -154,7 +133,7 @@ def get_lgcnet(dataset='pascal_voc', backbone='resnet50', pretrained=False,
     }
     # infer number of classes
     from ..datasets import datasets, VOCSegmentation, VOCAugSegmentation, ADE20KSegmentation
-    model = LGCNet(datasets[dataset.lower()].NUM_CLASS, backbone=backbone, root=root, **kwargs)
+    model = LNLNet(datasets[dataset.lower()].NUM_CLASS, backbone=backbone, root=root, **kwargs)
     if pretrained:
         from .model_store import get_model_file
         model.load_state_dict(torch.load(

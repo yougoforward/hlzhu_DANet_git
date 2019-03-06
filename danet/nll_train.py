@@ -74,7 +74,7 @@ class Trainer():
 
         cityscape_weight = torch.FloatTensor(
             [0.8373, 0.918, 0.866, 1.0345, 1.0166, 0.9969, 0.9754, 1.0489, 0.8786, 1.0023, 0.9539, 0.9843, 1.1116,
-             0.9037, 1.0865, 1.0955, 1.0865, 1.1529, 1.0507]).cuda()
+             0.9037, 1.0865, 1.0955, 1.0865, 1.1529, 1.0507])
 
         optimizer = torch.optim.SGD(params_list,
                     lr=args.lr,
@@ -83,7 +83,7 @@ class Trainer():
         #weight for class imbalance
         # self.criterion = SegmentationMultiLosses(nclass=self.nclass, weight=cityscape_weight)
         # self.criterion = SegmentationMultiLosses(nclass=self.nclass)
-        self.criterion = nll_SegmentationMultiLosses(nclass=self.nclass)
+        self.criterion = nll_SegmentationMultiLosses(nclass=self.nclass, weight=cityscape_weight)
         #self.criterion = SegmentationLosses(se_loss=args.se_loss, aux=args.aux,nclass=self.nclass)
 
         self.model, self.optimizer = model, optimizer

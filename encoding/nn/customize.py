@@ -122,14 +122,15 @@ class nll_SegmentationMultiLosses(CrossEntropyLoss):
         # loss = super(SegmentationMultiLosses, self).forward(pred1, target)
 
         *preds, target = tuple(inputs)
-        pred1, pred2 ,pred3, pred4 = tuple(preds)
+        pred1, pred2 ,pred3, pred4, pred5 = tuple(preds)
 
 
         loss1 = super(nll_SegmentationMultiLosses, self).forward(pred1, target)
         loss2 = super(nll_SegmentationMultiLosses, self).forward(pred2, target)
         loss3 = super(nll_SegmentationMultiLosses, self).forward(pred3, target)
         loss4 = super(nll_SegmentationMultiLosses, self).forward(pred4, target)
-        loss = loss1 + loss2 + loss3 + loss4
+        loss5 = super(nll_SegmentationMultiLosses, self).forward(pred5, target)
+        loss = loss1 + loss2 + loss3 + loss4 + loss5
         return loss
 
 class View(Module):
