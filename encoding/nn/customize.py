@@ -136,7 +136,7 @@ class nll_SegmentationMultiLosses(CrossEntropyLoss):
 class nll4_SegmentationMultiLosses(CrossEntropyLoss):
     """2D Cross Entropy Loss with Multi-L1oss"""
     def __init__(self, nclass=-1, weight=None,size_average=True, ignore_index=-1):
-        super(nll_SegmentationMultiLosses, self).__init__(weight, size_average, ignore_index)
+        super(nll4_SegmentationMultiLosses, self).__init__(weight, size_average, ignore_index)
         self.nclass = nclass
 
 
@@ -149,10 +149,10 @@ class nll4_SegmentationMultiLosses(CrossEntropyLoss):
         pred1, pred2 ,pred3, pred4 = tuple(preds)
 
 
-        loss1 = super(nll_SegmentationMultiLosses, self).forward(pred1, target)
-        loss2 = super(nll_SegmentationMultiLosses, self).forward(pred2, target)
-        loss3 = super(nll_SegmentationMultiLosses, self).forward(pred3, target)
-        loss4 = super(nll_SegmentationMultiLosses, self).forward(pred4, target)
+        loss1 = super(nll4_SegmentationMultiLosses, self).forward(pred1, target)
+        loss2 = super(nll4_SegmentationMultiLosses, self).forward(pred2, target)
+        loss3 = super(nll4_SegmentationMultiLosses, self).forward(pred3, target)
+        loss4 = super(nll4_SegmentationMultiLosses, self).forward(pred4, target)
 
         loss = loss1 + loss2 + loss3 + loss4
         return loss
