@@ -167,7 +167,6 @@ class Trainer():
 
         is_best = False
         self.model.eval()
-        print(self.training)
         total_inter, total_union, total_correct, total_label = 0, 0, 0, 0
         tbar = tqdm(self.valloader, desc='\r')
 
