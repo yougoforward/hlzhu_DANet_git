@@ -93,7 +93,13 @@ class LGCNetHead(nn.Module):
                                     norm_layer(inter_channels),
                                     nn.ReLU())
 
+        self.bottleneck = nn.Sequential(
+            nn.Conv2d(256 * 5, 512, kernel_size=1, padding=0, dilation=1, bias=False),
+            nn.BatchNorm2d(512), nn.ReLU(),
+            nn.Dropout2d(0.1)
+        )
         self.conv5 = nn.Sequential(nn.Dropout2d(0.1, False), nn.Conv2d(512, out_channels, 1))
+
         self.conv6 = nn.Sequential(nn.Dropout2d(0.1, False), nn.Conv2d(512, out_channels, 1))
         self.conv7a = nn.Sequential(nn.Dropout2d(0.1, False), nn.Conv2d(512, out_channels, 1))
         self.conv7 = nn.Sequential(nn.Dropout2d(0.1, False), nn.Conv2d(512, out_channels, 1))
@@ -104,8 +110,9 @@ class LGCNetHead(nn.Module):
 
 
     def forward(self, x):
-        feat1 = self.aspp(x)
-        aspp_output = self.conv5(feat1)
+        feat1,cat1 = self.aspp(x)
+        cat1 =self.bottleneck(cat1)
+        aspp_output = self.conv5(cat1)
         # feat1 = self.conv5a(x)
 
         #sa

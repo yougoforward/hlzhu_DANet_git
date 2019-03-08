@@ -105,10 +105,16 @@ class LGCNet2Head(nn.Module):
 
         self.aspp = selective_aggregation_ASPP_Module(in_channels, inner_features=256, out_features=512, dilations=(12, 24, 36))
 
-
+        self.bottleneck = nn.Sequential(
+            nn.Conv2d(256 * 5, 512, kernel_size=1, padding=0, dilation=1, bias=False),
+            nn.BatchNorm2d(512), nn.ReLU(),
+            nn.Dropout2d(0.1)
+        )
     def forward(self, x):
-        feat1 = self.aspp(x)
-        aspp_output = self.conv5(feat1)
+        feat1, cat1 = self.aspp(x)
+        cat1 = self.bottleneck(cat1)
+        aspp_output = self.conv5(cat1)
+        # aspp_output = self.conv5(feat1)
         # feat1 = self.conv5a(x)
 
         #sa
