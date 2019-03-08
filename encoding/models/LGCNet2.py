@@ -52,13 +52,13 @@ class LGCNet2(BaseNet):
         x[1] = upsample(x[1], imsize, **self._up_kwargs)
         x[2] = upsample(x[2], imsize, **self._up_kwargs)
         x[3] = upsample(x[3], imsize, **self._up_kwargs)
-        x[4] = upsample(x[4], imsize, **self._up_kwargs)
+        # x[4] = upsample(x[4], imsize, **self._up_kwargs)
 
         outputs = [x[0]]
         outputs.append(x[1])
         outputs.append(x[2])
         outputs.append(x[3])
-        outputs.append(x[4])
+        # outputs.append(x[4])
         return tuple(outputs)
 
 
@@ -144,7 +144,7 @@ class LGCNet2Head(nn.Module):
         output.append(sa_output)
         output.append(sc_output)
         output.append(aspp_output)
-        output.append(aspp_output)
+        # output.append(sca_output)
 
         return tuple(output)
 
