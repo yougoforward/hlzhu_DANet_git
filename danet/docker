@@ -17,8 +17,8 @@ CUDA_VISIBLE_DEVICES=0,1,2,3 python nll_train.py --dataset cityscapes --model  l
 
 CUDA_VISIBLE_DEVICES=0,1,2,3 python3 nll_train.py --dataset cityscapes --model  lgcnet --backbone resnet50 --checkname lgcnet50  --base-size 1024 --crop-size 768 --epochs 240 --batch-size 8 --lr 0.006 --workers 2 --multi-grid --multi-dilation 4 8 16
 CUDA_VISIBLE_DEVICES=4,5,6,7 python3 nll_train.py --dataset cityscapes --model  lgcnet --backbone resnet50 --checkname lgcnet50  --base-size 1024 --crop-size 768 --epochs 240 --batch-size 8 --lr 0.006 --workers 2 --multi-grid --multi-dilation 4 8 16
-CUDA_VISIBLE_DEVICES=0,1,2,3 python test.py --dataset cityscapes --model  lgcnet --resume-dir cityscapes/lgcnet_model/lgcnet50 --backbone resnet50   --base-size 2048 --crop-size 768  --workers 2 --eval
-
+CUDA_VISIBLE_DEVICES=4,5,6,7 python3 test.py --dataset cityscapes --model  lgcnet --resume-dir cityscapes/lgcnet_model/lgcnet50 --backbone resnet50   --base-size 2048 --crop-size 768  --workers 2 --eval
+CUDA_VISIBLE_DEVICES=4,5,6,7 python3 test.py --dataset cityscapes --model  lgcnet --resume-dir cityscapes/lgcnet_model/lgcnet50 --backbone resnet50   --base-size 2048 --crop-size 768  --workers 2 --eval --multi-grid --multi-dilation 4 8 16
 
 CUDA_VISIBLE_DEVICES=4,5,6,7 python3 nll_train.py --dataset cityscapes --model  lgcnet --backbone resnet50 --checkname lgcnet50_single  --base-size 1024 --crop-size 768 --epochs 240 --batch-size 8 --lr 0.006 --workers 2 --scale
 

@@ -52,7 +52,7 @@ class LGCNet2(BaseNet):
         x[1] = upsample(x[1], imsize, **self._up_kwargs)
         x[2] = upsample(x[2], imsize, **self._up_kwargs)
         x[3] = upsample(x[3], imsize, **self._up_kwargs)
-        x[4] = 0*upsample(x[4], imsize, **self._up_kwargs)
+        x[4] = upsample(x[4], imsize, **self._up_kwargs)
 
         outputs = [x[0]]
         outputs.append(x[1])
