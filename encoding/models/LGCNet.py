@@ -96,15 +96,15 @@ class LGCNetHead(nn.Module):
         self.bottleneck = nn.Sequential(
             nn.Conv2d(256 * 5, 512, kernel_size=1, padding=0, dilation=1, bias=False),
             nn.BatchNorm2d(512), nn.ReLU(),
-            nn.Dropout2d(0.1)
         )
-        self.conv5 = nn.Sequential(nn.Dropout2d(0.1, False), nn.Conv2d(512, out_channels, 1))
 
-        self.conv6 = nn.Sequential(nn.Dropout2d(0.1, False), nn.Conv2d(512, out_channels, 1))
-        self.conv7a = nn.Sequential(nn.Dropout2d(0.1, False), nn.Conv2d(512, out_channels, 1))
-        self.conv7 = nn.Sequential(nn.Dropout2d(0.1, False), nn.Conv2d(512, out_channels, 1))
+        self.conv5 = nn.Sequential(nn.Dropout2d(0.1), nn.Conv2d(512, out_channels, 1))
 
-        self.conv8 = nn.Sequential(nn.Dropout2d(0.1, False), nn.Conv2d(512, out_channels, 1))
+        self.conv6 = nn.Sequential(nn.Dropout2d(0.1), nn.Conv2d(512, out_channels, 1))
+        self.conv7a = nn.Sequential(nn.Dropout2d(0.1), nn.Conv2d(512, out_channels, 1))
+        self.conv7 = nn.Sequential(nn.Dropout2d(0.1), nn.Conv2d(512, out_channels, 1))
+
+        self.conv8 = nn.Sequential(nn.Dropout2d(0.1), nn.Conv2d(512, out_channels, 1))
 
         self.aspp = selective_aggregation_ASPP_Module(in_channels, inner_features=256, out_features=512, dilations=(12, 24, 36))
 
