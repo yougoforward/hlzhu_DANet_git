@@ -104,7 +104,6 @@ class ASGNetHead(nn.Module):
         )
 
     def forward(self, x):
-        print(self.training)
         feat1, cat1 = self.aspp(x)
         cat1 = self.bottleneck(cat1)
         aspp_output = self.conv5(cat1)
