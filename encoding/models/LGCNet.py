@@ -98,7 +98,7 @@ class LGCNetHead(nn.Module):
             nn.BatchNorm2d(512), nn.ReLU(),
         )
 
-        self.conv5 = nn.Sequential(nn.Dropout2d(0.1), nn.Conv2d(512, out_channels, 1))
+        self.conv5 = nn.Sequential(nn.Dropout2d(0.1,False), nn.Conv2d(512, out_channels, 1))
 
         self.conv6 = nn.Sequential(nn.Dropout2d(0.1), nn.Conv2d(512, out_channels, 1))
         self.conv7a = nn.Sequential(nn.Dropout2d(0.1), nn.Conv2d(512, out_channels, 1))
