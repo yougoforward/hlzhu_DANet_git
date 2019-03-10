@@ -45,16 +45,19 @@ class GLCNet2(BaseNet):
     def forward(self, x):
         imsize = x.size()[2:]
         _, _, c3, c4 = self.base_forward(x)
-
+        x_dsn = self.dsn(c3)
         x = self.head(c4)
         x = list(x)
         x[0] = upsample(x[0], imsize, **self._up_kwargs)
         x[1] = upsample(x[1], imsize, **self._up_kwargs)
         x[2] = upsample(x[2], imsize, **self._up_kwargs)
+        x_dsn = upsample(x_dsn, imsize, **self._up_kwargs)
 
         outputs = [x[0]]
         outputs.append(x[1])
         outputs.append(x[2])
+        outputs.append(x_dsn)
+
         return tuple(outputs)
 
 
@@ -95,9 +98,9 @@ class GLCNet2Head(nn.Module):
 
 
 
-        self.conv6 = nn.Sequential(nn.Dropout2d(0.1,False), nn.Conv2d(512, out_channels, 1))
-        self.conv7 = nn.Sequential(nn.Dropout2d(0.1,False), nn.Conv2d(512, out_channels, 1))
-        self.conv8 = nn.Sequential(nn.Dropout2d(0.1,False), nn.Conv2d(512, out_channels, 1))
+        self.conv6 = nn.Sequential(nn.Dropout2d(0.1), nn.Conv2d(512, out_channels, 1))
+        self.conv7 = nn.Sequential(nn.Dropout2d(0.1), nn.Conv2d(512, out_channels, 1))
+        self.conv8 = nn.Sequential(nn.Dropout2d(0.1), nn.Conv2d(512, out_channels, 1))
 
     def forward(self, x):
         #ssa

@@ -42,21 +42,29 @@ class LGCNet2(BaseNet):
         super(LGCNet2, self).__init__(nclass, backbone, aux, se_loss, norm_layer=norm_layer, **kwargs)
         self.head = LGCNet2Head(2048, nclass, norm_layer)
 
+        self.dsn = nn.Sequential(
+            nn.Conv2d(1024, 512, kernel_size=3, stride=1, padding=1),
+            nn.BatchNorm2d(512),nn.ReLU(inplace=True),
+            nn.Dropout2d(0.1),
+            nn.Conv2d(512,nclass, kernel_size=1, stride=1, padding=0, bias=True)
+        )
     def forward(self, x):
         imsize = x.size()[2:]
         _, _, c3, c4 = self.base_forward(x)
-
+        x_dsn=self.dsn(c3)
         x = self.head(c4)
         x = list(x)
         x[0] = upsample(x[0], imsize, **self._up_kwargs)
         x[1] = upsample(x[1], imsize, **self._up_kwargs)
         x[2] = upsample(x[2], imsize, **self._up_kwargs)
+        x_dsn =  upsample(x_dsn, imsize, **self._up_kwargs)
         # x[3] = upsample(x[3], imsize, **self._up_kwargs)
         # x[4] = upsample(x[4], imsize, **self._up_kwargs)
 
         outputs = [x[0]]
         outputs.append(x[1])
         outputs.append(x[2])
+        outputs.append(x_dsn)
         # outputs.append(x[3])
         # outputs.append(x[4])
         return tuple(outputs)
@@ -96,11 +104,11 @@ class LGCNet2Head(nn.Module):
                                     norm_layer(inter_channels),
                                     nn.ReLU())
 
-        self.conv5 = nn.Sequential(nn.Dropout2d(0.1,False), nn.Conv2d(512, out_channels, 1))
-        self.conv6 = nn.Sequential(nn.Dropout2d(0.1,False), nn.Conv2d(512, out_channels, 1))
-        self.conv7a = nn.Sequential(nn.Dropout2d(0.1,False), nn.Conv2d(512, out_channels, 1))
-        self.conv7 = nn.Sequential(nn.Dropout2d(0.1,False), nn.Conv2d(512, out_channels, 1))
-        self.conv8 = nn.Sequential(nn.Dropout2d(0.1,False), nn.Conv2d(512, out_channels, 1))
+        self.conv5 = nn.Sequential(nn.Dropout2d(0.1), nn.Conv2d(512, out_channels, 1))
+        self.conv6 = nn.Sequential(nn.Dropout2d(0.1), nn.Conv2d(512, out_channels, 1))
+        self.conv7a = nn.Sequential(nn.Dropout2d(0.1), nn.Conv2d(512, out_channels, 1))
+        self.conv7 = nn.Sequential(nn.Dropout2d(0.1), nn.Conv2d(512, out_channels, 1))
+        self.conv8 = nn.Sequential(nn.Dropout2d(0.1), nn.Conv2d(512, out_channels, 1))
 
         self.aspp = selective_aggregation_ASPP_Module(in_channels, inner_features=256, out_features=512, dilations=(12, 24, 36))
 
@@ -108,6 +116,7 @@ class LGCNet2Head(nn.Module):
             nn.Conv2d(256 * 5, 512, kernel_size=1, padding=0, dilation=1, bias=False),
             nn.BatchNorm2d(512), nn.ReLU(),
         )
+
     def forward(self, x):
         feat1, cat1 = self.aspp(x)
         # cat1 = self.bottleneck(cat1)
