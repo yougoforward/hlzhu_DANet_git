@@ -111,7 +111,7 @@ class GLCNet2Head(nn.Module):
         #aaspp
         feat2 = self.conv5s(x)
         feat_fuse = sa_conv + feat2
-        aspp_feat = self.aspp(feat_fuse)
+        aspp_feat,_ = self.aspp(feat_fuse)
         aspp_conv = self.conv52(aspp_feat)
 
         sa_output = self.conv6(aspp_conv)
