@@ -95,9 +95,9 @@ class GLCNet2Head(nn.Module):
 
 
 
-        self.conv6 = nn.Sequential(nn.Dropout2d(0.1,False), nn.Conv2d(512, out_channels, 1))
-        self.conv7 = nn.Sequential(nn.Dropout2d(0.1,False), nn.Conv2d(512, out_channels, 1))
-        self.conv8 = nn.Sequential(nn.Dropout2d(0.1,False), nn.Conv2d(512, out_channels, 1))
+        self.conv6 = nn.Sequential(nn.Dropout2d(0.1), nn.Conv2d(512, out_channels, 1))
+        self.conv7 = nn.Sequential(nn.Dropout2d(0.1), nn.Conv2d(512, out_channels, 1))
+        self.conv8 = nn.Sequential(nn.Dropout2d(0.1), nn.Conv2d(512, out_channels, 1))
 
     def forward(self, x):
         #ssa
