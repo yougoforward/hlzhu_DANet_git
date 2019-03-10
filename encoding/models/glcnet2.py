@@ -40,7 +40,7 @@ class GLCNet2(BaseNet):
 
     def __init__(self, nclass, backbone, aux=False, se_loss=False, norm_layer=nn.BatchNorm2d, **kwargs):
         super(GLCNet2, self).__init__(nclass, backbone, aux, se_loss, norm_layer=norm_layer, **kwargs)
-        self.head = LGCNet2Head(2048, nclass, norm_layer)
+        self.head = GLCNet2Head(2048, nclass, norm_layer)
 
     def forward(self, x):
         imsize = x.size()[2:]
