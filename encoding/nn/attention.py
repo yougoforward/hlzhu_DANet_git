@@ -541,6 +541,8 @@ class topk_PAM_Module(Module):
 
         self.layernorm = torch.nn.LayerNorm([96, 96], elementwise_affine=False)
 
+        self.layernorm2 = self.layernorm
+        self.layernorm3 = self.layernorm
     def forward(self, x):
         """
             inputs :
@@ -591,9 +593,9 @@ class topk_PAM_Module(Module):
 
         out = torch.bmm(proj_value, attention.permute(0, 2, 1))
         out = out.view(m_batchsize, C, height, width)
-        out = self.layernorm(out)
+        out = self.layernorm2(out)
 
-        out = self.gamma*out + x
+        out = self.gamma*out + self.layernorm3(x)
         return out
 
 
