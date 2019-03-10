@@ -104,9 +104,9 @@ class ASGNetHead(nn.Module):
 
     def forward(self, x):
         feat1, cat1 = self.aspp(x)
-        cat1 = self.bottleneck(cat1)
-        aspp_output = self.conv5(cat1)
-        # aspp_output = self.conv5(feat1)
+        # cat1 = self.bottleneck(cat1)
+        # aspp_output = self.conv5(cat1)
+        aspp_output = self.conv5(feat1)
         # feat1 = self.conv5a(x)
 
         #sa
@@ -117,7 +117,7 @@ class ASGNetHead(nn.Module):
 
         #sec
         # feat2 = self.conv5c(x)
-        sc_feat = self.sc(sa_feat)
+        sc_feat = self.sc(sa_conv)
         sc_conv = self.conv53(sc_feat)
         sc_output = self.conv7(sc_conv)
 

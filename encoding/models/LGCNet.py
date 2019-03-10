@@ -109,8 +109,8 @@ class LGCNetHead(nn.Module):
 
     def forward(self, x):
         feat1,cat1 = self.aspp(x)
-        cat1 =self.bottleneck(cat1)
-        aspp_output = self.conv5(cat1)
+        # cat1 =self.bottleneck(cat1)
+        aspp_output = self.conv5(feat1)
         # feat1 = self.conv5a(x)
 
         #sa

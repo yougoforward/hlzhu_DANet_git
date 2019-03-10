@@ -51,13 +51,13 @@ class LGCNet2(BaseNet):
         x[0] = upsample(x[0], imsize, **self._up_kwargs)
         x[1] = upsample(x[1], imsize, **self._up_kwargs)
         x[2] = upsample(x[2], imsize, **self._up_kwargs)
-        x[3] = upsample(x[3], imsize, **self._up_kwargs)
+        # x[3] = upsample(x[3], imsize, **self._up_kwargs)
         # x[4] = upsample(x[4], imsize, **self._up_kwargs)
 
         outputs = [x[0]]
         outputs.append(x[1])
         outputs.append(x[2])
-        outputs.append(x[3])
+        # outputs.append(x[3])
         # outputs.append(x[4])
         return tuple(outputs)
 
@@ -110,8 +110,8 @@ class LGCNet2Head(nn.Module):
         )
     def forward(self, x):
         feat1, cat1 = self.aspp(x)
-        cat1 = self.bottleneck(cat1)
-        aspp_output = self.conv5(cat1)
+        # cat1 = self.bottleneck(cat1)
+        # aspp_output = self.conv5(cat1)
         # aspp_output = self.conv5(feat1)
         # feat1 = self.conv5a(x)
 
@@ -135,15 +135,15 @@ class LGCNet2Head(nn.Module):
 
         feat_sum = sa_conv + sc_conv
         # feat_sum = torch.cat((sa_conv, sc_conv, sca_conv), 1)
-        feat_sum = torch.cat((sa_conv, sc_conv), 1)
+        # feat_sum = torch.cat((sa_conv, sc_conv), 1)
 
-        feat_sum = self.conv54(feat_sum)
+        # feat_sum = self.conv54(feat_sum)
         sasc_output = self.conv8(feat_sum)
 
         output = [sasc_output]
         output.append(sa_output)
         output.append(sc_output)
-        output.append(aspp_output)
+        # output.append(aspp_output)
         # output.append(sca_output)
 
         return tuple(output)

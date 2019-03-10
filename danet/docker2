@@ -20,6 +20,7 @@ CUDA_VISIBLE_DEVICES=4,5,6,7 python train.py --dataset cityscapes --model  asgne
 CUDA_VISIBLE_DEVICES=4,5,6,7 python test.py --dataset cityscapes --model asgnet --resume-dir cityscapes/asgnet_model/asgnet50_1 --base-size 2048 --crop-size 768 --workers 1 --backbone resnet50 --scale --eval
 
 
+glcnet2:
 CUDA_VISIBLE_DEVICES=4,5,6,7 python train.py --dataset cityscapes --model  glcnet2 --backbone resnet50 --checkname glcnet250_1  --base-size 1024 --crop-size 768 --epochs 240 --batch-size 8 --lr 0.006 --workers 2 --scale
 
 
@@ -44,3 +45,6 @@ asg:
 CUDA_VISIBLE_DEVICES=0,1,2,3 python3 train.py --dataset cityscapes --model  asgnet --backbone resnet101 --checkname asgnet101damg_1  --base-size 1024 --crop-size 768 --epochs 240 --batch-size 8 --lr 0.006 --workers 2 --multi-grid --multi-dilation 4 8 16
 CUDA_VISIBLE_DEVICES=4,5,6,7 python3 train.py --dataset cityscapes --model  asgnet --backbone resnet101 --checkname asgnet101damg_1  --base-size 1024 --crop-size 768 --epochs 240 --batch-size 8 --lr 0.006 --workers 2 --multi-grid --multi-dilation 4 8 16
 
+glcnet2:
+
+CUDA_VISIBLE_DEVICES=4,5,6,7 python3 train.py --dataset cityscapes --model  glcnet2 --backbone resnet50 --checkname glcnet250_1  --base-size 1024 --crop-size 768 --epochs 240 --batch-size 8 --lr 0.006 --workers 2 --scale
