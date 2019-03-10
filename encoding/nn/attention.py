@@ -1728,6 +1728,15 @@ class selective_aggregation_ASPP_Module(Module):
             BatchNorm2d(out_features),ReLU(),
             Dropout2d(0.1)
         )
+
+        self.se = Sequential(AdaptiveAvgPool2d((1, 1)),
+                             Conv2d(inner_features * 5, inner_features * 5//8, kernel_size=1, padding=0, dilation=1,
+                                    bias=False),
+                             BatchNorm2d(inner_features * 5//8), ReLU(),
+                             Conv2d(inner_features * 5//8, out_features, kernel_size=1, padding=0, dilation=1,
+                                    bias=False),
+                             Sigmoid()
+                             )
         self.selective_channel_aggregation = selective_channel_aggregation_Module(inner_features * 5, inner_features,  out_features)
 
     def forward(self, x):
@@ -1742,6 +1751,8 @@ class selective_aggregation_ASPP_Module(Module):
         out = torch.cat((feat1, feat2, feat3, feat4, feat5), 1)
         selective_channel_aggregation = self.selective_channel_aggregation(out)
         bottle = self.bottleneck(out)
+        se_x = self.se(out)
+        bottle = se_x * bottle
         bottle = selective_channel_aggregation + bottle
         return bottle, out
 
