@@ -15,7 +15,7 @@ from .mask_softmax import Mask_Softmax
 from .mask_softmax import gauss_Mask_Softmax
 torch_ver = torch.__version__[:3]
 
-__all__ = ['topk_PAM_Module','SE_CAM_Module','nonlocal_sampling_Module','selective_aggregation_ASPP_Module','selective_channel_aggregation_Module','Propagation_Pooling_Module','cascaded_mvPAM_Module_mask','PCAM_Module','pyramid_Reason_Module','PRI_CAM_Module','PAM_Module_gaussmask','pooling_PAM_Module','SE_ASPP_Module','reduce_CAM_Module','reduce_PAM_Module','SE_module','pool_CAM_Module','ASPP_Module','mvPAM_Module_unfold','mvPAM_Module_mask','mvPAM_Module_mask_cascade','msPAM_Module','PAM_Module', 'CAM_Module']
+__all__ = ['topk_PAM_Module2','topk_PAM_Module','SE_CAM_Module','nonlocal_sampling_Module','selective_aggregation_ASPP_Module','selective_channel_aggregation_Module','Propagation_Pooling_Module','cascaded_mvPAM_Module_mask','PCAM_Module','pyramid_Reason_Module','PRI_CAM_Module','PAM_Module_gaussmask','pooling_PAM_Module','SE_ASPP_Module','reduce_CAM_Module','reduce_PAM_Module','SE_module','pool_CAM_Module','ASPP_Module','mvPAM_Module_unfold','mvPAM_Module_mask','mvPAM_Module_mask_cascade','msPAM_Module','PAM_Module', 'CAM_Module']
 
 
 class mvPAM_Module_unfold(Module):
@@ -554,6 +554,82 @@ class topk_PAM_Module(Module):
         m_batchsize, C, height, width = x.size()
         proj_query = self.query_conv(x).view(m_batchsize, -1, width*height).permute(0, 2, 1)
         proj_key = self.key_conv(x).view(m_batchsize, -1, width*height)
+        energy = torch.bmm(proj_query, proj_key)
+        attention = self.softmax(energy)
+
+        proj_value = self.value_conv(x)
+        proj_value = self.layernorm(proj_value)
+        proj_value=proj_value.view(m_batchsize, -1, width * height)
+
+        a10 = torch.topk(attention, height*width//self.topk, dim=2, largest=True, sorted=False)
+        at_sparse = torch.zeros_like(attention).cuda()
+        attention = at_sparse.scatter_(dim=2, index=a10[1], src=a10[0])
+        # attention=attention.to_sparse()
+
+        # out_sparse = []
+        # tic2 = time.time()
+        # for i in range(m_batchsize):
+        #     idx = torch.LongTensor(torch.arange(height*width).numpy()).cuda()
+        #     idx = torch.stack([torch.flatten(idx.expand(height*width//10, height*width).t()), torch.flatten(a10[1][i])], 0)
+        #     val = torch.flatten(a10[0][i])
+        #     attention_sp = torch.sparse.FloatTensor(idx, val, torch.Size([width*height,width*height])).coalesce()
+        #     # at_sparse = torch.zeros_like(attention[0]).cuda()
+        #     # attention_sp = at_sparse.scatter_(dim=1, index=a10[1][i], src=a10[0][i])
+        #     # attention_sp = attention_sp.to_sparse()
+        #     tmp=proj_value[i].clone()
+        #     # print(attention_sp)
+        #     # print(tmp)
+        #     # print(attention_sp.shape)
+        #     # print(tmp.shape)
+        #     tic3=time.time()
+        #     tmp_sp=torch.sparse.mm(attention_sp, tmp)
+        #     toc3 = time.time() - tic3
+        #     print(toc3)
+        #     out_sparse.append(tmp_sp.permute(1, 0))
+        # toc2 = time.time() - tic
+        # print(toc2)
+        # out=torch.stack(out_sparse,0)
+        # out = torch.sparse.mm(attention, proj_value).permute(0, 2, 1)  #batch spare mm is not supported yet
+
+        out = torch.bmm(proj_value, attention.permute(0, 2, 1))
+        out = out.view(m_batchsize, C, height, width)
+        out = self.layernorm2(out)
+
+        out = self.gamma*out + self.layernorm3(x)
+        return out
+
+class topk_PAM_Module2(Module):
+    """ Position attention module"""
+    #Ref from SAGAN
+    def __init__(self, in_dim, key_dim, out_dim, topk=10):
+        super(topk_PAM_Module2, self).__init__()
+        self.chanel_in = in_dim
+        self.topk = topk
+
+        self.query_conv = Conv2d(in_channels=in_dim, out_channels=key_dim, kernel_size=1)
+        self.key_conv = Conv2d(in_channels=in_dim, out_channels=key_dim, kernel_size=1)
+        self.value_conv = Conv2d(in_channels=in_dim, out_channels=out_dim, kernel_size=1)
+        self.gamma = Parameter(torch.zeros(1))
+
+        self.softmax = Softmax(dim=-1)
+
+        self.layernorm = torch.nn.LayerNorm([96, 96], elementwise_affine=False)
+
+        self.layernorm2 = self.layernorm
+        self.layernorm3 = self.layernorm
+        self.layernorm4 = self.layernorm
+        self.layernorm5 = self.layernorm
+    def forward(self, x):
+        """
+            inputs :
+                x : input feature maps( B X C X H X W)
+            returns :
+                out : attention value + input feature
+                attention: B X (HxW) X (HxW)
+        """
+        m_batchsize, C, height, width = x.size()
+        proj_query = self.layernorm4(self.query_conv(x)).view(m_batchsize, -1, width*height).permute(0, 2, 1)
+        proj_key = self.layernorm5(self.key_conv(x)).view(m_batchsize, -1, width*height)
         energy = torch.bmm(proj_query, proj_key)
         attention = self.softmax(energy)
 
