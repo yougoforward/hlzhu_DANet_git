@@ -160,7 +160,7 @@ class nll4_SegmentationMultiLosses(CrossEntropyLoss):
 class nll5_SegmentationMultiLosses(CrossEntropyLoss):
     """2D Cross Entropy Loss with Multi-L1oss"""
     def __init__(self, nclass=-1, weight=None,size_average=True, ignore_index=-1):
-        super(nll_SegmentationMultiLosses, self).__init__(weight, size_average, ignore_index)
+        super(nll5_SegmentationMultiLosses, self).__init__(weight, size_average, ignore_index)
         self.nclass = nclass
 
 
