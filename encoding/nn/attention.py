@@ -15,7 +15,7 @@ from .mask_softmax import Mask_Softmax
 from .mask_softmax import gauss_Mask_Softmax
 torch_ver = torch.__version__[:3]
 
-__all__ = ['topk_PAM_Module','SE_CAM_Module','nonlocal_sampling_Module','selective_aggregation_ASPP_Module','selective_channel_aggregation_Module','Propagation_Pooling_Module','cascaded_mvPAM_Module_mask','PCAM_Module','pyramid_Reason_Module','PRI_CAM_Module','PAM_Module_gaussmask','pooling_PAM_Module','SE_ASPP_Module','reduce_CAM_Module','reduce_PAM_Module','SE_module','pool_CAM_Module','ASPP_Module','mvPAM_Module_unfold','mvPAM_Module_mask','mvPAM_Module_mask_cascade','msPAM_Module','PAM_Module', 'CAM_Module']
+__all__ = ['selective_channel_aggregation_Module2','topk_PAM_Module','SE_CAM_Module','SE_CAM_Module2','nonlocal_sampling_Module','selective_aggregation_ASPP_Module2','selective_aggregation_ASPP_Module','selective_channel_aggregation_Module','Propagation_Pooling_Module','cascaded_mvPAM_Module_mask','PCAM_Module','pyramid_Reason_Module','PRI_CAM_Module','PAM_Module_gaussmask','pooling_PAM_Module','SE_ASPP_Module','reduce_CAM_Module','reduce_PAM_Module','SE_module','pool_CAM_Module','ASPP_Module','mvPAM_Module_unfold','mvPAM_Module_mask','mvPAM_Module_mask_cascade','msPAM_Module','PAM_Module', 'CAM_Module']
 
 
 class mvPAM_Module_unfold(Module):
@@ -1695,6 +1695,8 @@ class selective_channel_aggregation_Module(Module):
         return out_c
 
 
+
+
 class Propagation_Pooling_Module(Module):
     """ Position attention module"""
     #Ref from SAGAN
@@ -1863,6 +1865,8 @@ class selective_aggregation_ASPP_Module(Module):
                              )
         self.selective_channel_aggregation = selective_channel_aggregation_Module(inner_features * 5, inner_features,  out_features)
 
+
+
     def forward(self, x):
         m_batchsize, _, h, w = x.size()
 
@@ -1932,6 +1936,168 @@ class SE_CAM_Module(Module):
 
         out = se_out + self.gamma * out + x
         return out
+class SE_CAM_Module2(Module):
+    """ Channel attention module"""
+    def __init__(self, in_dim):
+        super(SE_CAM_Module2, self).__init__()
+        self.chanel_in = in_dim
+
+
+        self.gamma = Parameter(torch.zeros(1))
+        self.softmax  = Softmax(dim=-1)
+        self.avgpool = AvgPool2d(2, 2)
+
+        self.se = Sequential(AdaptiveAvgPool2d((1, 1)),
+                             Conv2d(in_dim, in_dim // 8, kernel_size=1, padding=0, dilation=1,
+                                    bias=False),
+                             BatchNorm2d(in_dim // 8), ReLU(),
+                             Conv2d(in_dim // 8, in_dim, kernel_size=1, padding=0, dilation=1,
+                                    bias=False),
+                             Sigmoid()
+                             )
+
+    def forward(self,x):
+        """
+            inputs :
+                x : input feature maps( B X C X H X W)
+            returns :
+                out : attention value + input feature
+                attention: B X C X C
+        """
+        m_batchsize, C, height, width = x.size()
+
+        # pool_x = self.avgpool(x)
+        pool_x = x
+        proj_query = pool_x.view(m_batchsize, C, -1)
+        proj_key = pool_x.view(m_batchsize, C, -1).permute(0, 2, 1)
+
+        energy = torch.bmm(proj_query, proj_key)
+
+        energy_new = energy - torch.max(energy, -1, keepdim=True)[0].expand_as(energy)
+        attention = self.softmax(energy_new)
+        proj_value = x.view(m_batchsize, C, -1)
+
+        out = torch.bmm(attention, proj_value)
+        out = out.view(m_batchsize, C, height, width)
+
+        # out = self.gamma * out + x
+
+        se_x = self.se(x)
+        se_out = se_x * x
+
+        out = se_out + self.gamma * out + x
+        return out
+class selective_channel_aggregation_Module2(Module):
+    """ Position attention module"""
+    #Ref from SAGAN
+    def __init__(self, in_dim, query_dim, out_dim):
+        super(selective_channel_aggregation_Module2, self).__init__()
+        self.chanel_in = in_dim
+        self.query_dim = query_dim
+        self.chanel_out = out_dim
+
+        self.avgpool = AvgPool2d(2, 2)
+        # self.gamma = Parameter(torch.zeros(1))
+        self.softmax = Softmax(dim=-1)
+
+        self.query_conv_c = Sequential(Conv2d(in_channels=in_dim, out_channels=query_dim , kernel_size=1, bias=False),BatchNorm2d(query_dim))
+
+        self.expand = Sequential(
+            Conv2d(in_channels=query_dim, out_channels=out_dim, kernel_size=1, bias=False),
+            BatchNorm2d(out_dim), ReLU(inplace=True))
+
+
+
+    def forward(self, x):
+        """
+            inputs :
+                x : input feature maps( B X C X H X W)
+            returns :
+                out : output feature maps( B X 2C X H/2 X W/2)
+            exploit cam and pam in global-noloss-downsampling
+        """
+        m_batchsize, C, height, width = x.size()
+        # cam part
+        # expand channels C to self.chanel_out=2*C
+
+        pool_x=self.avgpool(x)
+        proj_c_query = self.query_conv_c(pool_x).view(m_batchsize, self.query_dim, -1)
+        # proj_c_key = self.key_conv_c(x).view(m_batchsize, C, -1).permute(0, 2, 1)
+        proj_c_key = pool_x.view(m_batchsize, C, -1).permute(0, 2, 1)
+
+        energy = torch.bmm(proj_c_query, proj_c_key)
+        energy_new = energy - torch.max(energy, -1, keepdim=True)[0].expand_as(energy)
+        attention = self.softmax(energy_new)
+        out_c = torch.bmm(attention, x.view(m_batchsize, C, -1))
+
+        out_c = self.expand(out_c.view(m_batchsize,-1,height,width))
+        # out_c = self.gamma * out_c
+
+        # out_c = self.gamma * out_c + self.res_conv_c(x).view(m_batchsize,self.chanel_out,-1)
+
+        return out_c
+
+class selective_aggregation_ASPP_Module2(Module):
+    """
+    Reference:
+        Chen, Liang-Chieh, et al. *"Rethinking Atrous Convolution for Semantic Image Segmentation."*
+    """
+
+    def __init__(self, features, inner_features=256, out_features=256, dilations=(12, 24, 36)):
+        super(selective_aggregation_ASPP_Module2, self).__init__()
+
+        self.conv1 = Sequential(AdaptiveAvgPool2d((1, 1)),
+                                   Conv2d(features, inner_features, kernel_size=1, padding=0, dilation=1,
+                                             bias=False),
+                                BatchNorm2d(inner_features),ReLU())
+        self.conv2 = Sequential(
+            Conv2d(features, inner_features, kernel_size=1, padding=0, dilation=1, bias=False),
+            BatchNorm2d(inner_features),ReLU())
+        self.conv3 = Sequential(
+            Conv2d(features, inner_features, kernel_size=3, padding=dilations[0], dilation=dilations[0], bias=False),
+            BatchNorm2d(inner_features),ReLU())
+        self.conv4 = Sequential(
+            Conv2d(features, inner_features, kernel_size=3, padding=dilations[1], dilation=dilations[1], bias=False),
+            BatchNorm2d(inner_features),ReLU())
+        self.conv5 = Sequential(
+            Conv2d(features, inner_features, kernel_size=3, padding=dilations[2], dilation=dilations[2], bias=False),
+            BatchNorm2d(inner_features),ReLU())
+
+        self.bottleneck = Sequential(
+            Conv2d(inner_features * 5, out_features, kernel_size=1, padding=0, dilation=1, bias=False),
+            BatchNorm2d(out_features),ReLU(),
+            Dropout2d(0.1)
+        )
+
+        self.se = Sequential(AdaptiveAvgPool2d((1, 1)),
+                             Conv2d(inner_features * 5, inner_features * 5//8, kernel_size=1, padding=0, dilation=1,
+                                    bias=False),
+                             BatchNorm2d(inner_features * 5//8), ReLU(),
+                             Conv2d(inner_features * 5//8, out_features, kernel_size=1, padding=0, dilation=1,
+                                    bias=False),
+                             Sigmoid()
+                             )
+        self.selective_channel_aggregation = selective_channel_aggregation_Module2(inner_features * 5, inner_features,  out_features)
+
+
+
+    def forward(self, x):
+        m_batchsize, _, h, w = x.size()
+
+        feat1 = F.upsample(self.conv1(x), size=(h, w), mode='bilinear', align_corners=True)
+
+        feat2 = self.conv2(x)
+        feat3 = self.conv3(x)
+        feat4 = self.conv4(x)
+        feat5 = self.conv5(x)
+        out = torch.cat((feat1, feat2, feat3, feat4, feat5), 1)
+        selective_channel_aggregation = self.selective_channel_aggregation(out)
+        bottle = self.bottleneck(out)
+        se_x = self.se(out)
+        bottle = se_x * bottle
+        bottle = selective_channel_aggregation + bottle
+        return bottle, out
+
 
 
 class reduce_PAM_Module(Module):
