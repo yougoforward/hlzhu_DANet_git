@@ -530,6 +530,7 @@ class topk_PAM_Module(Module):
         super(topk_PAM_Module, self).__init__()
         self.chanel_in = in_dim
         self.topk = topk
+        self.key_channels=key_dim
 
         self.query_conv = Conv2d(in_channels=in_dim, out_channels=key_dim, kernel_size=1)
         self.key_conv = Conv2d(in_channels=in_dim, out_channels=key_dim, kernel_size=1)
@@ -549,7 +550,7 @@ class topk_PAM_Module(Module):
         m_batchsize, C, height, width = x.size()
         proj_query = self.query_conv(x).view(m_batchsize, -1, width*height).permute(0, 2, 1)
         proj_key = self.key_conv(x).view(m_batchsize, -1, width*height)
-        energy = torch.bmm(proj_query, proj_key)
+        energy = torch.bmm(proj_query, proj_key)*((self.key_channels)**-.5)
         # attention = self.softmax(energy)
 
         proj_value = self.value_conv(x)
@@ -1971,9 +1972,9 @@ class SE_CAM_Module2(Module):
         proj_query = pool_x.view(m_batchsize, C, -1)
         proj_key = pool_x.view(m_batchsize, C, -1).permute(0, 2, 1)
 
-        energy = torch.bmm(proj_query, proj_key)
+        energy = torch.bmm(proj_query, proj_key)*((height*width)**-.5)
 
-        energy_new = energy - torch.max(energy, -1, keepdim=True)[0].expand_as(energy)
+        energy_new = torch.max(energy, -1, keepdim=True)[0].expand_as(energy)-energy
         attention = self.softmax(energy_new)
         proj_value = x.view(m_batchsize, C, -1)
 
@@ -2025,8 +2026,8 @@ class selective_channel_aggregation_Module2(Module):
         # proj_c_key = self.key_conv_c(x).view(m_batchsize, C, -1).permute(0, 2, 1)
         proj_c_key = pool_x.view(m_batchsize, C, -1).permute(0, 2, 1)
 
-        energy = torch.bmm(proj_c_query, proj_c_key)
-        energy_new = energy - torch.max(energy, -1, keepdim=True)[0].expand_as(energy)
+        energy = torch.bmm(proj_c_query, proj_c_key)*((height*width)**-.5)
+        energy_new = torch.max(energy, -1, keepdim=True)[0].expand_as(energy)-energy
         attention = self.softmax(energy_new)
         out_c = torch.bmm(attention, x.view(m_batchsize, C, -1))
 
