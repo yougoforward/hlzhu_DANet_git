@@ -563,7 +563,7 @@ class topk_PAM_Module(Module):
         # attention mask selection
         a10 = torch.topk(energy, height*width//self.topk, dim=2, largest=True, sorted=False)
         at_sparse = torch.zeros_like(energy).cuda()
-        attention_mask = at_sparse.scatter_(dim=2, index=a10[1], src= 1.0)
+        attention_mask = at_sparse.scatter_(dim=2, index=a10[1], src=1.0
 
 
         attention = self.softmax(energy, mask=attention_mask)
