@@ -24,6 +24,7 @@ from .fast_nllnet import *
 from .glcnet2 import *
 from .glcnet3 import *
 from .glcnet4 import *
+from .glcnet5 import *
 
 def get_segmentation_model(name, **kwargs):
     from .fcn import get_fcn
@@ -51,5 +52,6 @@ def get_segmentation_model(name, **kwargs):
         'glcnet2': get_glcnet2,
         'glcnet3': get_glcnet3,
         'glcnet4': get_glcnet4,
+        'glcnet5': get_glcnet5,
     }
     return models[name.lower()](**kwargs)
