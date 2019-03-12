@@ -566,7 +566,7 @@ class topk_PAM_Module(Module):
         attention_mask = at_sparse.scatter_(2, a10[1], 1.0)
 
 
-        attention = self.softmax(energy, mask=attention_mask)
+        attention = self.softmax([energy, attention_mask])
 
         out = torch.bmm(proj_value, attention.permute(0, 2, 1))
         out = out.view(m_batchsize, C, height, width)
