@@ -88,7 +88,7 @@ class GLCNet4Head(nn.Module):
         self.conv5s = nn.Sequential(nn.Conv2d(in_channels, inter_channels, 1, padding=0, bias=False),
                                     norm_layer(inter_channels),
                                     nn.ReLU())
-        self.aspp = selective_aggregation_ASPP_Module(inter_channels, inner_features=256, out_features=512,
+        self.aspp = selective_aggregation_ASPP_Module(in_channels, inner_features=256, out_features=512,
                                                       dilations=(12, 24, 36))
         self.conv52 = nn.Sequential(nn.Conv2d(inter_channels, inter_channels, 3, padding=1, bias=False),
                                     norm_layer(inter_channels),
