@@ -40,7 +40,7 @@ class GLCNet5_aca(BaseNet):
 
     def __init__(self, nclass, backbone, aux=False, se_loss=False, norm_layer=nn.BatchNorm2d, **kwargs):
         super(GLCNet5_aca, self).__init__(nclass, backbone, aux, se_loss, norm_layer=norm_layer, **kwargs)
-        self.head = GLCNet5_aca(2048, nclass, norm_layer)
+        self.head = GLCNet5_acaHead(2048, nclass, norm_layer)
 
         self.dsn = nn.Sequential(
             nn.Conv2d(1024, 512, kernel_size=3, stride=1, padding=1),
@@ -69,9 +69,9 @@ class GLCNet5_aca(BaseNet):
         return tuple(outputs)
 
 
-class GLCNet5_aca(nn.Module):
+class GLCNet5_acaHead(nn.Module):
     def __init__(self, in_channels, out_channels, norm_layer):
-        super(GLCNet5_aca, self).__init__()
+        super(GLCNet5_acaHead, self).__init__()
         inter_channels = in_channels // 4
 
 
