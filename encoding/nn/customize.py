@@ -18,7 +18,9 @@ from torch.autograd import Variable
 torch_ver = torch.__version__[:3]
 
 __all__ = ['GramMatrix', 'SegmentationLosses', 'View', 'Sum', 'Mean',
-           'Normalize', 'PyramidPooling','SegmentationMultiLosses','nll_SegmentationMultiLosses','nll4_SegmentationMultiLosses','nll5_SegmentationMultiLosses']
+           'Normalize', 'PyramidPooling','SegmentationMultiLosses',
+           'nll_SegmentationMultiLosses','nll4_SegmentationMultiLosses',
+           'nll5_SegmentationMultiLosses','nll1_SegmentationMultiLosses']
 
 class GramMatrix(Module):
     r""" Gram Matrix for a 4D convolutional featuremaps as a mini-batch
@@ -179,6 +181,26 @@ class nll5_SegmentationMultiLosses(CrossEntropyLoss):
         loss4 = super(nll5_SegmentationMultiLosses, self).forward(pred4, target)
         loss5 = super(nll5_SegmentationMultiLosses, self).forward(pred5, target)
         loss = loss1 + loss2 + loss3 + loss4 + 0.4*loss5
+        return loss
+
+class nll1_SegmentationMultiLosses(CrossEntropyLoss):
+    """2D Cross Entropy Loss with Multi-L1oss"""
+    def __init__(self, nclass=-1, weight=None,size_average=True, ignore_index=-1):
+        super(nll1_SegmentationMultiLosses, self).__init__(weight, size_average, ignore_index)
+        self.nclass = nclass
+
+
+    def forward(self, *inputs):
+        # *preds, target = tuple(inputs)
+        # pred1 = preds[0][0]
+        # loss = super(SegmentationMultiLosses, self).forward(pred1, target)
+
+        *preds, target = tuple(inputs)
+        pred1= tuple(preds)
+
+
+        loss = super(nll1_SegmentationMultiLosses, self).forward(pred1, target)
+
         return loss
 
 class View(Module):

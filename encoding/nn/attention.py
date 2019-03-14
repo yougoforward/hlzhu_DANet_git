@@ -2031,7 +2031,8 @@ class selective_channel_aggregation_Module2(Module):
         attention = self.softmax(energy_new)
         out_c = torch.bmm(attention, x.view(m_batchsize, C, -1))
 
-        out_c = self.expand(out_c.view(m_batchsize,-1,height,width))
+        out_c =out_c.view(m_batchsize,-1,height,width)
+        # out_c = self.expand(out_c)
         # out_c = self.gamma * out_c
 
         # out_c = self.gamma * out_c + self.res_conv_c(x).view(m_batchsize,self.chanel_out,-1)
@@ -2096,7 +2097,10 @@ class selective_aggregation_ASPP_Module2(Module):
         bottle = self.bottleneck(out)
         se_x = self.se(out)
         bottle = se_x * bottle
-        bottle = selective_channel_aggregation + bottle
+
+        bottle = torch.cat([selective_channel_aggregation, bottle],dim=1)
+
+        # bottle = selective_channel_aggregation + bottle
         return bottle, out
 
 
