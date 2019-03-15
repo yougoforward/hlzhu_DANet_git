@@ -1952,8 +1952,7 @@ class SE_CAM_Module2(Module):
                              Conv2d(in_dim, in_dim // 8, kernel_size=1, padding=0, dilation=1,
                                     bias=False),
                              BatchNorm2d(in_dim // 8), ReLU(),
-                             Conv2d(in_dim // 8, in_dim, kernel_size=1, padding=0, dilation=1,
-                                    bias=False),
+                             Conv2d(in_dim // 8, in_dim, kernel_size=1, padding=0, dilation=1),
                              Sigmoid()
                              )
 
@@ -1968,11 +1967,12 @@ class SE_CAM_Module2(Module):
         m_batchsize, C, height, width = x.size()
 
         # pool_x = self.avgpool(x)
-        pool_x = x
-        proj_query = pool_x.view(m_batchsize, C, -1)
-        proj_key = pool_x.view(m_batchsize, C, -1).permute(0, 2, 1)
+        # pool_x = x
+        proj_query = x.view(m_batchsize, C, -1)
+        proj_key = x.view(m_batchsize, C, -1).permute(0, 2, 1)
 
-        energy = torch.bmm(proj_query, proj_key)*((height*width)**-.5)
+        # energy = torch.bmm(proj_query, proj_key)*((height*width)**-.5)
+        energy = torch.bmm(proj_query, proj_key)
 
         energy_new = torch.max(energy, -1, keepdim=True)[0].expand_as(energy)-energy
         attention = self.softmax(energy_new)
@@ -1986,7 +1986,7 @@ class SE_CAM_Module2(Module):
         se_x = self.se(x)
         se_out = se_x * x
 
-        out = se_out + self.gamma * out + x
+        out = se_out + self.gamma * out +x
         return out
 class selective_channel_aggregation_Module2(Module):
     """ Position attention module"""

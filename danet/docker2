@@ -98,6 +98,7 @@ CUDA_VISIBLE_DEVICES=0,1,2,3 python3 nll1_train.py --dataset cityscapes --model 
 glcnet_aca:
 
 CUDA_VISIBLE_DEVICES=0,1,2,3 python3 nll1_train.py --dataset cityscapes --model  glcnet5_aca --backbone resnet50 --checkname glcnet5_aca  --base-size 1024 --crop-size 768 --epochs 240 --batch-size 8 --lr 0.01 --workers 2 --scale
+CUDA_VISIBLE_DEVICES=0,1,2,3 python3 test.py --dataset cityscapes --model glcnet5_aca --resume-dir cityscapes/glcnet5_aca_model/glcnet5_aca --base-size 2048 --crop-size 768 --workers 1 --backbone resnet50 --eval
 
 
 glcnet_amca:
