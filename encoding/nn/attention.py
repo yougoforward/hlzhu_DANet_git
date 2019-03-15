@@ -2096,7 +2096,7 @@ class selective_aggregation_ASPP_Module2(Module):
         selective_channel_aggregation = self.selective_channel_aggregation(out)
         bottle = self.bottleneck(out)
         se_x = self.se(out)
-        bottle = se_x * bottle
+        bottle = se_x * bottle+bottle
 
         bottle = torch.cat([selective_channel_aggregation, bottle],dim=1)
 
