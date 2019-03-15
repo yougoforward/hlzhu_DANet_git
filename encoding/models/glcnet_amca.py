@@ -78,7 +78,11 @@ class GLCNet5_amcaHead(nn.Module):
         self.conv5a = nn.Sequential(nn.Conv2d(in_channels, inter_channels, 3, padding=1, bias=False),
                                     norm_layer(inter_channels),
                                     nn.ReLU())
-        self.sa = topk_PAM_Module(inter_channels, 256, inter_channels, 10)
+        self.conv5as = nn.Sequential(nn.Conv2d(in_channels, inter_channels, 3, padding=1, bias=False),
+                                    norm_layer(inter_channels),
+                                    nn.ReLU())
+
+        self.sa = topk_PAM_Module(inter_channels, 64, inter_channels, 10)
         self.conv51 = nn.Sequential(nn.Conv2d(inter_channels, inter_channels, 3, padding=1, bias=False),
                                     norm_layer(inter_channels),
                                     nn.ReLU())
@@ -121,7 +125,8 @@ class GLCNet5_amcaHead(nn.Module):
         # feat2 = self.conv5s(x)
         # feat_fuse = sa_conv + feat2
 
-        aspp_feat,_ = self.aspp(x)
+        feat_as = self.conv5as(x)
+        aspp_feat,_ = self.aspp(feat_as)
         aspp_conv = self.conv52(aspp_feat)
 
         aspp_output = self.conv6(aspp_conv)

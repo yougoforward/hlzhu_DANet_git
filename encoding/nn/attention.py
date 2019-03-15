@@ -1951,10 +1951,10 @@ class SE_CAM_Module2(Module):
         self.avgpool = AvgPool2d(2, 2)
 
         self.se = Sequential(AdaptiveAvgPool2d((1, 1)),
-                             Conv2d(in_dim, in_dim // 8, kernel_size=1, padding=0, dilation=1,
+                             Conv2d(in_dim, in_dim // 16, kernel_size=1, padding=0, dilation=1,
                                     bias=False),
-                             BatchNorm2d(in_dim // 8), ReLU(),
-                             Conv2d(in_dim // 8, in_dim, kernel_size=1, padding=0, dilation=1),
+                             BatchNorm2d(in_dim // 16), ReLU(),
+                             Conv2d(in_dim // 16, in_dim, kernel_size=1, padding=0, dilation=1),
                              Sigmoid()
                              )
 
@@ -2028,7 +2028,8 @@ class selective_channel_aggregation_Module2(Module):
         # proj_c_key = self.key_conv_c(x).view(m_batchsize, C, -1).permute(0, 2, 1)
         proj_c_key = pool_x.view(m_batchsize, C, -1).permute(0, 2, 1)
 
-        energy = torch.bmm(proj_c_query, proj_c_key)*((height*width)**-.5)
+        energy = torch.bmm(proj_c_query, proj_c_key)
+        # energy = torch.bmm(proj_c_query, proj_c_key) * ((height * width) ** -.5)
         energy_new = torch.max(energy, -1, keepdim=True)[0].expand_as(energy)-energy
         attention = self.softmax(energy_new)
         out_c = torch.bmm(attention, x.view(m_batchsize, C, -1))
@@ -2074,11 +2075,10 @@ class selective_aggregation_ASPP_Module2(Module):
         )
 
         self.se = Sequential(AdaptiveAvgPool2d((1, 1)),
-                             Conv2d(inner_features * 5, inner_features * 5//8, kernel_size=1, padding=0, dilation=1,
+                             Conv2d(inner_features * 5, inner_features * 5//16, kernel_size=1, padding=0, dilation=1,
                                     bias=False),
-                             BatchNorm2d(inner_features * 5//8), ReLU(),
-                             Conv2d(inner_features * 5//8, out_features, kernel_size=1, padding=0, dilation=1,
-                                    bias=False),
+                             BatchNorm2d(inner_features * 5//16), ReLU(),
+                             Conv2d(inner_features * 5//16, out_features, kernel_size=1, padding=0, dilation=1),
                              Sigmoid()
                              )
         self.selective_channel_aggregation = selective_channel_aggregation_Module2(inner_features * 5, inner_features,  out_features)
