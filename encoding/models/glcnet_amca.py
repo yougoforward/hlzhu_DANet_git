@@ -92,7 +92,7 @@ class GLCNet5_amcaHead(nn.Module):
         self.conv5s = nn.Sequential(nn.Conv2d(in_channels, inter_channels, 1, padding=0, bias=False),
                                     norm_layer(inter_channels),
                                     nn.ReLU())
-        self.aspp = selective_aggregation_ASPP_Module2(in_channels, inner_features=256, out_features=256,
+        self.aspp = selective_aggregation_ASPP_Module2(inter_channels, inner_features=256, out_features=256,
                                                       dilations=(12, 24, 36))
         self.conv52 = nn.Sequential(nn.Conv2d(inter_channels, inter_channels, 3, padding=1, bias=False),
                                     norm_layer(inter_channels),
