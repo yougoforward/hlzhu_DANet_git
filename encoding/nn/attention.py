@@ -550,8 +550,10 @@ class topk_PAM_Module(Module):
         m_batchsize, C, height, width = x.size()
         proj_query = self.query_conv(x).view(m_batchsize, -1, width*height).permute(0, 2, 1)
         proj_key = self.key_conv(x).view(m_batchsize, -1, width*height)
-        energy = torch.bmm(proj_query, proj_key)*((self.key_channels)**-.5)
+        energy = torch.bmm(proj_query, proj_key)
+        # energy = torch.bmm(proj_query, proj_key)*((self.key_channels)**-.5)
         # attention = self.softmax(energy)
+
 
         proj_value = self.value_conv(x)
         proj_value=proj_value.view(m_batchsize, -1, width * height)
