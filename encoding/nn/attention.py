@@ -2048,7 +2048,8 @@ class selective_channel_aggregation_Module2(Module):
 
         # out_c = self.reduce(out_c)
         # out_c = self.expand(out_c)
-        out_c = self.gamma * out_c+value_c
+        out_c = self.gamma * out_c
+        # out_c = self.gamma * out_c+value_c
 
         # out_c = self.gamma * out_c + self.res_conv_c(x).view(m_batchsize,self.chanel_out,-1)
 
