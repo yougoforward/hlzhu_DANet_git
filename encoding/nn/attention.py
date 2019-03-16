@@ -767,11 +767,11 @@ class pool_CAM_Module(Module):
         self.avgpool = AvgPool2d(2, 2)
 
         self.se = Sequential(AdaptiveAvgPool2d((1, 1)),
-                             Conv2d(in_dim, in_dim // 8, kernel_size=1, padding=0, dilation=1,
-                                    bias=False),
-                             BatchNorm2d(in_dim // 8), ReLU(),
-                             Conv2d(in_dim // 8, in_dim, kernel_size=1, padding=0, dilation=1,
-                                    bias=False),
+                             Conv2d(in_dim, in_dim // 16, kernel_size=1, padding=0, dilation=1,
+                                    bias=True),
+                             ReLU(),
+                             Conv2d(in_dim // 16, in_dim, kernel_size=1, padding=0, dilation=1,
+                                    bias=True),
                              Sigmoid()
                              )
 
@@ -815,13 +815,13 @@ class SE_module(Module):
         self.chanel_in = in_dim
 
         self.se = Sequential(AdaptiveAvgPool2d((1, 1)),
-                                Conv2d(in_dim, in_dim//8, kernel_size=1, padding=0, dilation=1,
-                                       bias=False),
-                                BatchNorm2d(in_dim//8), ReLU(),
-                                Conv2d(in_dim//8, in_dim, kernel_size=1, padding=0, dilation=1,
-                                       bias=False),
-                                Sigmoid()
-                                )
+                             Conv2d(in_dim, in_dim // 16, kernel_size=1, padding=0, dilation=1,
+                                    bias=True),
+                             ReLU(),
+                             Conv2d(in_dim // 16, in_dim, kernel_size=1, padding=0, dilation=1,
+                                    bias=True),
+                             Sigmoid()
+                             )
 
     def forward(self, x):
         """
@@ -1250,11 +1250,9 @@ class SE_ASPP_Module(Module):
         )
 
         self.se = Sequential(AdaptiveAvgPool2d((1, 1)),
-                             Conv2d(inner_features*5, inner_features*5 // 8, kernel_size=1, padding=0, dilation=1,
-                                    bias=False),
-                             BatchNorm2d(inner_features*5 // 8), ReLU(inplace=True),
-                             Conv2d(inner_features*5 // 8, inner_features, kernel_size=1, padding=0, dilation=1,
-                                    bias=False),
+                             Conv2d(inner_features * 5, inner_features * 5//16, kernel_size=1, padding=0, dilation=1, bias=True),
+                             ReLU(),
+                             Conv2d(inner_features * 5//16, out_features, kernel_size=1, padding=0, dilation=1, bias=True),
                              Sigmoid()
                              )
 
@@ -1376,11 +1374,11 @@ class PRI_CAM_Module(Module):
         self.avgpool = AvgPool2d(2, 2)
 
         self.se = Sequential(AdaptiveAvgPool2d((1, 1)),
-                             Conv2d(in_dim, in_dim // 8, kernel_size=1, padding=0, dilation=1,
-                                    bias=False),
-                             BatchNorm2d(in_dim // 8), ReLU(inplace=True),
-                             Conv2d(in_dim // 8, in_dim, kernel_size=1, padding=0, dilation=1,
-                                    bias=False),
+                             Conv2d(in_dim, in_dim // 16, kernel_size=1, padding=0, dilation=1,
+                                    bias=True),
+                             ReLU(),
+                             Conv2d(in_dim // 16, in_dim, kernel_size=1, padding=0, dilation=1,
+                                    bias=True),
                              Sigmoid()
                              )
 
@@ -1859,11 +1857,9 @@ class selective_aggregation_ASPP_Module(Module):
         )
 
         self.se = Sequential(AdaptiveAvgPool2d((1, 1)),
-                             Conv2d(inner_features * 5, inner_features * 5//8, kernel_size=1, padding=0, dilation=1,
-                                    bias=False),
-                             BatchNorm2d(inner_features * 5//8), ReLU(),
-                             Conv2d(inner_features * 5//8, out_features, kernel_size=1, padding=0, dilation=1,
-                                    bias=False),
+                             Conv2d(inner_features * 5, inner_features * 5//16, kernel_size=1, padding=0, dilation=1, bias=True),
+                             ReLU(),
+                             Conv2d(inner_features * 5//16, out_features, kernel_size=1, padding=0, dilation=1, bias=True),
                              Sigmoid()
                              )
         self.selective_channel_aggregation = selective_channel_aggregation_Module(inner_features * 5, inner_features,  out_features)
@@ -1900,11 +1896,11 @@ class SE_CAM_Module(Module):
         self.avgpool = AvgPool2d(2, 2)
 
         self.se = Sequential(AdaptiveAvgPool2d((1, 1)),
-                             Conv2d(in_dim, in_dim // 8, kernel_size=1, padding=0, dilation=1,
-                                    bias=False),
-                             BatchNorm2d(in_dim // 8), ReLU(),
-                             Conv2d(in_dim // 8, in_dim, kernel_size=1, padding=0, dilation=1,
-                                    bias=False),
+                             Conv2d(in_dim, in_dim // 16, kernel_size=1, padding=0, dilation=1,
+                                    bias=True),
+                             ReLU(),
+                             Conv2d(in_dim // 16, in_dim, kernel_size=1, padding=0, dilation=1,
+                                    bias=True),
                              Sigmoid()
                              )
 
@@ -1952,9 +1948,10 @@ class SE_CAM_Module2(Module):
 
         self.se = Sequential(AdaptiveAvgPool2d((1, 1)),
                              Conv2d(in_dim, in_dim // 16, kernel_size=1, padding=0, dilation=1,
-                                    bias=False),
-                             BatchNorm2d(in_dim // 16), ReLU(),
-                             Conv2d(in_dim // 16, in_dim, kernel_size=1, padding=0, dilation=1),
+                                    bias=True),
+                             ReLU(),
+                             Conv2d(in_dim // 16, in_dim, kernel_size=1, padding=0, dilation=1,
+                                    bias=True),
                              Sigmoid()
                              )
 
@@ -2075,10 +2072,9 @@ class selective_aggregation_ASPP_Module2(Module):
         )
 
         self.se = Sequential(AdaptiveAvgPool2d((1, 1)),
-                             Conv2d(inner_features * 5, inner_features * 5//16, kernel_size=1, padding=0, dilation=1,
-                                    bias=False),
-                             BatchNorm2d(inner_features * 5//16), ReLU(),
-                             Conv2d(inner_features * 5//16, out_features, kernel_size=1, padding=0, dilation=1),
+                             Conv2d(inner_features * 5, inner_features * 5//16, kernel_size=1, padding=0, dilation=1, bias=True),
+                             ReLU(),
+                             Conv2d(inner_features * 5//16, out_features, kernel_size=1, padding=0, dilation=1, bias=True),
                              Sigmoid()
                              )
         self.selective_channel_aggregation = selective_channel_aggregation_Module2(inner_features * 5, inner_features,  out_features)
