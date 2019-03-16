@@ -2041,14 +2041,14 @@ class selective_channel_aggregation_Module2(Module):
         attention = self.softmax(energy_new)
         # print(attention.size())
         # print(x.size())
-        value_c = self.value_conv_c(x).view(m_batchsize, -1, width*height)
-        out_c = torch.bmm(attention, value_c)
+        value_c = self.value_conv_c(x)
+        out_c = torch.bmm(attention, value_c.view(m_batchsize, -1, width*height))
 
         out_c =out_c.view(m_batchsize,-1,height,width)
 
         # out_c = self.reduce(out_c)
         # out_c = self.expand(out_c)
-        out_c = self.gamma * out_c
+        out_c = self.gamma * out_c+value_c
 
         # out_c = self.gamma * out_c + self.res_conv_c(x).view(m_batchsize,self.chanel_out,-1)
 
