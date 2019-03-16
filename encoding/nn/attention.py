@@ -2004,7 +2004,8 @@ class selective_channel_aggregation_Module2(Module):
         self.softmax = Softmax(dim=-1)
 
         self.query_conv_c = Conv2d(in_channels=in_dim, out_channels=query_dim , kernel_size=1, bias=True)
-        self.key_conv_c = Conv2d(in_channels=in_dim, out_channels=in_dim, kernel_size=1, bias=True)
+        self.key_conv_c = Conv2d(in_channels=in_dim, out_channels=query_dim, kernel_size=1, bias=True)
+        self.value_conv_c = Conv2d(in_channels=in_dim, out_channels=query_dim, kernel_size=1, bias=True)
 
         self.expand = Sequential(
             Conv2d(in_channels=query_dim, out_channels=out_dim, kernel_size=1, bias=False),
@@ -2040,7 +2041,7 @@ class selective_channel_aggregation_Module2(Module):
         attention = self.softmax(energy_new)
         # print(attention.size())
         # print(x.size())
-        out_c = torch.bmm(attention, x.view(m_batchsize, C, -1))
+        out_c = torch.bmm(attention, self.value_conv_c(x).view(m_batchsize, C, -1))
 
         out_c =out_c.view(m_batchsize,-1,height,width)
 
