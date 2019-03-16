@@ -2005,6 +2005,9 @@ class selective_channel_aggregation_Module2(Module):
         self.expand = Sequential(
             Conv2d(in_channels=query_dim, out_channels=out_dim, kernel_size=1, bias=False),
             BatchNorm2d(out_dim), ReLU(inplace=True))
+        self.reduce = Sequential(
+            Conv2d(in_channels=in_dim, out_channels=out_dim, kernel_size=1, bias=False),
+            BatchNorm2d(out_dim), ReLU(inplace=True))
 
 
 
@@ -2021,7 +2024,9 @@ class selective_channel_aggregation_Module2(Module):
         # expand channels C to self.chanel_out=2*C
 
         pool_x=self.avgpool(x)
-        proj_c_query = self.query_conv_c(pool_x).view(m_batchsize, self.query_dim, -1)
+        # proj_c_query = self.query_conv_c(pool_x).view(m_batchsize, self.query_dim, -1)
+        proj_c_query = pool_x.view(m_batchsize, self.query_dim, -1)
+
         # proj_c_key = self.key_conv_c(x).view(m_batchsize, C, -1).permute(0, 2, 1)
         proj_c_key = pool_x.view(m_batchsize, C, -1).permute(0, 2, 1)
 
@@ -2032,6 +2037,8 @@ class selective_channel_aggregation_Module2(Module):
         out_c = torch.bmm(attention, x.view(m_batchsize, C, -1))
 
         out_c =out_c.view(m_batchsize,-1,height,width)
+
+        out_c = self.reduce(out_c)
         # out_c = self.expand(out_c)
         # out_c = self.gamma * out_c
 
