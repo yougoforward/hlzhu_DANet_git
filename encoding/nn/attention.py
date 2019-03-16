@@ -2025,33 +2025,37 @@ class selective_channel_aggregation_Module2(Module):
                 out : output feature maps( B X 2C X H/2 X W/2)
             exploit cam and pam in global-noloss-downsampling
         """
+        # m_batchsize, C, height, width = x.size()
+        # proj_query = x.view(m_batchsize, C, -1)
+        # proj_key = x.view(m_batchsize, C, -1).permute(0, 2, 1)
+        # energy = torch.bmm(proj_query, proj_key)
+        # energy_new = torch.max(energy, -1, keepdim=True)[0].expand_as(energy) - energy
+        # attention = self.softmax(energy_new)
+        # proj_value = x.view(m_batchsize, C, -1)
+        #
+        # out = torch.bmm(attention, proj_value)
+        # out = out.view(m_batchsize, C, height, width)
+
+
+
+
         m_batchsize, C, height, width = x.size()
-        # cam part
-        # expand channels C to self.chanel_out=2*C
-
-        pool_x=self.avgpool(x)
-        proj_c_query =pool_x.view(m_batchsize, C, -1)
-        # proj_c_query = pool_x.view(m_batchsize, C, -1)
-
+        # pool_x=self.avgpool(x)
+        pool_x =x
+        proj_c_query =self.query_conv_c(pool_x).view(m_batchsize, self.query_dim, -1)
         proj_c_key = pool_x.view(m_batchsize, C, -1).permute(0, 2, 1)
-        # proj_c_key = pool_x.view(m_batchsize, C, -1).permute(0, 2, 1)
-
         energy = torch.bmm(proj_c_query, proj_c_key)
-        energy = self.exp_conv(energy)
-
-        # energy = torch.bmm(proj_c_query, proj_c_key) * ((height * width) ** -.5)
+        # energy = self.exp_conv(energy)
         energy_new = torch.max(energy, -1, keepdim=True)[0].expand_as(energy)-energy
         attention = self.softmax(energy_new)
-        # print(attention.size())
-        # print(x.size())
-        # value_c = self.value_conv_c(x)
-        out_c = torch.bmm(attention, x.view(m_batchsize, -1, width*height))
 
+        out_c = torch.bmm(attention, x.view(m_batchsize, -1, width*height))
         out_c =out_c.view(m_batchsize,-1,height,width)
 
+        out_c = self.gamma * out_c
         # out_c = self.reduce(out_c)
         # out_c = self.expand(out_c)
-        out_c = self.gamma * out_c
+
         # out_c = self.gamma * out_c+value_c
 
         # out_c = self.gamma * out_c + self.res_conv_c(x).view(m_batchsize,self.chanel_out,-1)
