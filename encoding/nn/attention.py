@@ -2034,6 +2034,8 @@ class selective_channel_aggregation_Module2(Module):
         # energy = torch.bmm(proj_c_query, proj_c_key) * ((height * width) ** -.5)
         energy_new = torch.max(energy, -1, keepdim=True)[0].expand_as(energy)-energy
         attention = self.softmax(energy_new)
+        print(attention.size())
+        print(x.size())
         out_c = torch.bmm(attention, x.view(m_batchsize, C, -1))
 
         out_c =out_c.view(m_batchsize,-1,height,width)
