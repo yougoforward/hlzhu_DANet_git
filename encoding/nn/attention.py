@@ -2037,7 +2037,7 @@ class selective_channel_aggregation_Module2(Module):
         # proj_c_key = pool_x.view(m_batchsize, C, -1).permute(0, 2, 1)
 
         energy = torch.bmm(proj_c_query, proj_c_key)
-        energy = self.exp_conv(energy).permute(0,2,1)
+        energy = self.exp_conv(energy)
 
         # energy = torch.bmm(proj_c_query, proj_c_key) * ((height * width) ** -.5)
         energy_new = torch.max(energy, -1, keepdim=True)[0].expand_as(energy)-energy
