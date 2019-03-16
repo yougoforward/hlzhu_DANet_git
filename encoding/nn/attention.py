@@ -1987,6 +1987,8 @@ class SE_CAM_Module2(Module):
 
         out = se_out + self.gamma * out +x
         return out
+
+
 class selective_channel_aggregation_Module2(Module):
     """ Position attention module"""
     #Ref from SAGAN
@@ -1997,10 +1999,12 @@ class selective_channel_aggregation_Module2(Module):
         self.chanel_out = out_dim
 
         self.avgpool = AvgPool2d(2, 2)
+        # self.pool = AdaptiveAvgPool2d((48,48))
         # self.gamma = Parameter(torch.zeros(1))
         self.softmax = Softmax(dim=-1)
 
-        self.query_conv_c = Sequential(Conv2d(in_channels=in_dim, out_channels=query_dim , kernel_size=1, bias=False),BatchNorm2d(query_dim))
+        self.query_conv_c = Conv2d(in_channels=in_dim, out_channels=query_dim , kernel_size=1, bias=True)
+        self.key_conv_c = Conv2d(in_channels=in_dim, out_channels=in_dim, kernel_size=1, bias=True)
 
         self.expand = Sequential(
             Conv2d(in_channels=query_dim, out_channels=out_dim, kernel_size=1, bias=False),
@@ -2024,11 +2028,11 @@ class selective_channel_aggregation_Module2(Module):
         # expand channels C to self.chanel_out=2*C
 
         pool_x=self.avgpool(x)
-        # proj_c_query = self.query_conv_c(pool_x).view(m_batchsize, self.query_dim, -1)
-        proj_c_query = pool_x.view(m_batchsize, C, -1)
+        proj_c_query = self.query_conv_c(pool_x).view(m_batchsize, self.query_dim, -1)
+        # proj_c_query = pool_x.view(m_batchsize, C, -1)
 
-        # proj_c_key = self.key_conv_c(x).view(m_batchsize, C, -1).permute(0, 2, 1)
-        proj_c_key = pool_x.view(m_batchsize, C, -1).permute(0, 2, 1)
+        proj_c_key = self.key_conv_c(pool_x).view(m_batchsize, C, -1).permute(0, 2, 1)
+        # proj_c_key = pool_x.view(m_batchsize, C, -1).permute(0, 2, 1)
 
         energy = torch.bmm(proj_c_query, proj_c_key)
         # energy = torch.bmm(proj_c_query, proj_c_key) * ((height * width) ** -.5)
@@ -2040,9 +2044,9 @@ class selective_channel_aggregation_Module2(Module):
 
         out_c =out_c.view(m_batchsize,-1,height,width)
 
-        out_c = self.reduce(out_c)
+        # out_c = self.reduce(out_c)
         # out_c = self.expand(out_c)
-        # out_c = self.gamma * out_c
+        out_c = self.gamma * out_c
 
         # out_c = self.gamma * out_c + self.res_conv_c(x).view(m_batchsize,self.chanel_out,-1)
 
