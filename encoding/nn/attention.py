@@ -2004,7 +2004,7 @@ class selective_channel_aggregation_Module2(Module):
 
         self.query_conv_c = Conv2d(in_channels=in_dim, out_channels=query_dim , kernel_size=1, bias=True)
         self.key_conv_c = Conv2d(in_channels=in_dim, out_channels=query_dim, kernel_size=1, bias=True)
-        self.value_conv_c = Conv2d(in_channels=in_dim, out_channels=query_dim, kernel_size=1, bias=True)
+        self.value_conv_c =Sequential(Conv2d(in_channels=in_dim, out_channels=query_dim, kernel_size=1, bias=True),BatchNorm2d(query_dim), ReLU())
 
         self.expand = Sequential(
             Conv2d(in_channels=query_dim, out_channels=out_dim, kernel_size=1, bias=False),
@@ -2020,10 +2020,11 @@ class selective_channel_aggregation_Module2(Module):
     def forward(self, x):
         """
             inputs :
-                x : input feature maps( B X C X H X W)
+                x=[x1,x2]
+                x1 : input feature maps( B X C*5 X H X W)
+                x2 : input deature maps (BxCxHxW)
             returns :
-                out : output feature maps( B X 2C X H/2 X W/2)
-            exploit cam and pam in global-noloss-downsampling
+                out : output feature maps( B X C X H X W)
         """
         # m_batchsize, C, height, width = x.size()
         # proj_query = x.view(m_batchsize, C, -1)
@@ -2041,13 +2042,13 @@ class selective_channel_aggregation_Module2(Module):
 
         m_batchsize, C, height, width = x.size()
         # pool_x=self.avgpool(x)
-        pool_x =x
-        proj_c_query =self.query_conv_c(pool_x).view(m_batchsize, self.query_dim, -1)
-        proj_c_key = pool_x.view(m_batchsize, C, -1).permute(0, 2, 1)
+        # pool_x =x
+        proj_c_query =self.query_conv_c(x).view(m_batchsize, self.query_dim, -1)
+        proj_c_key = x.view(m_batchsize, C, -1).permute(0, 2, 1)
         energy = torch.bmm(proj_c_query, proj_c_key)
         # energy = self.exp_conv(energy)
         energy_new = torch.max(energy, -1, keepdim=True)[0].expand_as(energy)-energy
-        attention = self.softmax(-energy_new)
+        attention = self.softmax(energy_new)
 
         out_c = torch.bmm(attention, x.view(m_batchsize, -1, width*height))
         out_c =out_c.view(m_batchsize,-1,height,width)
