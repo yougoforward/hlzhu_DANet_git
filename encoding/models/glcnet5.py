@@ -51,20 +51,20 @@ class GLCNet5(BaseNet):
     def forward(self, x):
         imsize = x.size()[2:]
         _, _, c3, c4 = self.base_forward(x)
-        x_dsn = self.dsn(c3)
+        # x_dsn = self.dsn(c3)
         x = self.head(c4)
         x = list(x)
         x[0] = upsample(x[0], imsize, **self._up_kwargs)
         x[1] = upsample(x[1], imsize, **self._up_kwargs)
         x[2] = upsample(x[2], imsize, **self._up_kwargs)
         x[3] = upsample(x[3], imsize, **self._up_kwargs)
-        x_dsn = upsample(x_dsn, imsize, **self._up_kwargs)
+        # x_dsn = upsample(x_dsn, imsize, **self._up_kwargs)
 
         outputs = [x[0]]
         outputs.append(x[1])
         outputs.append(x[2])
         outputs.append(x[3])
-        outputs.append(x_dsn)
+        # outputs.append(x_dsn)
 
         return tuple(outputs)
 
@@ -123,7 +123,7 @@ class GLCNet5Head(nn.Module):
         # feat_fuse = sa_conv + feat2
 
         feat_as = self.conv5as(x)
-        aspp_feat,_ = self.aspp(feat_as)
+        aspp_feat,bottle,bottle_se,ca_feat = self.aspp(feat_as)
         aspp_conv = self.conv52(aspp_feat)
 
         sa_output = self.conv6(aspp_conv)
