@@ -2025,17 +2025,17 @@ class selective_channel_aggregation_Module2(Module):
 
         pool_x=self.avgpool(x)
         # proj_c_query = self.query_conv_c(pool_x).view(m_batchsize, self.query_dim, -1)
-        proj_c_query = pool_x.view(m_batchsize, -1, width*height)
+        proj_c_query = pool_x.view(m_batchsize, C, -1)
 
         # proj_c_key = self.key_conv_c(x).view(m_batchsize, C, -1).permute(0, 2, 1)
-        proj_c_key = pool_x.view(m_batchsize, -1, width*height).permute(0, 2, 1)
+        proj_c_key = pool_x.view(m_batchsize, C, -1).permute(0, 2, 1)
 
         energy = torch.bmm(proj_c_query, proj_c_key)
         # energy = torch.bmm(proj_c_query, proj_c_key) * ((height * width) ** -.5)
         energy_new = torch.max(energy, -1, keepdim=True)[0].expand_as(energy)-energy
         attention = self.softmax(energy_new)
-        print(attention.size())
-        print(x.size())
+        # print(attention.size())
+        # print(x.size())
         out_c = torch.bmm(attention, x.view(m_batchsize, C, -1))
 
         out_c =out_c.view(m_batchsize,-1,height,width)
