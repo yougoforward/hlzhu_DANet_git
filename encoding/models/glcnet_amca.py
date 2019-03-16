@@ -130,7 +130,7 @@ class GLCNet5_amcaHead(nn.Module):
         feat_as = self.conv5as(x)
         aspp_feat,bottle,bottle_se,ca_feat= self.aspp(feat_as)
         # aspp_feat,  = self.aspp(x)
-        aspp_conv = self.conv52(ca_feat)
+        aspp_conv = self.conv52(aspp_feat)
 
         aspp_output = self.conv6(aspp_conv)
         output=[aspp_output]
