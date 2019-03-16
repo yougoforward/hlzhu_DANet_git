@@ -2002,19 +2002,7 @@ class selective_channel_aggregation_Module2(Module):
         self.gamma = Parameter(torch.zeros(1))
         self.softmax = Softmax(dim=-1)
 
-
-
-        # self.bottleneck = Sequential(
-        #     Conv2d(inner_features * 5, out_features, kernel_size=1, padding=0, dilation=1, bias=False),
-        #     BatchNorm2d(out_features), ReLU(),
-        #     Dropout2d(0.1)
-        # )
-
-
         self.query_conv_c = Sequential(Conv2d(in_channels=in_dim, out_channels=query_dim, kernel_size=1, bias=False),BatchNorm2d(query_dim), ReLU(),Dropout2d(0.1))
-        # self.key_conv_c = Conv2d(in_channels=in_dim, out_channels=query_dim, kernel_size=1, bias=True)
-        # self.value_conv_c =Sequential(Conv2d(in_channels=in_dim, out_channels=query_dim, kernel_size=1, bias=False),BatchNorm2d(query_dim), ReLU())
-
         self.expand = Sequential(
             Conv2d(in_channels=query_dim, out_channels=out_dim, kernel_size=1, bias=False),
             BatchNorm2d(out_dim), ReLU(inplace=True))
@@ -2035,27 +2023,14 @@ class selective_channel_aggregation_Module2(Module):
             returns :
                 out : output feature maps( B X C X H X W)
         """
-        # m_batchsize, C, height, width = x.size()
-        # proj_query = x.view(m_batchsize, C, -1)
-        # proj_key = x.view(m_batchsize, C, -1).permute(0, 2, 1)
-        # energy = torch.bmm(proj_query, proj_key)
-        # energy_new = torch.max(energy, -1, keepdim=True)[0].expand_as(energy) - energy
-        # attention = self.softmax(energy_new)
-        # proj_value = x.view(m_batchsize, C, -1)
-        #
-        # out = torch.bmm(attention, proj_value)
-        # out = out.view(m_batchsize, C, height, width)
-
-
-
 
         m_batchsize, C, height, width = x.size()
         # pool_x=self.avgpool(x)
         # pool_x =x
         proj_c_query =self.query_conv_c(x)
 
-        proj_c_key = x.view(m_batchsize, C, -1).permute(0, 2, 1)
-        energy = torch.bmm(proj_c_query.view(m_batchsize, self.query_dim, -1), proj_c_key)
+        proj_c_key = self.avgpool(x).view(m_batchsize, C, -1).permute(0, 2, 1)
+        energy = torch.bmm(self.avgpool(proj_c_query).view(m_batchsize, self.query_dim, -1), proj_c_key)
         # energy = self.exp_conv(energy)
         energy_new = torch.max(energy, -1, keepdim=True)[0].expand_as(energy)-energy
         attention = self.softmax(energy_new)
@@ -2064,12 +2039,6 @@ class selective_channel_aggregation_Module2(Module):
         out_c =out_c.view(m_batchsize,-1,height,width)
 
         out_c = self.gamma * out_c+proj_c_query
-        # out_c = self.reduce(out_c)
-        # out_c = self.expand(out_c)
-
-        # out_c = self.gamma * out_c+value_c
-
-        # out_c = self.gamma * out_c + self.res_conv_c(x).view(m_batchsize,self.chanel_out,-1)
 
         return out_c
 
