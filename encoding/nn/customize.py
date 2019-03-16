@@ -156,7 +156,7 @@ class nll4_SegmentationMultiLosses(CrossEntropyLoss):
         loss3 = super(nll4_SegmentationMultiLosses, self).forward(pred3, target)
         loss4 = super(nll4_SegmentationMultiLosses, self).forward(pred4, target)
 
-        loss = loss1 + loss2 + loss3 + loss4*0.4
+        loss = loss1 + loss2 + loss3 + loss4
         return loss
 
 class nll5_SegmentationMultiLosses(CrossEntropyLoss):

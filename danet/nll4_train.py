@@ -84,7 +84,8 @@ class Trainer():
         # self.criterion = SegmentationMultiLosses(nclass=self.nclass, weight=cityscape_weight)
         # self.criterion = SegmentationMultiLosses(nclass=self.nclass)
         # self.criterion = nll_SegmentationMultiLosses(nclass=self.nclass, weight=cityscape_weight)
-        self.criterion = nll4_SegmentationMultiLosses(nclass=self.nclass, weight=cityscape_weight)
+        # self.criterion = nll4_SegmentationMultiLosses(nclass=self.nclass, weight=cityscape_weight)
+        self.criterion = nll4_SegmentationMultiLosses(nclass=self.nclass)
         #self.criterion = SegmentationLosses(se_loss=args.se_loss, aux=args.aux,nclass=self.nclass)
 
         self.model, self.optimizer = model, optimizer
