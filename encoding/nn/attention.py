@@ -2000,7 +2000,7 @@ class selective_channel_aggregation_Module2(Module):
 
         self.avgpool = AvgPool2d(2, 2)
         # self.pool = AdaptiveAvgPool2d((48,48))
-        # self.gamma = Parameter(torch.zeros(1))
+        self.gamma = Parameter(torch.zeros(1))
         self.softmax = Softmax(dim=-1)
 
         self.query_conv_c = Conv2d(in_channels=in_dim, out_channels=query_dim , kernel_size=1, bias=True)
