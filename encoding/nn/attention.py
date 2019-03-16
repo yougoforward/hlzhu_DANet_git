@@ -2107,14 +2107,17 @@ class selective_aggregation_ASPP_Module2(Module):
         feat5 = self.conv5(x)
         out = torch.cat((feat1, feat2, feat3, feat4, feat5), 1)
         selective_channel_aggregation = self.selective_channel_aggregation(out)
+
+
         bottle = self.bottleneck(out)
         se_x = self.se(out)
-        bottle1 = se_x * bottle+bottle
+        bottle_se = se_x * bottle
+        bottle1 =  bottle+bottle_se
 
         bottle2 = torch.cat([selective_channel_aggregation, bottle1],dim=1)
 
         # bottle = selective_channel_aggregation + bottle
-        return bottle2, bottle, bottle1, selective_channel_aggregation
+        return bottle2, bottle, bottle_se, selective_channel_aggregation
 
 
 
