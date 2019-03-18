@@ -81,7 +81,7 @@ class GLCNet5_topkpamHead(nn.Module):
         self.conv5as = nn.Sequential(nn.Conv2d(in_channels, inter_channels, 3, padding=1, bias=False),
                                     norm_layer(inter_channels),
                                     nn.ReLU())
-        self.sa = topk_PAM_Module(inter_channels, 256, inter_channels, 10)
+        self.sa = topk_PAM_Module(inter_channels, 256, inter_channels, 4)
         self.conv51 = nn.Sequential(nn.Conv2d(inter_channels, inter_channels, 3, padding=1, bias=False),
                                     norm_layer(inter_channels),
                                     nn.ReLU())
