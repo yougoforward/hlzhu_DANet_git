@@ -559,12 +559,18 @@ class topk_PAM_Module(Module):
         proj_value=proj_value.view(m_batchsize, -1, width * height)
 
         # attention mask selection
-        a10 = torch.topk(energy, height*width//self.topk, dim=2, largest=True, sorted=False)
+        val, idx = torch.topk(energy, height*width//self.topk, dim=2, largest=True, sorted=False)
         at_sparse = torch.zeros_like(energy).cuda()
-        attention_mask = at_sparse.scatter_(2, a10[1], 1.0)
+        attention_mask = at_sparse.scatter_(2, idx, 1.0)
 
 
         attention = self.softmax([energy, attention_mask])
+
+        #for inference with batch 1
+        # energy_sp = topk2sparse(idx, val)
+        # attention_sp = sparse_softmax(energy_sp)
+        # out = torch.sparse.mm(attention_sp,proj_value.permute(0,2,1)).permute(0,2,1)
+
 
         out = torch.bmm(proj_value, attention.permute(0, 2, 1))
         out = out.view(m_batchsize, C, height, width)
