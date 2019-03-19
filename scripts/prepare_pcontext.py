@@ -5,7 +5,7 @@ import argparse
 import tarfile
 from encoding.utils import download, mkdir
 
-_TARGET_DIR = os.path.expanduser('~/.encoding/data')
+_TARGET_DIR = os.path.expanduser('/media/hlzhu/Data/Pascal_Context')
 PASD_URL="https://codalabuser.blob.core.windows.net/public/%s"
 
 def parse_args():
@@ -41,10 +41,10 @@ def download_ade(path, overwrite=False):
             shutil.move(filename, os.path.join(path, 'VOCdevkit/VOC2010/'+os.path.basename(filename)))
 
 def install_pcontext_api():
-    repo_url = "https://github.com/zhanghang1989/detail-api"
-    os.system("git clone " + repo_url)
-    os.system("cd detail-api/PythonAPI/ && python setup.py install")
-    shutil.rmtree('detail-api')
+    # repo_url = "https://github.com/zhanghang1989/detail-api"
+    # os.system("git clone " + repo_url)
+    # os.system("cd detail-api/PythonAPI/ && python setup.py install")
+    # shutil.rmtree('detail-api')
     try:
         import detail
     except Exception:
@@ -53,10 +53,10 @@ def install_pcontext_api():
 
 if __name__ == '__main__':
     args = parse_args()
-    mkdir(os.path.expanduser('~/.encoding/data'))
+    # mkdir(os.path.expanduser('~/.encoding/data'))
     if args.download_dir is not None:
-        if os.path.isdir(_TARGET_DIR):
-            os.remove(_TARGET_DIR)
+        # if os.path.isdir(_TARGET_DIR):
+        #     os.remove(_TARGET_DIR)
         # make symlink
         os.symlink(args.download_dir, _TARGET_DIR)
     else:

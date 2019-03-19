@@ -5,7 +5,7 @@ import argparse
 import zipfile
 from encoding.utils import download, mkdir
 
-_TARGET_DIR = os.path.expanduser('~/.encoding/data')
+_TARGET_DIR = os.path.expanduser('/media/hlzhu/Data/coco')
 
 def parse_args():
     parser = argparse.ArgumentParser(
@@ -17,30 +17,44 @@ def parse_args():
     return args
 
 def download_coco(path, overwrite=False):
+    download_dir = os.path.join(path, 'downloads')
+    # _DOWNLOAD_URLS = [
+    #     ('http://images.cocodataset.org/zips/train2017.zip',
+    #      '10ad623668ab00c62c096f0ed636d6aff41faca5'),
+    #     ('http://images.cocodataset.org/annotations/annotations_trainval2017.zip',
+    #      '8551ee4bb5860311e79dace7e79cb91e432e78b3'),
+    #     ('http://images.cocodataset.org/zips/val2017.zip',
+    #      '4950dc9d00dbe1c933ee0170f5797584351d2a41'),
+    #     ('http://images.cocodataset.org/annotations/stuff_annotations_trainval2017.zip',
+    #      'e7aa0f7515c07e23873a9f71d9095b06bcea3e12'),
+    #     ('http://images.cocodataset.org/zips/test2017.zip',
+    #      '99813c02442f3c112d491ea6f30cecf421d0e6b3'),
+    # ]
+    # mkdir(download_dir)
+    # for url, checksum in _DOWNLOAD_URLS:
+    #     filename = download(url, path=download_dir, overwrite=overwrite, sha1_hash=checksum)
+    #     # extract
+    #     with zipfile.ZipFile(filename) as zf:
+    #         zf.extractall(path=path)
     _DOWNLOAD_URLS = [
-        ('http://images.cocodataset.org/zips/train2017.zip',
-         '10ad623668ab00c62c096f0ed636d6aff41faca5'),
-        ('http://images.cocodataset.org/annotations/annotations_trainval2017.zip',
-         '8551ee4bb5860311e79dace7e79cb91e432e78b3'),
-        ('http://images.cocodataset.org/zips/val2017.zip',
-         '4950dc9d00dbe1c933ee0170f5797584351d2a41'),
-        ('http://images.cocodataset.org/annotations/stuff_annotations_trainval2017.zip',
-         'e7aa0f7515c07e23873a9f71d9095b06bcea3e12'),
-        ('http://images.cocodataset.org/zips/test2017.zip',
-         '99813c02442f3c112d491ea6f30cecf421d0e6b3'),
+        ('http://images.cocodataset.org/zips/train2017.zip'),
+        ('http://images.cocodataset.org/annotations/annotations_trainval2017.zip'),
+        ('http://images.cocodataset.org/zips/val2017.zip'),
+        ('http://images.cocodataset.org/annotations/stuff_annotations_trainval2017.zip'),
+        ('http://images.cocodataset.org/zips/test2017.zip'),
     ]
-    mkdir(path)
-    for url, checksum in _DOWNLOAD_URLS:
-        filename = download(url, path=path, overwrite=overwrite, sha1_hash=checksum)
+    mkdir(download_dir)
+    for url in _DOWNLOAD_URLS:
+        filename = download(url, path=download_dir, overwrite=overwrite, sha1_hash=None)
         # extract
         with zipfile.ZipFile(filename) as zf:
             zf.extractall(path=path)
 
 
 def install_coco_api():
-    repo_url = "https://github.com/cocodataset/cocoapi"
-    os.system("git clone " + repo_url)
-    os.system("cd cocoapi/PythonAPI/ && python setup.py install")
+    # repo_url = "https://github.com/cocodataset/cocoapi"
+    # os.system("git clone " + repo_url)
+    # os.system("cd cocoapi/PythonAPI/ && python setup.py install")
     shutil.rmtree('cocoapi')
     try:
         import pycocotools

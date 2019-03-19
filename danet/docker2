@@ -49,8 +49,11 @@ CUDA_VISIBLE_DEVICES=4,5,6,7 python nll1_train.py --dataset cityscapes --model  
 
 glcnet_amca:
 CUDA_VISIBLE_DEVICES=4,5,6,7 python nll1_train.py --dataset cityscapes --model  glcnet5_amca --backbone resnet50 --checkname glcnet5_amca  --base-size 1024 --crop-size 768 --epochs 240 --batch-size 8 --lr 0.01 --workers 2 --scale
+CUDA_VISIBLE_DEVICES=4,5,6,7 python test.py --dataset cityscapes --model glcnet5_amca --resume-dir cityscapes/glcnet5_amca_model/glcnet5_amca --base-size 2048 --crop-size 768 --workers 1 --backbone resnet50 --eval
 
 
+fcn:
+CUDA_VISIBLE_DEVICES=4,5,6,7 python nll1_train.py --dataset cityscapes --model  fcn --backbone resnet50 --checkname fcn50  --base-size 1024 --crop-size 768 --epochs 240 --batch-size 8 --lr 0.01 --workers 2 --scale
 
 
 
@@ -98,9 +101,13 @@ CUDA_VISIBLE_DEVICES=4,5,6,7 python3 nll4_train.py --dataset cityscapes --model 
 CUDA_VISIBLE_DEVICES=0,1,2,3 python3 test.py --dataset cityscapes --model glcnet5 --resume-dir cityscapes/glcnet5_model/glcnet550_sl --base-size 2048 --crop-size 768 --workers 1 --backbone resnet50 --eval
 CUDA_VISIBLE_DEVICES=4,5,6,7 python3 test.py --dataset cityscapes --model glcnet5 --resume-dir cityscapes/glcnet5_model/aanet50_sl --base-size 2048 --crop-size 768 --workers 1 --backbone resnet50 --eval
 
+CUDA_VISIBLE_DEVICES=4,5,6,7 python3 nll4_train.py --dataset cityscapes --model  glcnet5 --backbone resnet101 --checkname aanet101damg  --base-size 1024 --crop-size 768 --epochs 240 --batch-size 8 --lr 0.002 --workers 2 --multi-grid --multi-dilation 4 8 16
+
+
 glcnet_topkpam:
 
 CUDA_VISIBLE_DEVICES=0,1,2,3 python3 nll1_train.py --dataset cityscapes --model  glcnet5_topkpam --backbone resnet50 --checkname glcnet5_ssa  --base-size 1024 --crop-size 768 --epochs 240 --batch-size 8 --lr 0.01 --workers 2 --scale
+CUDA_VISIBLE_DEVICES=0,1,2,3 python3 test.py --dataset cityscapes --model glcnet5_topkpam --resume-dir cityscapes/glcnet5_topkpam_model/glcnet5_ssa --base-size 2048 --crop-size 768 --workers 1 --backbone resnet50 --eval
 
 
 glcnet_aca:
@@ -113,3 +120,14 @@ glcnet_amca:
 CUDA_VISIBLE_DEVICES=0,1,2,3 python3 nll1_train.py --dataset cityscapes --model  glcnet5_amca --backbone resnet50 --checkname glcnet5_amca  --base-size 1024 --crop-size 768 --epochs 240 --batch-size 8 --lr 0.01 --workers 2 --scale
 CUDA_VISIBLE_DEVICES=4,5,6,7 python3 nll1_train.py --dataset cityscapes --model  glcnet5_amca --backbone resnet50 --checkname glcnet5_amca  --base-size 1024 --crop-size 768 --epochs 240 --batch-size 8 --lr 0.01 --workers 2 --scale
 CUDA_VISIBLE_DEVICES=4,5,6,7 python3 test.py --dataset cityscapes --model glcnet5_amca --resume-dir cityscapes/glcnet5_amca_model/glcnet5_amca --base-size 2048 --crop-size 768 --workers 1 --backbone resnet50 --eval
+
+
+
+
+
+danet test;
+all positions
+CUDA_VISIBLE_DEVICES=4,5,6,7 python test.py --dataset cityscapes --model danet --resume-dir cityscapes/danet_model/danet50 --base-size 2048 --crop-size 768 --workers 1 --backbone resnet101 --multi-grid --multi-dilation 4 8 16 --eval
+
+topk positions:
+CUDA_VISIBLE_DEVICES=4,5,6,7 python test.py --dataset cityscapes --model danet --resume-dir cityscapes/danet_model/danet50 --base-size 2048 --crop-size 768 --workers 1 --backbone resnet101 --multi-grid --multi-dilation 4 8 16 --eval
