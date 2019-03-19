@@ -9,7 +9,7 @@ import numpy as np
 import torch
 import torch.nn as nn
 from torch.nn.functional import upsample,normalize
-from ..nn import PAM_Module
+from ..nn import PAM_Module,topk_PAM_Module
 from ..nn import CAM_Module
 from ..models import BaseNet
 
@@ -66,7 +66,8 @@ class DANetHead(nn.Module):
                                    norm_layer(inter_channels),
                                    nn.ReLU())
 
-        self.sa = PAM_Module(inter_channels,64,512)
+        # self.sa = PAM_Module(inter_channels,64,512)
+        self.sa = topk_PAM_Module(inter_channels, 64, inter_channels, 4)
         self.sc = CAM_Module(inter_channels)
         self.conv51 = nn.Sequential(nn.Conv2d(inter_channels, inter_channels, 3, padding=1, bias=False),
                                    norm_layer(inter_channels),
