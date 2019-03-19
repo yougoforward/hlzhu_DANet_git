@@ -27,6 +27,7 @@ if torch_ver == '0.3':
 def test(args):
     # output folder
     outdir = '%s/danet_vis'%(args.dataset)
+    outdir = os.path.join(args.resume_dir,'vis')
     if not os.path.exists(outdir):
         os.makedirs(outdir)
     # data transforms
