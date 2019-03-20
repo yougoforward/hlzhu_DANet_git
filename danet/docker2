@@ -108,6 +108,7 @@ CUDA_VISIBLE_DEVICES=4,5,6,7 python3 test.py --dataset cityscapes --model glcnet
 
 CUDA_VISIBLE_DEVICES=4,5,6,7 python3 nll4_train.py --dataset cityscapes --model  glcnet5 --backbone resnet101 --checkname aanet101damg  --base-size 1024 --crop-size 768 --epochs 240 --batch-size 8 --lr 0.002 --workers 2 --multi-grid --multi-dilation 4 8 16
 CUDA_VISIBLE_DEVICES=4,5,6,7 python3 nll4_train.py --dataset cityscapes --model  glcnet5 --backbone resnet101 --checkname aanet101damg  --base-size 1024 --crop-size 768 --epochs 240 --batch-size 8 --lr 0.002 --workers 2 --multi-grid --multi-dilation 4 8 16
+CUDA_VISIBLE_DEVICES=4,5,6,7 python3 test.py --dataset cityscapes --model glcnet5 --resume-dir cityscapes/glcnet5_model/aanet101damg --base-size 2048 --crop-size 768 --workers 1 --backbone resnet101 --multi-grid --multi-dilation 4 8 16 --eval
 
 
 glcnet_topkpam:

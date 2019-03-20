@@ -111,6 +111,11 @@ class GLCNet5Head(nn.Module):
         self.conv7 = nn.Sequential(nn.Dropout2d(0.1), nn.Conv2d(512, out_channels, 1))
         self.conv8 = nn.Sequential(nn.Dropout2d(0.1), nn.Conv2d(512, out_channels, 1))
 
+        self.bottleneck = nn.Sequential(
+            nn.Conv2d(inter_channels * 3, inter_channels, kernel_size=1, padding=0, bias=False),
+            nn.BatchNorm2d(inter_channels), nn.ReLU()
+        )
+
     def forward(self, x):
         #ssa
         feat1 = self.conv5a(x)
@@ -136,8 +141,10 @@ class GLCNet5Head(nn.Module):
         sc_output = self.conv7(sc_conv)
 
         #fuse
-        feat_sum = aspp_conv + sc_conv + sa_conv
-        sasc_output = self.conv8(feat_sum)
+        # feat_sum = aspp_conv + sc_conv + sa_conv
+        feat_cat = torch.cat([aspp_conv , sc_conv , sa_conv],1)
+        feat_cat = self.bottleneck(feat_cat)
+        sasc_output = self.conv8(feat_cat)
 
         output = [sasc_output]
         output.append(sa_output)
