@@ -148,8 +148,8 @@ class Trainer():
             # save checkpoint every 10 epoch
             filename = "checkpoint_%s.pth.tar"%(epoch+1)
             is_best = False
-            if epoch > 20:
-                if not epoch % 5:
+            if epoch > 99:
+                if not epoch % 10:
                     utils.save_checkpoint({
                         'epoch': epoch + 1,
                         'state_dict': self.model.module.state_dict(),
