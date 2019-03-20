@@ -158,6 +158,7 @@ def get_glcnet5(dataset='pascal_voc', backbone='resnet50', pretrained=False,
         'pcontext': 'pcontext',
         'ade20k': 'ade',
         'cityscapes': 'cityscapes',
+        'cocostuff': 'cocostuff',
     }
     # infer number of classes
     from ..datasets import datasets, VOCSegmentation, VOCAugSegmentation, ADE20KSegmentation
