@@ -33,7 +33,7 @@ class _SyncBatchNorm(_BatchNorm):
         super(_SyncBatchNorm, self).__init__(num_features, eps=eps, momentum=momentum, affine=affine)
 
         self._sync_master = SyncMaster(self._data_parallel_master)
-        self. _parallel_id = None
+        self. _parallel_id = 0
         self._slave_pipe = None
 
     def forward(self, input):
