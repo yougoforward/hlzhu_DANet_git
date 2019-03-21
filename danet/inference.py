@@ -51,7 +51,7 @@ if __name__ == "__main__":
     args = Options().parse()
 
     imroot = "../datasets/demo_images"
-    imlst="..  /datasets/demo_images/images.txt"
+    imlst="../datasets/demo_images/images.txt"
 
     outdir = '%s/danet_vis' % (imroot)
     if not os.path.exists(outdir):
