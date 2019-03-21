@@ -15,9 +15,9 @@ import torch
 from .base import BaseDataset
 
 class ContextSegmentation(BaseDataset):
-    BASE_DIR = 'VOCdevkit/VOC2010'
+    BASE_DIR = 'pcontext/VOCdevkit/VOC2010'
     NUM_CLASS = 59
-    def __init__(self, root=os.path.expanduser('/media/hlzhu/Data/Pascal_Context'), split='train',
+    def __init__(self, root=os.path.expanduser('../datasets'), split='train',
                  mode=None, transform=None, target_transform=None, **kwargs):
         super(ContextSegmentation, self).__init__(
             root, split, mode, transform, target_transform, **kwargs)
