@@ -145,7 +145,7 @@ class GLCNet5Head(nn.Module):
         sasc_output = self.conv8(feat_sum)
         # feat_cat = torch.cat([aspp_conv , sc_conv , sa_conv],1)
         # feat_cat = self.bottleneck(feat_cat)
-        sasc_output = self.conv8(sasc_output)
+        # sasc_output = self.conv8(feat_cat)
 
         output = [sasc_output]
         output.append(sa_output)
