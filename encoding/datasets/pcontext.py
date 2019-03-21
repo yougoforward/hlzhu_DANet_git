@@ -21,7 +21,7 @@ from .base import BaseDataset
 
 class ContextSegmentation(BaseDataset):
     BASE_DIR = 'pcontext'
-    NUM_CLASS = 59
+    NUM_CLASS = 60
 
     def __init__(self, root='../datasets', split='train',
                  mode=None, transform=None, target_transform=None, **kwargs):
