@@ -16,7 +16,7 @@ from .base import BaseDataset
 
 class ContextSegmentation(BaseDataset):
     BASE_DIR = 'pcontext/VOCdevkit/VOC2010'
-    NUM_CLASS = 59
+    NUM_CLASS = 60
     def __init__(self, root=os.path.expanduser('../datasets'), split='train',
                  mode=None, transform=None, target_transform=None, **kwargs):
         super(ContextSegmentation, self).__init__(
