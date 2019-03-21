@@ -1,0 +1,2 @@
+CUDA_VISIBLE_DEVICES=4,5,6,7 python3 nll4_train.py --dataset cocostuff --model  glcnet5 --backbone resnet101 --checkname cocostuff_cat  --base-size 608 --crop-size 576 --epochs 240 --batch-size 16 --lr 0.003 --workers 2 --no-val --multi-grid --multi-dilation 4 8 16
+CUDA_VISIBLE_DEVICES=4,5,6,7 python nll4_train.py --dataset cocostuff --model  glcnet5 --backbone resnet101 --checkname cocostuff_cat  --base-size 608 --crop-size 576 --epochs 240 --batch-size 16 --lr 0.003 --workers 2 --no-val --multi-grid --multi-dilation 4 8 16
