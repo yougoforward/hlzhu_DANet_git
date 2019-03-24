@@ -20,7 +20,7 @@ from ..utils import batch_pix_accuracy, batch_intersection_union
 
 up_kwargs = {'mode': 'bilinear', 'align_corners': True}
 
-__all__ = ['BaseNet', 'MultiEvalModule']
+__all__ = ['BaseNet', 'MultiEvalModule', 'MultiEvalModule2']
 
 class BaseNet(nn.Module):
     def __init__(self, nclass, backbone, aux, se_loss, dilated=True, norm_layer=None,
@@ -192,6 +192,59 @@ class MultiEvalModule(DataParallel):
             score = resize_image(outputs, h, w, **self.module._up_kwargs)
             scores += score
 
+        return scores
+
+
+
+class MultiEvalModule2(DataParallel):
+    """Multi-size Segmentation Eavluator"""
+    def __init__(self, module, nclass, device_ids=None, flip=True,
+                 multi_scales=False):
+        super(MultiEvalModule, self).__init__(module, device_ids)
+        self.nclass = nclass
+        self.base_size = module.base_size
+        self.crop_size = module.crop_size
+        if not multi_scales:
+            self.scales = [1.0]
+        else:
+            self.scales = [0.5, 0.75, 1.0, 1.25, 1.5, 1.75, 2.0, 2.2]
+        self.flip = flip
+        print('MultiEvalModule: base_size {}, crop_size {}'. \
+            format(self.base_size, self.crop_size))
+
+    def parallel_forward(self, inputs, **kwargs):
+        """Multi-GPU Mult-size Evaluation
+
+        Args:
+            inputs: list of Tensors
+        """
+        inputs = [(input.unsqueeze(0).cuda(device),)
+                  for input, device in zip(inputs, self.device_ids)]
+        replicas = self.replicate(self, self.device_ids[:len(inputs)])
+        kwargs = scatter(kwargs, target_gpus, dim) if kwargs else []
+        if len(inputs) < len(kwargs):
+            inputs.extend([() for _ in range(len(kwargs) - len(inputs))])
+        elif len(kwargs) < len(inputs):
+            kwargs.extend([{} for _ in range(len(inputs) - len(kwargs))])
+        outputs = self.parallel_apply(replicas, inputs, kwargs)
+        return outputs
+
+    def forward(self, image):
+        """Mult-size Evaluation"""
+        # only single image is supported for evaluation
+        batch, _, h, w = image.size()
+        assert(batch == 1)
+        with torch.cuda.device_of(image):
+            scores = image.new().resize_(batch,self.nclass,h,w).zero_().cuda()
+
+        for scale in self.scales:
+            height = int(math.ceil(h * scale))
+            width = int(math.ceil(w * scale))
+            cur_img = resize_image(image, height, width, **self.module._up_kwargs)
+            outputs = module_inference(self.module, cur_img, self.flip)
+
+            score = resize_image(outputs, h, w, **self.module._up_kwargs)
+            scores += score
         return scores
 
 

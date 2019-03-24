@@ -141,7 +141,7 @@ class chl_attention(Module):
         super(chl_attention, self).__init__()
         self.chanel_in = in_dim
 
-        self.query_conv = Sequential(Conv2d(in_channels=self.chanel_in, out_channels=self.chanel_in//4, kernel_size=1), BatchNorm2d(self.inter_chanel), ReLU(inplace=True))
+        self.query_conv = Sequential(Conv2d(in_channels=self.chanel_in, out_channels=self.chanel_in//4, kernel_size=1), BatchNorm2d(self.inter_chanel), ReLU())
         # self.query_conv = Conv2d(in_channels=in_dim, out_channels=in_dim // 4, kernel_size=1)
         self.exp_conv = Conv1d(in_channels=in_dim//4, out_channels=in_dim, kernel_size=1)
 
@@ -184,10 +184,10 @@ class mvPAM_Module_mask_cascade_chl(Module):
         self.value_conv0 = Conv2d(in_channels=in_dim, out_channels=in_dim, kernel_size=1)
         self.value_conv1 = Sequential(Conv2d(in_dim, in_dim, 3, padding=1, bias=False),
                                     BatchNorm2d(in_dim),
-                                    ReLU(inplace=True))
+                                    ReLU())
         self.value_conv2 = Sequential(Conv2d(in_dim, in_dim, 3, padding=1, bias=False),
                                  BatchNorm2d(in_dim),
-                                 ReLU(inplace=True))
+                                 ReLU())
         # self.value_conv1 = Conv2d(in_channels=in_dim, out_channels=in_dim, kernel_size=3)
         # self.value_conv2 = Conv2d(in_channels=in_dim, out_channels=in_dim, kernel_size=3)
         # self.value_conv3 = Conv2d(in_channels=in_dim, out_channels=in_dim, kernel_size=1)
@@ -264,10 +264,10 @@ class mvPAM_Module_mask_cascade_sig(Module):
         self.value_conv0 = Conv2d(in_channels=in_dim, out_channels=in_dim, kernel_size=1)
         self.value_conv1 = Sequential(Conv2d(in_dim, in_dim, 3, padding=1, bias=False),
                                     BatchNorm2d(in_dim),
-                                    ReLU(inplace=True))
+                                    ReLU())
         self.value_conv2 = Sequential(Conv2d(in_dim, in_dim, 3, padding=1, bias=False),
                                  BatchNorm2d(in_dim),
-                                 ReLU(inplace=True))
+                                 ReLU())
         # self.value_conv1 = Conv2d(in_channels=in_dim, out_channels=in_dim, kernel_size=3)
         # self.value_conv2 = Conv2d(in_channels=in_dim, out_channels=in_dim, kernel_size=3)
         # self.value_conv3 = Conv2d(in_channels=in_dim, out_channels=in_dim, kernel_size=1)
@@ -344,10 +344,10 @@ class mvPAM_Module_mask_cascade(Module):
         self.value_conv0 = Conv2d(in_channels=in_dim, out_channels=in_dim, kernel_size=1)
         self.value_conv1 = Sequential(Conv2d(in_dim, in_dim, 3, padding=1, bias=False),
                                     BatchNorm2d(in_dim),
-                                    ReLU(inplace=True))
+                                    ReLU())
         self.value_conv2 = Sequential(Conv2d(in_dim, in_dim, 3, padding=1, bias=False),
                                  BatchNorm2d(in_dim),
-                                 ReLU(inplace=True))
+                                 ReLU())
         # self.value_conv1 = Conv2d(in_channels=in_dim, out_channels=in_dim, kernel_size=3)
         # self.value_conv2 = Conv2d(in_channels=in_dim, out_channels=in_dim, kernel_size=3)
         # self.value_conv3 = Conv2d(in_channels=in_dim, out_channels=in_dim, kernel_size=1)
@@ -1014,7 +1014,7 @@ class cascaded_mvPAM_Module_mask(Module):
 
         self.bottleneck = Sequential(
             Conv2d(in_dim * 4, in_dim, kernel_size=1, padding=0, dilation=1, bias=False),
-            BatchNorm2d(in_dim), ReLU(inplace=True),
+            BatchNorm2d(in_dim), ReLU(),
             Dropout2d(0.1)
         )
 
@@ -1068,10 +1068,10 @@ class reduce_CAM_Module(Module):
         self.channel_in = in_dim
         self.channel_out = out_dim
         self.key_conv = Sequential(Conv2d(in_channels=in_dim, out_channels=out_dim, kernel_size=1),
-                                   BatchNorm2d(out_dim), ReLU(inplace=True))
+                                   BatchNorm2d(out_dim), ReLU())
 
         self.res_conv = Sequential(Conv2d(in_channels=in_dim, out_channels=out_dim, kernel_size=1),
-                                   BatchNorm2d(out_dim), ReLU(inplace=True))
+                                   BatchNorm2d(out_dim), ReLU())
         self.gamma = Parameter(torch.zeros(1))
         self.softmax  = Softmax(dim=-1)
 
@@ -1131,13 +1131,13 @@ class stride_PAM_Module(Module):
                     stride=2,
                     padding=1,
                     output_padding=1,
-                    bias=False),BatchNorm2d(self.chanel_in),ReLU(inplace=True))
+                    bias=False),BatchNorm2d(self.chanel_in),ReLU())
 
         self.gamma = Parameter(torch.zeros(1))
 
         self.res_conv = Sequential(
             Conv2d(in_channels=in_dim, out_channels=in_dim, kernel_size=3, stride=stride, padding=1),
-            BatchNorm2d(in_dim), ReLU(inplace=True))
+            BatchNorm2d(in_dim), ReLU())
 
         self.softmax = Softmax(dim=-1)
 
@@ -1189,23 +1189,23 @@ class ASPP_Module(Module):
         self.conv1 = Sequential(AdaptiveAvgPool2d((1, 1)),
                                    Conv2d(features, inner_features, kernel_size=1, padding=0, dilation=1,
                                              bias=False),
-                                BatchNorm2d(inner_features),ReLU(inplace=True))
+                                BatchNorm2d(inner_features),ReLU())
         self.conv2 = Sequential(
             Conv2d(features, inner_features, kernel_size=1, padding=0, dilation=1, bias=False),
-            BatchNorm2d(inner_features),ReLU(inplace=True))
+            BatchNorm2d(inner_features),ReLU())
         self.conv3 = Sequential(
             Conv2d(features, inner_features, kernel_size=3, padding=dilations[0], dilation=dilations[0], bias=False),
-            BatchNorm2d(inner_features),ReLU(inplace=True))
+            BatchNorm2d(inner_features),ReLU())
         self.conv4 = Sequential(
             Conv2d(features, inner_features, kernel_size=3, padding=dilations[1], dilation=dilations[1], bias=False),
-            BatchNorm2d(inner_features),ReLU(inplace=True))
+            BatchNorm2d(inner_features),ReLU())
         self.conv5 = Sequential(
             Conv2d(features, inner_features, kernel_size=3, padding=dilations[2], dilation=dilations[2], bias=False),
-            BatchNorm2d(inner_features),ReLU(inplace=True))
+            BatchNorm2d(inner_features),ReLU())
 
         self.bottleneck = Sequential(
             Conv2d(inner_features * 5, out_features, kernel_size=1, padding=0, dilation=1, bias=False),
-            BatchNorm2d(out_features),ReLU(inplace=True),
+            BatchNorm2d(out_features),ReLU(),
             Dropout2d(0.1)
         )
 
@@ -1235,23 +1235,23 @@ class SE_ASPP_Module(Module):
         self.conv1 = Sequential(AdaptiveAvgPool2d((1, 1)),
                                    Conv2d(features, inner_features, kernel_size=1, padding=0, dilation=1,
                                              bias=False),
-                                BatchNorm2d(inner_features),ReLU(inplace=True))
+                                BatchNorm2d(inner_features),ReLU())
         self.conv2 = Sequential(
             Conv2d(features, inner_features, kernel_size=1, padding=0, dilation=1, bias=False),
-            BatchNorm2d(inner_features),ReLU(inplace=True))
+            BatchNorm2d(inner_features),ReLU())
         self.conv3 = Sequential(
             Conv2d(features, inner_features, kernel_size=3, padding=dilations[0], dilation=dilations[0], bias=False),
-            BatchNorm2d(inner_features),ReLU(inplace=True))
+            BatchNorm2d(inner_features),ReLU())
         self.conv4 = Sequential(
             Conv2d(features, inner_features, kernel_size=3, padding=dilations[1], dilation=dilations[1], bias=False),
-            BatchNorm2d(inner_features),ReLU(inplace=True))
+            BatchNorm2d(inner_features),ReLU())
         self.conv5 = Sequential(
             Conv2d(features, inner_features, kernel_size=3, padding=dilations[2], dilation=dilations[2], bias=False),
-            BatchNorm2d(inner_features),ReLU(inplace=True))
+            BatchNorm2d(inner_features),ReLU())
 
         self.bottleneck = Sequential(
             Conv2d(inner_features * 5, out_features, kernel_size=1, padding=0, dilation=1, bias=False),
-            BatchNorm2d(out_features),ReLU(inplace=True),
+            BatchNorm2d(out_features),ReLU(),
             Dropout2d(0.1)
         )
 
@@ -1331,13 +1331,13 @@ class Cls_gloRe_Module(Module):
         self.inter_chanel = in_dim//2
         self.chanel_out = num_cls
         self.class_aware_pred= Sequential(Conv2d(in_channels=self.chanel_in, out_channels=self.chanel_out, kernel_size=1), Sigmoid())
-        self.chanel_reduce = Sequential(Conv2d(in_channels=self.chanel_in, out_channels=self.inter_chanel, kernel_size=1), BatchNorm2d(self.inter_chanel), ReLU(inplace=True))
+        self.chanel_reduce = Sequential(Conv2d(in_channels=self.chanel_in, out_channels=self.inter_chanel, kernel_size=1), BatchNorm2d(self.inter_chanel), ReLU())
 
         self.node_conv = Conv1d(in_channels=self.chanel_out, out_channels=self.chanel_out, kernel_size=1)
         self.chanel_conv = Conv1d(in_channels=self.inter_chanel, out_channels=self.inter_chanel, kernel_size=1)
         self.relu = ReLU()
 
-        self.chanel_expand = Sequential(Conv2d(in_channels=self.inter_chanel, out_channels=self.chanel_in, kernel_size=1), BatchNorm2d(self.chanel_in), ReLU(inplace=True))
+        self.chanel_expand = Sequential(Conv2d(in_channels=self.inter_chanel, out_channels=self.chanel_in, kernel_size=1), BatchNorm2d(self.chanel_in), ReLU())
 
         # self.adj = Parameter(torch.randn(self.chanel_out,self.chanel_out))
         # self.diag = torch.diag(torch.ones(self.chanel_out))
@@ -1441,16 +1441,16 @@ class PCAM_Module(Module):
         self.chanel_in = in_dim
 
         self.query_conv_p = Conv2d(in_channels=in_dim, out_channels=in_dim//16, kernel_size=1)
-        self.pc_conv = Sequential(Conv2d(in_channels=in_dim, out_channels=in_dim//4, kernel_size=1), BatchNorm2d(in_dim//4), ReLU(inplace=True))
+        self.pc_conv = Sequential(Conv2d(in_channels=in_dim, out_channels=in_dim//4, kernel_size=1), BatchNorm2d(in_dim//4), ReLU())
 
         self.key_conv = Conv2d(in_channels=in_dim//4, out_channels=in_dim//16, kernel_size=1)
         self.value_conv = Conv2d(in_channels=in_dim, out_channels=in_dim//4, kernel_size=1)
         self.res_conv_p = Sequential(
             Conv2d(in_channels=in_dim, out_channels=in_dim//4, kernel_size=1, stride=1, padding=0),
-            BatchNorm2d(in_dim//4), ReLU(inplace=True))
+            BatchNorm2d(in_dim//4), ReLU())
         self.pfusion_conv = Sequential(
             Conv2d(in_channels=in_dim//4, out_channels=in_dim // 4, kernel_size=3, stride=1, padding=1),
-            BatchNorm2d(in_dim // 4), ReLU(inplace=True))
+            BatchNorm2d(in_dim // 4), ReLU())
         self.gamma_p = Parameter(torch.zeros(1))
 
         self.softmax = Softmax(dim=-1)
@@ -1458,10 +1458,10 @@ class PCAM_Module(Module):
         self.query_conv_c = Conv2d(in_channels=in_dim, out_channels=in_dim // 4, kernel_size=1)
         self.res_conv_c = Sequential(
             Conv2d(in_channels=in_dim, out_channels=in_dim // 4, kernel_size=1, stride=1, padding=0),
-            BatchNorm2d(in_dim // 4), ReLU(inplace=True))
+            BatchNorm2d(in_dim // 4), ReLU())
         self.cfusion_conv = Sequential(
             Conv2d(in_channels=in_dim // 4, out_channels=in_dim // 4, kernel_size=3, stride=1, padding=1),
-            BatchNorm2d(in_dim // 4), ReLU(inplace=True))
+            BatchNorm2d(in_dim // 4), ReLU())
         self.gamma_c = Parameter(torch.zeros(1))
     def forward(self, x):
         """
@@ -1518,10 +1518,10 @@ class pyramid_Reason_Module(Module):
         self.chanel_in = in_dim
         self.query_conv_p1 = Sequential(
             Conv2d(in_channels=in_dim, out_channels=in_dim//2, kernel_size=1),
-            BatchNorm2d(in_dim//2), ReLU(inplace=True))
+            BatchNorm2d(in_dim//2), ReLU())
         self.query_conv_p2 = Sequential(
             Conv2d(in_channels=in_dim//2, out_channels=in_dim//4, kernel_size=1),
-            BatchNorm2d(in_dim//4), ReLU(inplace=True))
+            BatchNorm2d(in_dim//4), ReLU())
 
         self.py1_prop = Conv1d(in_channels=in_dim//2, out_channels=in_dim//2, kernel_size=1)
         self.py2_prop = Conv1d(in_channels=in_dim//2, out_channels=in_dim//2, kernel_size=1)
@@ -1529,7 +1529,7 @@ class pyramid_Reason_Module(Module):
 
         self.fusion_conv = Sequential(
             Conv2d(in_channels=in_dim, out_channels=in_dim, kernel_size=3, stride=1, padding=1),
-            BatchNorm2d(in_dim), ReLU(inplace=True))
+            BatchNorm2d(in_dim), ReLU())
         self.gamma = Parameter(torch.zeros(1))
         self.softmax = Softmax(dim=-1)
 
@@ -1580,16 +1580,16 @@ class ori_Propagation_Pooling_Module(Module):
         self.query_conv_p = Conv2d(in_channels=in_dim, out_channels=in_dim // 8, kernel_size=1)
         self.key_conv_p = Conv2d(in_channels=in_dim, out_channels=in_dim // 8, kernel_size=1)
 
-        self.pc_conv = Sequential(Conv2d(in_channels=in_dim, out_channels=in_dim//4, kernel_size=1), BatchNorm2d(in_dim//4), ReLU(inplace=True))
+        self.pc_conv = Sequential(Conv2d(in_channels=in_dim, out_channels=in_dim//4, kernel_size=1), BatchNorm2d(in_dim//4), ReLU())
 
         self.key_conv = Conv2d(in_channels=in_dim//4, out_channels=in_dim//16, kernel_size=1)
         self.value_conv = Conv2d(in_channels=in_dim, out_channels=in_dim//4, kernel_size=1)
         self.res_conv_p = Sequential(
             Conv2d(in_channels=in_dim, out_channels=in_dim//4, kernel_size=1, stride=1, padding=0),
-            BatchNorm2d(in_dim//4), ReLU(inplace=True))
+            BatchNorm2d(in_dim//4), ReLU())
         self.pfusion_conv = Sequential(
             Conv2d(in_channels=in_dim//4, out_channels=in_dim // 4, kernel_size=3, stride=1, padding=1),
-            BatchNorm2d(in_dim // 4), ReLU(inplace=True))
+            BatchNorm2d(in_dim // 4), ReLU())
         self.gamma_p = Parameter(torch.zeros(1))
 
         self.softmax = Softmax(dim=-1)
@@ -1599,10 +1599,10 @@ class ori_Propagation_Pooling_Module(Module):
 
         self.res_conv_c = Sequential(
             Conv2d(in_channels=in_dim, out_channels=in_dim // 4, kernel_size=1, stride=1, padding=0),
-            BatchNorm2d(in_dim // 4), ReLU(inplace=True))
+            BatchNorm2d(in_dim // 4), ReLU())
         self.cfusion_conv = Sequential(
             Conv2d(in_channels=in_dim // 4, out_channels=in_dim // 4, kernel_size=3, stride=1, padding=1),
-            BatchNorm2d(in_dim // 4), ReLU(inplace=True))
+            BatchNorm2d(in_dim // 4), ReLU())
         self.gamma_c = Parameter(torch.zeros(1))
     def forward(self, x):
         """
@@ -1668,7 +1668,7 @@ class selective_channel_aggregation_Module(Module):
 
         self.expand = Sequential(
             Conv2d(in_channels=query_dim, out_channels=out_dim, kernel_size=1, bias=False),
-            BatchNorm2d(out_dim), ReLU(inplace=True))
+            BatchNorm2d(out_dim), ReLU())
 
 
 
@@ -1722,7 +1722,7 @@ class Propagation_Pooling_Module(Module):
         self.query_conv_c = Conv2d(in_channels=in_dim, out_channels=out_dim , kernel_size=1)
         self.res_conv_c = Sequential(
             Conv2d(in_channels=in_dim, out_channels=out_dim, kernel_size=1),
-            BatchNorm2d(out_dim), ReLU(inplace=True))
+            BatchNorm2d(out_dim), ReLU())
 
 
 
@@ -2011,10 +2011,10 @@ class selective_channel_aggregation_Module2(Module):
         self.query_conv_c = Sequential(Conv2d(in_channels=in_dim, out_channels=query_dim, kernel_size=1, bias=False),BatchNorm2d(query_dim), ReLU(),Dropout2d(0.1))
         self.expand = Sequential(
             Conv2d(in_channels=query_dim, out_channels=out_dim, kernel_size=1, bias=False),
-            BatchNorm2d(out_dim), ReLU(inplace=True))
+            BatchNorm2d(out_dim), ReLU())
         self.reduce = Sequential(
             Conv2d(in_channels=in_dim, out_channels=out_dim, kernel_size=1, bias=False),
-            BatchNorm2d(out_dim), ReLU(inplace=True))
+            BatchNorm2d(out_dim), ReLU())
 
         self.exp_conv = Conv1d(in_channels=in_dim, out_channels=query_dim, kernel_size=1)
 
@@ -2068,10 +2068,10 @@ class selective_channel_aggregation_Module2(Module):
 #
 #         self.expand = Sequential(
 #             Conv2d(in_channels=query_dim, out_channels=out_dim, kernel_size=1, bias=False),
-#             BatchNorm2d(out_dim), ReLU(inplace=True))
+#             BatchNorm2d(out_dim), ReLU())
 #         self.reduce = Sequential(
 #             Conv2d(in_channels=in_dim, out_channels=out_dim, kernel_size=1, bias=False),
-#             BatchNorm2d(out_dim), ReLU(inplace=True))
+#             BatchNorm2d(out_dim), ReLU())
 #
 #
 #
@@ -2192,7 +2192,7 @@ class reduce_PAM_Module(Module):
         self.key_conv = Sequential(Conv2d(in_channels=in_dim, out_channels=key_dim, kernel_size=1,bias=False),BatchNorm2d(key_dim))
         self.value_conv = Conv2d(in_channels=in_dim, out_channels=value_dim, kernel_size=1)
         # self.gamma = Parameter(torch.zeros(1))
-        self.expand = Sequential(Conv2d(in_channels=value_dim, out_channels=in_dim, kernel_size=1,bias=False),BatchNorm2d(in_dim),ReLU(inplace=True))
+        self.expand = Sequential(Conv2d(in_channels=value_dim, out_channels=in_dim, kernel_size=1,bias=False),BatchNorm2d(in_dim),ReLU())
         self.softmax = Softmax(dim=-1)
     def forward(self, x):
         """
@@ -2227,7 +2227,7 @@ class  adaptive_Channel_Aggregation_Module(Module):
         self.key_conv_c = Sequential(Conv2d(in_channels=in_dim, out_channels=value_dim, kernel_size=1,bias=False),BatchNorm2d(value_dim))
         self.value_conv_c = Conv2d(in_channels=in_dim, out_channels=value_dim, kernel_size=1)
         # self.gamma = Parameter(torch.zeros(1))
-        self.expand = Sequential(Conv2d(in_channels=query_dim, out_channels=value_dim, kernel_size=1,bias=False),BatchNorm2d(in_dim),ReLU(inplace=True))
+        self.expand = Sequential(Conv2d(in_channels=query_dim, out_channels=value_dim, kernel_size=1,bias=False),BatchNorm2d(in_dim),ReLU())
         self.softmax = Softmax(dim=-1)
 
         self.avgpool = AvgPool2d(2, 2)

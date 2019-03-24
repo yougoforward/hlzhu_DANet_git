@@ -73,8 +73,6 @@ class Bottleneck(nn.Module):
         self.conv2 = nn.Conv2d(
             planes, planes, kernel_size=3, stride=stride,
             padding=dilation, dilation=dilation, bias=False)
-
-
         self.bn2 = norm_layer(planes)
         self.conv3 = nn.Conv2d(
             planes, planes * 4, kernel_size=1, bias=False)
@@ -83,7 +81,6 @@ class Bottleneck(nn.Module):
         self.downsample = downsample
         self.dilation = dilation
         self.stride = stride
-
 
     def _sum_each(self, x, y):
         assert(len(x) == len(y))
@@ -98,6 +95,7 @@ class Bottleneck(nn.Module):
         out = self.conv1(x)
         out = self.bn1(out)
         out = self.relu(out)
+
         out = self.conv2(out)
         out = self.bn2(out)
         out = self.relu(out)
