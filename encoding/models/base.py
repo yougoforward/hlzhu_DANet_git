@@ -200,7 +200,7 @@ class MultiEvalModule2(DataParallel):
     """Multi-size Segmentation Eavluator"""
     def __init__(self, module, nclass, device_ids=None, flip=True,
                  multi_scales=False):
-        super(MultiEvalModule, self).__init__(module, device_ids)
+        super(MultiEvalModule2, self).__init__(module, device_ids)
         self.nclass = nclass
         self.base_size = module.base_size
         self.crop_size = module.crop_size
