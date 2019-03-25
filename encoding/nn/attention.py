@@ -7,7 +7,8 @@
 import numpy as np
 import torch
 import math
-from torch.nn import Module, Sequential, Conv1d, Conv2d, ReLU,AdaptiveMaxPool2d, AdaptiveAvgPool2d, BatchNorm2d, \
+from encoding.nn import BatchNorm2d
+from torch.nn import Module, Sequential, Conv1d, Conv2d, ReLU,AdaptiveMaxPool2d, AdaptiveAvgPool2d, \
     NLLLoss, BCELoss, CrossEntropyLoss, AvgPool2d, MaxPool2d, Parameter, Linear, Sigmoid, Softmax,Dropout2d, Dropout, Embedding, ConvTranspose2d
 from torch.nn import functional as F
 from torch.autograd import Variable

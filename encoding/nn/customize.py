@@ -20,7 +20,8 @@ torch_ver = torch.__version__[:3]
 __all__ = ['GramMatrix', 'SegmentationLosses', 'View', 'Sum', 'Mean',
            'Normalize', 'PyramidPooling','SegmentationMultiLosses',
            'nll_SegmentationMultiLosses','nll4_SegmentationMultiLosses',
-           'nll5_SegmentationMultiLosses','nll1_SegmentationMultiLosses']
+           'nll5_SegmentationMultiLosses','nll1_SegmentationMultiLosses',
+           'nll41_SegmentationMultiLosses']
 
 class GramMatrix(Module):
     r""" Gram Matrix for a 4D convolutional featuremaps as a mini-batch
