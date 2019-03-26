@@ -21,7 +21,7 @@ __all__ = ['GramMatrix', 'SegmentationLosses', 'View', 'Sum', 'Mean',
            'Normalize', 'PyramidPooling','SegmentationMultiLosses',
            'nll_SegmentationMultiLosses','nll4_SegmentationMultiLosses',
            'nll5_SegmentationMultiLosses','nll1_SegmentationMultiLosses',
-           'nll41_SegmentationMultiLosses']
+           'nll41_SegmentationMultiLosses','nll44_SegmentationMultiLosses']
 
 class GramMatrix(Module):
     r""" Gram Matrix for a 4D convolutional featuremaps as a mini-batch
@@ -158,6 +158,30 @@ class nll4_SegmentationMultiLosses(CrossEntropyLoss):
         loss4 = super(nll4_SegmentationMultiLosses, self).forward(pred4, target)
 
         loss = loss1 + loss2 + loss3 + loss4
+        return loss
+
+class nll44_SegmentationMultiLosses(CrossEntropyLoss):
+    """2D Cross Entropy Loss with Multi-L1oss"""
+    def __init__(self, nclass=-1, weight=None,size_average=True, ignore_index=-1):
+        super(nll44_SegmentationMultiLosses, self).__init__(weight, size_average, ignore_index)
+        self.nclass = nclass
+
+
+    def forward(self, *inputs):
+        # *preds, target = tuple(inputs)
+        # pred1 = preds[0][0]
+        # loss = super(SegmentationMultiLosses, self).forward(pred1, target)
+
+        *preds, target = tuple(inputs)
+        pred1, pred2 ,pred3, pred4 = tuple(preds)
+
+
+        loss1 = super(nll44_SegmentationMultiLosses, self).forward(pred1, target)
+        loss2 = super(nll44_SegmentationMultiLosses, self).forward(pred2, target)
+        loss3 = super(nll44_SegmentationMultiLosses, self).forward(pred3, target)
+        loss4 = super(nll44_SegmentationMultiLosses, self).forward(pred4, target)
+
+        loss = loss1 + 0.4*loss2 + 0.1*loss3 + 0.5*loss4
         return loss
 
 class nll41_SegmentationMultiLosses(CrossEntropyLoss):
