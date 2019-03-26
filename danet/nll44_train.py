@@ -16,7 +16,7 @@ from torch.nn.parallel.scatter_gather import gather
 
 import encoding.utils as utils
 from encoding.nn import SegmentationLosses,BatchNorm2d
-from encoding.nn import nll44_SegmentationMultiLosses as SegmentationMultiLosses
+from encoding.nn import SegmentationMultiLosses, nll_SegmentationMultiLosses, nll44_SegmentationMultiLosses
 from encoding.parallel import DataParallelModel, DataParallelCriterion
 from encoding.datasets import get_segmentation_dataset
 from encoding.models import get_segmentation_model
@@ -81,8 +81,11 @@ class Trainer():
                     momentum=args.momentum,
                     weight_decay=args.weight_decay)
         #weight for class imbalance
-        self.criterion = SegmentationMultiLosses(nclass=self.nclass, weight=cityscape_weight)
+        # self.criterion = SegmentationMultiLosses(nclass=self.nclass, weight=cityscape_weight)
         # self.criterion = SegmentationMultiLosses(nclass=self.nclass)
+        # self.criterion = nll_SegmentationMultiLosses(nclass=self.nclass, weight=cityscape_weight)
+        # self.criterion = nll4_SegmentationMultiLosses(nclass=self.nclass, weight=cityscape_weight)
+        self.criterion = nll44_SegmentationMultiLosses(nclass=self.nclass)
         #self.criterion = SegmentationLosses(se_loss=args.se_loss, aux=args.aux,nclass=self.nclass)
 
         self.model, self.optimizer = model, optimizer
@@ -144,8 +147,8 @@ class Trainer():
             # save checkpoint every 10 epoch
             filename = "checkpoint_%s.pth.tar"%(epoch+1)
             is_best = False
-            if epoch > 20:
-                if not epoch % 5:
+            if epoch > 99:
+                if not epoch % 10:
                     utils.save_checkpoint({
                         'epoch': epoch + 1,
                         'state_dict': self.model.module.state_dict(),
@@ -210,4 +213,5 @@ if __name__ == "__main__":
     for epoch in range(args.start_epoch, args.epochs):
         trainer.training(epoch)
         if not args.no_val:
-            trainer.validation(epoch)
+            if epoch%10==0:
+                trainer.validation(epoch)
