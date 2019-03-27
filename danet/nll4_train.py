@@ -50,7 +50,7 @@ class Trainer():
             if args.cuda else {}
         self.trainloader = data.DataLoader(trainset, batch_size=args.batch_size,
                                            drop_last=True, shuffle=True, **kwargs)
-        self.valloader = data.DataLoader(testset, batch_size=args.batch_size,
+        self.valloader = data.DataLoader(testset, batch_size=8,
                                          drop_last=False, shuffle=False, **kwargs)
         self.nclass = trainset.num_class
 
