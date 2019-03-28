@@ -142,6 +142,7 @@ glcnet_topkpam:
 CUDA_VISIBLE_DEVICES=0,1,2,3 python3 nll1_train.py --dataset cityscapes --model  glcnet5_topkpam --backbone resnet50 --checkname glcnet5_ssa_syncbn  --base-size 1024 --crop-size 768 --epochs 240 --batch-size 8 --lr 0.01 --workers 2 --scale
 CUDA_VISIBLE_DEVICES=0,1,2,3 python3 test.py --dataset cityscapes --model glcnet5_topkpam --resume-dir cityscapes/glcnet5_topkpam_model/glcnet5_ssa --base-size 2048 --crop-size 768 --workers 1 --backbone resnet50 --eval
 
+CUDA_VISIBLE_DEVICES=0,1,2,3 python3 test.py --dataset cityscapes --model glcnet5_topkpam --resume-dir cityscapes/glcnet5_topkpam_model/glcnet5_ssa_syncbn --base-size 2048 --crop-size 768 --workers 1 --backbone resnet50 --eval
 
 glcnet_aca:
 
