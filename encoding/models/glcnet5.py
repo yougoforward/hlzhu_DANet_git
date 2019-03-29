@@ -42,12 +42,12 @@ class GLCNet5(BaseNet):
         super(GLCNet5, self).__init__(nclass, backbone, aux, se_loss, norm_layer=norm_layer, **kwargs)
         self.head = GLCNet5Head(2048, nclass, norm_layer)
 
-        self.dsn = nn.Sequential(
-            nn.Conv2d(1024, 512, kernel_size=3, stride=1, padding=1),
-            nn.BatchNorm2d(512), nn.ReLU(),
-            nn.Dropout2d(0.1),
-            nn.Conv2d(512, nclass, kernel_size=1, stride=1, padding=0, bias=True)
-        )
+        # self.dsn = nn.Sequential(
+        #     nn.Conv2d(1024, 512, kernel_size=3, stride=1, padding=1),
+        #     nn.BatchNorm2d(512), nn.ReLU(),
+        #     nn.Dropout2d(0.1),
+        #     nn.Conv2d(512, nclass, kernel_size=1, stride=1, padding=0, bias=True)
+        # )
     def forward(self, x):
         imsize = x.size()[2:]
         _, _, c3, c4 = self.base_forward(x)
