@@ -533,13 +533,13 @@ class topk_PAM_Module(Module):
         self.topk = topk
         self.key_channels=key_dim
 
-        # self.query_conv = Conv2d(in_channels=in_dim, out_channels=key_dim, kernel_size=1)
-        # self.key_conv = Conv2d(in_channels=in_dim, out_channels=key_dim, kernel_size=1)
-        # self.value_conv = Conv2d(in_channels=in_dim, out_channels=out_dim, kernel_size=1)
+        self.query_conv = Conv2d(in_channels=in_dim, out_channels=key_dim, kernel_size=1)
+        self.key_conv = Conv2d(in_channels=in_dim, out_channels=key_dim, kernel_size=1)
+        self.value_conv = Conv2d(in_channels=in_dim, out_channels=out_dim, kernel_size=1)
         #
-        self.query_conv = Sequential(Conv2d(in_channels=in_dim, out_channels=key_dim, kernel_size=1, bias=False), BatchNorm2d(key_dim))
-        self.key_conv = Sequential(Conv2d(in_channels=in_dim, out_channels=key_dim, kernel_size=1, bias=False), BatchNorm2d(key_dim))
-        self.value_conv = Sequential(Conv2d(in_channels=in_dim, out_channels=out_dim, kernel_size=1, bias=False), BatchNorm2d(out_dim))
+        # self.query_conv = Sequential(Conv2d(in_channels=in_dim, out_channels=key_dim, kernel_size=1, bias=False), BatchNorm2d(key_dim))
+        # self.key_conv = Sequential(Conv2d(in_channels=in_dim, out_channels=key_dim, kernel_size=1, bias=False), BatchNorm2d(key_dim))
+        # self.value_conv = Sequential(Conv2d(in_channels=in_dim, out_channels=out_dim, kernel_size=1, bias=False), BatchNorm2d(out_dim))
 
         self.gamma = Parameter(torch.zeros(1))
 
