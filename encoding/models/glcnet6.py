@@ -112,7 +112,7 @@ class GLCNet6Head(nn.Module):
         self.conv8 = nn.Sequential(nn.Dropout2d(0.1), nn.Conv2d(512, out_channels, 1))
 
 
-        self.gca = guided_channel_aggregation(512*3, 512)
+        self.gca = guided_channel_aggregation(512*3, 256)
 
     def forward(self, x):
         #ssa
