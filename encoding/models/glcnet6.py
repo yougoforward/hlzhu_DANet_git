@@ -40,7 +40,7 @@ class GLCNet6(BaseNet):
 
     def __init__(self, nclass, backbone, aux=False, se_loss=False, norm_layer=nn.BatchNorm2d, **kwargs):
         super(GLCNet6, self).__init__(nclass, backbone, aux, se_loss, norm_layer=norm_layer, **kwargs)
-        self.head = GLCNet5Head(2048, nclass, norm_layer)
+        self.head = GLCNet6Head(2048, nclass, norm_layer)
 
         # self.dsn = nn.Sequential(
         #     nn.Conv2d(1024, 512, kernel_size=3, stride=1, padding=1),
