@@ -188,4 +188,4 @@ CUDA_VISIBLE_DEVICES=0,1,2,3 python3 test.py --dataset cityscapes --model danet 
 
 glcnet6
 
-CUDA_VISIBLE_DEVICES=0,1,2,3 python3 nll44_train.py --dataset cityscapes --model  glcnet5 --backbone resnet50 --checkname aanet50_syncbn  --base-size 1024 --crop-size 768 --epochs 240 --batch-size 8 --lr 0.001 --workers 2 --scale
+CUDA_VISIBLE_DEVICES=0,1,2,3 python3 nll44_train.py --dataset cityscapes --model  glcnet6 --backbone resnet50 --checkname aanet50_syncbn  --base-size 1024 --crop-size 768 --epochs 240 --batch-size 8 --lr 0.01 --workers 2 --scale

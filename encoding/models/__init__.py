@@ -28,6 +28,7 @@ from .glcnet5 import *
 from .glcnet_topkpam import *
 from .glcnet_aca import *
 from .glcnet_amca import *
+from .glcnet6 import *
 def get_segmentation_model(name, **kwargs):
     from .fcn import get_fcn
     models = {
@@ -55,6 +56,7 @@ def get_segmentation_model(name, **kwargs):
         'glcnet3': get_glcnet3,
         'glcnet4': get_glcnet4,
         'glcnet5': get_glcnet5,
+        'glcnet6': get_glcnet6,
         'glcnet5_topkpam': get_glcnet5_topkpam,
         'glcnet5_aca': get_glcnet5_aca,
         'glcnet5_amca': get_glcnet5_amca,
