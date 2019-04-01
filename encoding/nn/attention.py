@@ -16,7 +16,7 @@ from .mask_softmax import Mask_Softmax
 from .mask_softmax import gauss_Mask_Softmax
 torch_ver = torch.__version__[:3]
 
-__all__ = ['selective_channel_aggregation_Module2','topk_PAM_Module','SE_CAM_Module','SE_CAM_Module2','nonlocal_sampling_Module','selective_aggregation_ASPP_Module2','selective_aggregation_ASPP_Module','selective_channel_aggregation_Module','Propagation_Pooling_Module','cascaded_mvPAM_Module_mask','PCAM_Module','pyramid_Reason_Module','PRI_CAM_Module','PAM_Module_gaussmask','pooling_PAM_Module','SE_ASPP_Module','reduce_CAM_Module','reduce_PAM_Module','SE_module','pool_CAM_Module','ASPP_Module','mvPAM_Module_unfold','mvPAM_Module_mask','mvPAM_Module_mask_cascade','msPAM_Module','PAM_Module', 'CAM_Module']
+__all__ = ['guided_channel_aggregation','selective_channel_aggregation_Module2','topk_PAM_Module','SE_CAM_Module','SE_CAM_Module2','nonlocal_sampling_Module','selective_aggregation_ASPP_Module2','selective_aggregation_ASPP_Module','selective_channel_aggregation_Module','Propagation_Pooling_Module','cascaded_mvPAM_Module_mask','PCAM_Module','pyramid_Reason_Module','PRI_CAM_Module','PAM_Module_gaussmask','pooling_PAM_Module','SE_ASPP_Module','reduce_CAM_Module','reduce_PAM_Module','SE_module','pool_CAM_Module','ASPP_Module','mvPAM_Module_unfold','mvPAM_Module_mask','mvPAM_Module_mask_cascade','msPAM_Module','PAM_Module', 'CAM_Module']
 
 
 class mvPAM_Module_unfold(Module):
@@ -2185,7 +2185,38 @@ class selective_aggregation_ASPP_Module2(Module):
         # bottle = selective_channel_aggregation + bottle
         return bottle2, bottle, bottle_se, selective_channel_aggregation
 
+class guided_channel_aggregation(Module):
+    def __init__(self, inner_features, out_features):
+        super(guided_channel_aggregation, self).__init__()
 
+        self.bottleneck = Sequential(
+            Conv2d(inner_features, out_features, kernel_size=1, padding=0, dilation=1, bias=False),
+            BatchNorm2d(out_features), ReLU(),
+            Dropout2d(0.1)
+        )
+        self.se = Sequential(AdaptiveAvgPool2d((1, 1)),
+                             Conv2d(inner_features , inner_features// 16, kernel_size=1, padding=0, dilation=1,
+                                    bias=True),
+                             ReLU(),
+                             Conv2d(inner_features // 16, out_features, kernel_size=1, padding=0, dilation=1,
+                                    bias=True),
+                             Sigmoid()
+                             )
+        self.selective_channel_aggregation = selective_channel_aggregation_Module2(inner_features , out_features,
+                                                                                   out_features)
+
+    def forward(self, x):
+        selective_channel_aggregation = self.selective_channel_aggregation(x)
+
+        bottle = self.bottleneck(x)
+        se_x = self.se(x)
+        bottle_se = se_x * bottle
+        bottle1 = bottle + bottle_se
+
+        bottle2 = torch.cat([selective_channel_aggregation, bottle1], dim=1)
+
+        # bottle = selective_channel_aggregation + bottle
+        return bottle2
 
 class reduce_PAM_Module(Module):
     """ Position attention module"""
