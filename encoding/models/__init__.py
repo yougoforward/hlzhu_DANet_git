@@ -36,6 +36,7 @@ def get_segmentation_model(name, **kwargs):
         'psp': get_psp,
         'encnet': get_encnet,
         'danet': get_danet,
+        'danet_pam': get_danet_pam,
         'msdanet': get_msdanet,
         'msdanet2': get_msdanet2,
         'mvdanet': get_mvdanet,
