@@ -29,6 +29,7 @@ from .glcnet_topkpam import *
 from .glcnet_aca import *
 from .glcnet_amca import *
 from .glcnet6 import *
+from .danet_pam import *
 def get_segmentation_model(name, **kwargs):
     from .fcn import get_fcn
     models = {
