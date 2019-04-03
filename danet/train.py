@@ -81,8 +81,8 @@ class Trainer():
                     momentum=args.momentum,
                     weight_decay=args.weight_decay)
         #weight for class imbalance
-        self.criterion = SegmentationMultiLosses(nclass=self.nclass, weight=cityscape_weight)
-        # self.criterion = SegmentationMultiLosses(nclass=self.nclass)
+        # self.criterion = SegmentationMultiLosses(nclass=self.nclass, weight=cityscape_weight)
+        self.criterion = SegmentationMultiLosses(nclass=self.nclass)
         #self.criterion = SegmentationLosses(se_loss=args.se_loss, aux=args.aux,nclass=self.nclass)
 
         self.model, self.optimizer = model, optimizer
