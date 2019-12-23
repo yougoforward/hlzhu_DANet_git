@@ -21,7 +21,7 @@ from .base import BaseDataset
 
 class CocostuffSegmentation(BaseDataset):
     BASE_DIR = 'cocostuff'
-    NUM_CLASS = 172
+    NUM_CLASS = 171
 
     def __init__(self, root='../datasets', split='train',
                  mode=None, transform=None, target_transform=None, **kwargs):
@@ -65,8 +65,8 @@ class CocostuffSegmentation(BaseDataset):
         return img, mask
 
     def _mask_transform(self, mask):
-        target = np.array(mask).astype('int32')
-        target[target == 255] = -1
+        target = np.array(mask).astype('int32')-1
+        # target[target == 255] = -1
         return torch.from_numpy(target).long()
 
     def __len__(self):
