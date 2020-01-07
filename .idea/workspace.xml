@@ -2,9 +2,12 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="1428f973-e346-43b0-ae5c-c76136770046" name="Default" comment="">
-      <change afterPath="$PROJECT_DIR$/.idea/inspectionProfiles/Project_Default.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/danet/train_city.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/danet/train_city.sh" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/encoding/models/new_psp3.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/encoding/datasets/cocostuff.py" beforeDir="false" afterPath="$PROJECT_DIR$/encoding/datasets/cocostuff.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/encoding/models/__init__.py" beforeDir="false" afterPath="$PROJECT_DIR$/encoding/models/__init__.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/encoding/nn/customize.py" beforeDir="false" afterPath="$PROJECT_DIR$/encoding/nn/customize.py" afterDir="false" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="SHOW_DIALOG" value="false" />
@@ -31,16 +34,17 @@
   <component name="ProjectId" id="1VO5ttePpt0i6iF0IERHj2HUb46" />
   <component name="PropertiesComponent">
     <property name="SHARE_PROJECT_CONFIGURATION_FILES" value="true" />
-    <property name="last_opened_file_path" value="$PROJECT_DIR$" />
+    <property name="last_opened_file_path" value="$PROJECT_DIR$/encoding/models" />
+    <property name="two.files.diff.last.used.file" value="$PROJECT_DIR$/../hlzhu_AANet_copy3/encoding/models/base.py" />
   </component>
   <component name="RecentsManager">
-    <key name="MoveFile.RECENT_KEYS">
-      <recent name="$PROJECT_DIR$/encoding" />
-    </key>
     <key name="CopyFile.RECENT_KEYS">
       <recent name="$PROJECT_DIR$/encoding/models" />
       <recent name="$PROJECT_DIR$/encoding/nn" />
       <recent name="$PROJECT_DIR$/danet" />
+    </key>
+    <key name="MoveFile.RECENT_KEYS">
+      <recent name="$PROJECT_DIR$/encoding" />
     </key>
   </component>
   <component name="RunDashboard">

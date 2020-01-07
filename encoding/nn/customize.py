@@ -18,7 +18,7 @@ from torch.autograd import Variable
 torch_ver = torch.__version__[:3]
 
 __all__ = ['GramMatrix', 'SegmentationLosses', 'View', 'Sum', 'Mean',
-           'Normalize', 'PyramidPooling','SegmentationMultiLosses',
+           'Normalize', 'PyramidPooling','SegmentationMultiLosses', 'SegmentationMultiLosses2'
            'nll_SegmentationMultiLosses','nll4_SegmentationMultiLosses',
            'nll5_SegmentationMultiLosses','nll1_SegmentationMultiLosses',
            'nll41_SegmentationMultiLosses','nll44_SegmentationMultiLosses']
@@ -110,6 +110,27 @@ class SegmentationMultiLosses(CrossEntropyLoss):
         loss2 = super(SegmentationMultiLosses, self).forward(pred2, target)
         loss3 = super(SegmentationMultiLosses, self).forward(pred3, target)
         loss = loss1 + loss2 + loss3
+        return loss
+
+class SegmentationMultiLosses2(CrossEntropyLoss):
+    """2D Cross Entropy Loss with Multi-L1oss"""
+    def __init__(self, nclass=-1, weight=None,size_average=True, ignore_index=-1):
+        super(SegmentationMultiLosses2, self).__init__(weight, size_average, ignore_index)
+        self.nclass = nclass
+
+
+    def forward(self, *inputs):
+        # *preds, target = tuple(inputs)
+        # pred1 = preds[0][0]
+        # loss = super(SegmentationMultiLosses, self).forward(pred1, target)
+
+        *preds, target = tuple(inputs)
+        pred1, pred2 = tuple(preds)
+
+
+        loss1 = super(SegmentationMultiLosses, self).forward(pred1, target)
+        loss2 = super(SegmentationMultiLosses, self).forward(pred2, target)
+        loss = loss1 + 0.2*loss2
         return loss
 
 class nll_SegmentationMultiLosses(CrossEntropyLoss):
