@@ -1,55 +1,74 @@
 from __future__ import division
-
+import os
+import numpy as np
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
-from .mask_softmax import Mask_Softmax
-
-from .fcn import FCNHead
-from .base import BaseNet
-
+from ..models import BaseNet
 __all__ = ['new_psp3Net', 'get_new_psp3net']
 
-
-class new_psp3Net(BaseNet):
-    def __init__(self, nclass, backbone, aux=True, se_loss=False, norm_layer=nn.BatchNorm2d, **kwargs):
-        super(new_psp3Net, self).__init__(nclass, backbone, aux, se_loss, norm_layer=norm_layer, **kwargs)
-
-        self.head = new_psp3NetHead(2048, nclass, norm_layer, se_loss, jpu=kwargs['jpu'], up_kwargs=self._up_kwargs)
-        if aux:
-            self.auxlayer = FCNHead(1024, nclass, norm_layer)
+class FCNHead(nn.Module):
+    def __init__(self, in_channels, out_channels, norm_layer):
+        super(FCNHead, self).__init__()
+        inter_channels = in_channels // 4
+        self.conv5 = nn.Sequential(nn.Conv2d(in_channels, inter_channels, 3, padding=1, bias=False),
+                                   norm_layer(inter_channels),
+                                   nn.ReLU(),
+                                   nn.Dropout2d(0.1, False),
+                                   nn.Conv2d(inter_channels, out_channels, 1))
 
     def forward(self, x):
-        _, _, h, w = x.size()
+        return self.conv5(x)
+
+class new_psp3Net(BaseNet):
+    r"""Fully Convolutional Networks for Semantic Segmentation
+
+    Parameters
+    ----------
+    nclass : int
+        Number of categories for the training dataset.
+    backbone : string
+        Pre-trained dilated backbone network type (default:'resnet50'; 'resnet50',
+        'resnet101' or 'resnet152').
+    norm_layer : object
+        Normalization layer used in backbone network (default: :class:`mxnet.gluon.nn.BatchNorm`;
+
+
+    Reference:
+
+        Long, Jonathan, Evan Shelhamer, and Trevor Darrell. "Fully convolutional networks
+        for semantic segmentation." *CVPR*, 2015
+
+    """
+    def __init__(self, nclass, backbone, aux=False, se_loss=False, norm_layer=nn.BatchNorm2d, **kwargs):
+        super(new_psp3Net, self).__init__(nclass, backbone, aux, se_loss, norm_layer=norm_layer, **kwargs)
+        self.head = new_psp3NetHead(2048, nclass, norm_layer)
+
+        self.auxlayer = FCNHead(1024, nclass, norm_layer)
+    def forward(self, x):
+        imsize = x.size()[2:]
         _, _, c3, c4 = self.base_forward(x)
 
-        x = list(self.head(c4))
-        x[0] = F.interpolate(x[0], (h, w), **self._up_kwargs)
-        if self.aux:
-            auxout = self.auxlayer(c3)
-            auxout = F.interpolate(auxout, (h, w), **self._up_kwargs)
-            x.append(auxout)
+        x = self.head(c4)
+        x = list(x)
+        x[0] = upsample(x[0], imsize, **self._up_kwargs)
+        auxout = self.auxlayer(c3)
+        auxout = F.interpolate(auxout, imsize, **self._up_kwargs)
+        x.append(auxout)
+
         return tuple(x)
 
 
 class new_psp3NetHead(nn.Module):
-    def __init__(self, in_channels, out_channels, norm_layer, se_loss, jpu=False, up_kwargs=None,
-                 atrous_rates=(12, 24, 36)):
+    def __init__(self, in_channels, out_channels, norm_layer):
         super(new_psp3NetHead, self).__init__()
-        self.se_loss = se_loss
         inter_channels = in_channels // 4
-
         self.aa_new_psp3 = new_psp3_Module(in_channels, inter_channels, atrous_rates, norm_layer, up_kwargs)
-        self.conv8 = nn.Sequential(nn.Dropout2d(0.1), nn.Conv2d(2*inter_channels, out_channels, 1))
-        if self.se_loss:
-            self.selayer = nn.Linear(inter_channels, out_channels)
+        self.conv8 = nn.Sequential(nn.Dropout2d(0.1), nn.Conv2d(2 * inter_channels, out_channels, 1))
 
     def forward(self, x):
         feat_sum, gap_feat = self.aa_new_psp3(x)
         outputs = [self.conv8(feat_sum)]
-        if self.se_loss:
-            outputs.append(self.selayer(torch.squeeze(gap_feat)))
-
         return tuple(outputs)
 
 
@@ -135,8 +154,7 @@ class new_psp3_Module(nn.Module):
         n, c, h, w = feat0.size()
 
         # psaa
-        y1 = torch.cat((feat0, feat1, feat2, feat3), 1)
-        psaa_feat = self.psaa_conv(torch.cat([x, y1], dim=1))
+        psaa_feat = self.psaa_conv(torch.cat([x, feat0, feat1, feat2, feat3], dim=1))
         psaa_att = torch.sigmoid(psaa_feat)
         psaa_att_list = torch.split(psaa_att, 1, dim=1)
 
@@ -171,14 +189,9 @@ class PAM_Module(nn.Module):
 
         self.query_conv = nn.Conv2d(in_channels=in_dim, out_channels=key_dim, kernel_size=1)
         self.key_conv = nn.Conv2d(in_channels=in_dim, out_channels=key_dim, kernel_size=1)
-        # self.value_conv = nn.Conv2d(in_channels=value_dim, out_channels=value_dim, kernel_size=1)
-        # self.gamma = nn.Parameter(torch.zeros(1))
         self.gamma = nn.Sequential(nn.Conv2d(in_channels=in_dim, out_channels=1, kernel_size=1, bias=True), nn.Sigmoid())
 
         self.softmax = nn.Softmax(dim=-1)
-        # self.fuse_conv = nn.Sequential(nn.Conv2d(value_dim, out_dim, 1, bias=False),
-        #                                norm_layer(out_dim),
-        #                                nn.ReLU(True))
 
     def forward(self, x):
         """
@@ -195,14 +208,11 @@ class PAM_Module(nn.Module):
         proj_key = self.key_conv(xp).view(m_batchsize, -1, wp*hp)
         energy = torch.bmm(proj_query, proj_key)
         attention = self.softmax(energy)
-        # proj_value = self.value_conv(x).view(m_batchsize, -1, width*height)
         proj_value = xp.view(m_batchsize, -1, wp*hp)
         
         out = torch.bmm(proj_value, attention.permute(0, 2, 1))
         out = out.view(m_batchsize, C, height, width)
-        # out = F.interpolate(out, (height, width), mode="bilinear", align_corners=True)
 
         gamma = self.gamma(x)
         out = (1-gamma)*out + gamma*x
-        # out = self.fuse_conv(out)
         return out
